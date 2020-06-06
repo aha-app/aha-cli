@@ -1,29 +1,32 @@
-import {HTTP, HTTPError, HTTPRequestOptions} from 'http-call'
+import { HTTP, HTTPError, HTTPRequestOptions } from "http-call";
 import Debug from "debug";
 const debug = Debug("aha");
 
 interface IConfig {
-  baseURL: string,
-  token: string,
+  baseURL: string;
 }
 
 class AhaAPI {
   http: typeof HTTP;
+  config: IConfig;
 
   constructor(config: IConfig) {
     this.http = HTTP;
     this.config = config;
   }
 
-
-  get(url: string) {
+  get(url: string, options: any = {}) {
     const fullURL = `${this.config.baseURL}${url}`;
-    debug(`HTTP GET ${fullURL}`)
     return this.http.get(fullURL);
   }
 
+  put(url: string, options: any = {}) {
+    const fullURL = `${this.config.baseURL}${url}`;
+    return this.http.put(fullURL, options);
+  }
+
   get defaults(): typeof HTTP.defaults {
-    return this.http.defaults
+    return this.http.defaults;
   }
 }
 

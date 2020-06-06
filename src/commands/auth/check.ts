@@ -1,5 +1,4 @@
 import BaseCommand from '../../base';
-import {flags} from '@oclif/command';
 
 export default class Check extends BaseCommand {
   static description = `check if the stored credentials work`
