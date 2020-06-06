@@ -11,6 +11,9 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^3",
+    "debug": "^4.1.1",
+    "http-call": "^5.3.0",
+    "netrc-parser": "^3.1.6",
     "tslib": "^1"
   },
   "devDependencies": {
@@ -47,6 +50,14 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "aha",
+    "topics": {
+      "auth": {
+        "description": "authentication"
+      },
+      "extension": {
+        "description": "manage extensions"
+      }
+    },
     "plugins": [
       "@oclif/plugin-help"
     ]
