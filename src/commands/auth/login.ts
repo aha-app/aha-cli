@@ -28,7 +28,7 @@ Credentials are saved in ~/.netrc`;
 
     // Try to use the token.
     this.resetAPI();
-    this.api.get("/api/v1/me");
+    await this.api.get("/api/v1/me");
     process.stderr.write("Success!\n");
   }
 

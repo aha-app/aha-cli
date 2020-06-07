@@ -25,6 +25,11 @@ class AhaAPI {
     return this.http.put(fullURL, options);
   }
 
+  post(url: string, options: any = {}) {
+    const fullURL = `${this.config.baseURL}${url}`;
+    return this.http.post(fullURL, options);
+  }
+
   get defaults(): typeof HTTP.defaults {
     return this.http.defaults;
   }

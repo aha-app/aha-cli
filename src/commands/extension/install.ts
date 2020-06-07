@@ -1,5 +1,5 @@
-import BaseCommand from "../../base";
-const fs = require("fs");
+import BaseCommand from '../../base';
+import * as fs from 'fs';
 
 export default class Create extends BaseCommand {
   static description = "install the extension from the current directory";
@@ -16,27 +16,36 @@ export default class Create extends BaseCommand {
     // where it came from, and optionally remove the field if the extension
     // is removed.
 
-    // Use the manifest to find files to upload.
-    // Process each file.
-    const contributions = this.readConfiguration().contributes;
+    // Read the script sources.
+    const source = [];
+    const configuration = this.readConfiguration();
+    const contributions = configuration.ahaExtension.contributes;
     for (let contributionType in contributions) {
       for (let contributionName in contributions[contributionType]) {
         const contribution = contributions[contributionType][contributionName];
         this.log(contribution);
-        this.update(`:${contributionName}`, contribution.entryPoint);
+        source.push({
+          entryPoint: contribution.entryPoint,
+          script: fs.readFileSync(contribution.entryPoint, { encoding: "UTF-8" }),
+        });
       }
     }
-  }
 
-  private async update(key, filePath) {
-    this.log(`Loading: ${filePath}`);
-    const script = fs.readFileSync(filePath, { encoding: "UTF-8" });
-
-    this.api.put(`/api/v1/customizations/${key}`, {
+    // Upload to the server.
+    this.api.post(`/api/v2/extensions`, {
       body: {
-        cfd_key: key,
-        script,
+        data: {
+          type: "extensions",
+          attributes: {
+            identifier: configuration.name.replace('@', '').replace('/', '.'),
+            name: configuration.description,
+            version: configuration.version,
+            configuration: configuration.ahaExtension,
+            source,
+          },
+        },
       },
+      "content-type": "application/vnd.api+json",
     });
   }
 
@@ -44,6 +53,6 @@ export default class Create extends BaseCommand {
     const json = JSON.parse(
       fs.readFileSync("package.json", { encoding: "UTF-8" })
     );
-    return json.ahaExtension;
+    return json;
   }
 }

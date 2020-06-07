@@ -8,7 +8,7 @@ export default class Check extends BaseCommand {
   }
 
   async run() {
-    this.api.get('/api/v1/me');
+    await this.api.get('/api/v1/me');
     process.stderr.write("Success!\n");
   }
 }
