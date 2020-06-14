@@ -1,5 +1,6 @@
 import BaseCommand from '../../base';
 import * as fs from 'fs';
+import ux from "cli-ux";
 
 export default class Create extends BaseCommand {
   static description = "install the extension from the current directory";
@@ -19,11 +20,12 @@ export default class Create extends BaseCommand {
     // Read the script sources.
     const source = [];
     const configuration = this.readConfiguration();
+    this.log(`Extension '${configuration.name}'`);
     const contributions = configuration.ahaExtension.contributes;
     for (let contributionType in contributions) {
       for (let contributionName in contributions[contributionType]) {
         const contribution = contributions[contributionType][contributionName];
-        this.log(contribution);
+        this.log(`   contributes ${contributionType}: '${contributionName}'`);
         source.push({
           entryPoint: contribution.entryPoint,
           script: fs.readFileSync(contribution.entryPoint, { encoding: "UTF-8" }),
@@ -32,7 +34,8 @@ export default class Create extends BaseCommand {
     }
 
     // Upload to the server.
-    this.api.post(`/api/v2/extensions`, {
+    ux.action.start('Uploading')
+    await this.api.post(`/api/v2/extensions`, {
       body: {
         data: {
           type: "extensions",
@@ -47,6 +50,7 @@ export default class Create extends BaseCommand {
       },
       "content-type": "application/vnd.api+json",
     });
+    ux.action.stop('done') 
   }
 
   private readConfiguration() {
