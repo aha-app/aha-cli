@@ -1,8 +1,9 @@
 import BaseCommand from '../../base';
-import * as fs from 'fs';
 import ux from "cli-ux";
+import * as fs from 'fs';
+import { readConfiguration, identifierFromConfiguration } from '../../utils/extensionUtils';
 
-export default class Create extends BaseCommand {
+export default class Install extends BaseCommand {
   static description = "install the extension from the current directory";
 
   static flags = {
@@ -19,7 +20,7 @@ export default class Create extends BaseCommand {
 
     // Read the script sources.
     const source = [];
-    const configuration = this.readConfiguration();
+    const configuration = readConfiguration();
     this.log(`Extension '${configuration.name}'`);
     const contributions = configuration.ahaExtension.contributes;
     for (let contributionType in contributions) {
@@ -40,7 +41,7 @@ export default class Create extends BaseCommand {
         data: {
           type: "extensions",
           attributes: {
-            identifier: configuration.name.replace('@', '').replace('/', '.'),
+            identifier: identifierFromConfiguration(configuration),
             name: configuration.description,
             version: configuration.version,
             configuration: configuration.ahaExtension,
@@ -51,12 +52,5 @@ export default class Create extends BaseCommand {
       "content-type": "application/vnd.api+json",
     });
     ux.action.stop('done') 
-  }
-
-  private readConfiguration() {
-    const json = JSON.parse(
-      fs.readFileSync("package.json", { encoding: "UTF-8" })
-    );
-    return json;
   }
 }

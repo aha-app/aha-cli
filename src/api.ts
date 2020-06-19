@@ -17,7 +17,7 @@ class AhaAPI {
 
   get(url: string, options: any = {}) {
     const fullURL = `${this.config.baseURL}${url}`;
-    return this.http.get(fullURL);
+    return this.http.get(fullURL, options);
   }
 
   put(url: string, options: any = {}) {
@@ -28,6 +28,11 @@ class AhaAPI {
   post(url: string, options: any = {}) {
     const fullURL = `${this.config.baseURL}${url}`;
     return this.http.post(fullURL, options);
+  }
+
+  delete(url: string, options: any = {}) {
+    const fullURL = `${this.config.baseURL}${url}`;
+    return this.http.delete(fullURL, options);
   }
 
   get defaults(): typeof HTTP.defaults {
