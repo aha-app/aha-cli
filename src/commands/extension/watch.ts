@@ -11,11 +11,11 @@ export default class Create extends BaseCommand {
   };
 
   async run() {
-    this.log("Watching for changes...");
+    this.log("Watching for changes in the current directory ...");
     chokidar
       .watch(".", { ignoreInitial: true })
       .on("all", (event, changedPath) => {
-        this.log(`.. file change: ${changedPath}`);
+        this.log(`... detected file change: ${changedPath}`);
         installExtension(this.api);
       });
   }
