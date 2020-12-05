@@ -1,9 +1,12 @@
-import BaseCommand from '../../base';
+import BaseCommand from "../../base";
 import ux from "cli-ux";
-import { readConfiguration, identifierFromConfiguration } from '../../utils/extensionUtils';
+import {
+  readConfiguration,
+  identifierFromConfiguration,
+} from "../../utils/extensionUtils";
 
 export default class Uninstall extends BaseCommand {
-  static description = "uninstall the extension in the current directory from Aha!";
+  static description = "uninstall the extension in the current directory";
 
   static flags = {
     ...BaseCommand.flags,
@@ -14,18 +17,20 @@ export default class Uninstall extends BaseCommand {
     const identifier = identifierFromConfiguration(configuration);
 
     // Convert the identifier into the ID and then delete.
-    ux.action.start('Uninstalling')
-    const { body } = await this.api.get(`/api/v2/extensions?filter[identifier]=${identifier}`, {
-      "content-type": "application/vnd.api+json",
+    ux.action.start("Uninstalling");
+    const { body } = await this.api.get(`/api/v/extensions/${identifier}`, {
+      "content-type": "application/json",
     });
-    if (body.data.length == 0) {
-      ux.action.stop('done') 
-      process.stderr.write(`No extension found with identifier '${identifier}'\n`);
+    if (body.extension.length == 0) {
+      ux.action.stop("done");
+      process.stderr.write(
+        `No extension found with identifier '${identifier}'\n`
+      );
       return;
     }
-    await this.api.delete(`/api/v2/extensions/${body.data[0].id}`, {
-      "content-type": "application/vnd.api+json",
+    await this.api.delete(`/api/v1/extensions/${body.extension.id}`, {
+      "content-type": "application/json",
     });
-    ux.action.stop('done') 
+    ux.action.stop("done");
   }
 }
