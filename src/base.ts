@@ -9,13 +9,9 @@ abstract class BaseCommand extends Command {
   flags: ParserOutput;
 
   static flags = {
-    server: flags.string({
+    subdomain: flags.string({
       char: "s",
-      description: "Aha! server to connect to (mycompany.aha.io)",
-    }),
-    development: flags.boolean({
-      char: "d",
-      description: "whether to treat domains as development servers",
+      description: "Aha! subdomain to use for authentication",
     }),
   };
 
@@ -36,15 +32,9 @@ abstract class BaseCommand extends Command {
   }
 
   prepareAPI(): AhaAPI {
-    const { server, token } = this.loadAuth();
-    let baseURL;
+    const { url, token } = this.loadAuth();
 
-    if (this.flags.development) {
-      baseURL = `http://${server}`;
-    } else {
-      baseURL = `https://${server}`;
-    }
-    const newAPI = new AhaAPI({ baseURL });
+    const newAPI = new AhaAPI({ baseURL: url });
     newAPI.defaults.headers = {
       authorization: `Bearer ${token}`,
     };
@@ -55,27 +45,27 @@ abstract class BaseCommand extends Command {
   }
 
   loadAuth() {
-    netrc.loadSync();
-
-    let server = this.flags.server;
+    let subdomain = this.flags.subdomain;
     let token = null;
-    let email = null;
-    if (server) {
+    let url = null;
+
+    netrc.loadSync();
+    if (subdomain) {
       // User specified the domain on the command line.
-      if (!netrc.machines[server]) {
+      if (!netrc.machines[subdomain]) {
         throw new Error(
           `No credentials found for ${server}, use "aha auth:login" to login first`
         );
       }
-      token = netrc.machines[server].token;
-      email = netrc.machines[server].email;
+      token = netrc.machines[subdomain].token;
+      url = netrc.machines[subdomain].url;
     } else {
-      // Use the first .aha.io domain we find.
-      for (server in netrc.machines) {
-        if (server.match(/.+\.aha\.io$/)) {
-          debug(`using credentials for ${server}`);
-          token = netrc.machines[server].token;
-          email = netrc.machines[server].email;
+      // Use the first type=aha url we find.
+      for (subdomain in netrc.machines) {
+        if (netrc.machines[subdomain].type === "aha") {
+          debug(`using credentials for ${subdomain}`);
+          token = netrc.machines[subdomain].token;
+          url = netrc.machines[subdomain].url;
           break;
         }
       }
@@ -86,7 +76,7 @@ abstract class BaseCommand extends Command {
         `No credentials found, use "aha auth:login" to login first`
       );
 
-    return { server, token, email };
+    return { url, token };
   }
 }
 
