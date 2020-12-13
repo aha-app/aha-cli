@@ -50,9 +50,9 @@ Credentials are saved in ~/.netrc`;
           `${this.flags.authServer}/external/cli/poll?cli_token=${cliToken}`
         );
 
-        const { url, token, domain } = body;
+        const { url, token, domain, email } = body;
 
-        this.saveToken(domain, { token, url });
+        this.saveToken(domain, { token, url, email });
         subdomain = domain;
 
         break;
@@ -78,6 +78,7 @@ Credentials are saved in ~/.netrc`;
 
     if (!netrc.machines[host]) netrc.machines[host] = {};
     netrc.machines[host].type = "aha";
+    netrc.machines[host].email = entry.email;
     netrc.machines[host].token = entry.token;
     netrc.machines[host].url = entry.url;
 
