@@ -1,4 +1,5 @@
 import BaseCommand from "../../base";
+import { flags } from "@oclif/command";
 import { installExtension } from "../../utils/extensionUtils";
 
 export default class Install extends BaseCommand {
@@ -6,9 +7,12 @@ export default class Install extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
+    dumpCode: flags.boolean({
+      description: "dump all code as it is uploaded",
+    }),
   };
 
   async run() {
-    installExtension(this.api);
+    installExtension(this.api, this.flags.dumpCode);
   }
 }
