@@ -52,6 +52,8 @@ export async function installExtension(api, dumpCode) {
       extension: {
         identifier: identifierFromConfiguration(configuration),
         name: configuration.description,
+        author: configuration.author,
+        repository: configuration.repository,
         version: configuration.version,
         configuration: configuration.ahaExtension,
         source,
