@@ -33,7 +33,7 @@ export async function installExtension(api, dumpCode) {
       process.stdout.write(
         `   contributes ${contributionType}: '${contributionName}'\n`
       );
-      const script = await prepareScript(
+      const { script, sourceMap } = await prepareScript(
         contributionName,
         contribution.entryPoint,
         dumpCode
@@ -41,6 +41,7 @@ export async function installExtension(api, dumpCode) {
       source.push({
         entryPoint: contribution.entryPoint,
         script: script,
+        sourceMap: sourceMap,
       });
     }
   }
@@ -53,6 +54,8 @@ export async function installExtension(api, dumpCode) {
         identifier: identifierFromConfiguration(configuration),
         name: configuration.description,
         version: configuration.version,
+        author: configuration.author,
+        repository: configuration.respository.url,
         configuration: configuration.ahaExtension,
         source,
       },
@@ -64,18 +67,29 @@ export async function installExtension(api, dumpCode) {
 
 // Load script and resolve imports using rollup.
 async function prepareScript(name, path, dumpCode) {
+  // Check the script exists.
+  if (!fs.existsSync(path)) {
+    throw new Error(`Script for '${name}' does not exist at '${path}'`);
+  }
+
   const bundle = await rollup.rollup({
     input: path,
     plugins: [urlResolve()],
   });
   const { output } = await bundle.generate({
-    format: "iife",
+    format: "esm",
     name: name,
+    sourcemap: "inline",
+    sourcemapExcludeSources: true,
   });
 
   let code = "";
+  let map = null;
   for (const chunkOrAsset of output) {
-    if (chunkOrAsset.type === "chunk") code = code.concat(chunkOrAsset.code);
+    if (chunkOrAsset.type === "chunk") {
+      code = code.concat(chunkOrAsset.code);
+      map = chunkOrAsset.map.toString();
+    }
     if (dumpCode) {
       process.stdout.write(`\n======= Start code for '${name}':\n`);
       process.stdout.write(chunkOrAsset.code);
@@ -85,5 +99,5 @@ async function prepareScript(name, path, dumpCode) {
 
   await bundle.close();
 
-  return code;
+  return { script: code, sourceMap: map };
 }

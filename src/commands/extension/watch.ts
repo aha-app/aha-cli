@@ -14,9 +14,9 @@ export default class Create extends BaseCommand {
     this.log("Watching for changes in the current directory ...");
     chokidar
       .watch(".", { ignoreInitial: true })
-      .on("all", (event, changedPath) => {
+      .on("all", async (event, changedPath) => {
         this.log(`... detected file change: ${changedPath}`);
-        installExtension(this.api);
+        await installExtension(this.api, false);
       });
   }
 }
