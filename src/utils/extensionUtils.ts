@@ -55,7 +55,7 @@ export async function installExtension(api, dumpCode) {
         name: configuration.description,
         version: configuration.version,
         author: configuration.author,
-        repository: configuration.respository.url,
+        repository: configuration.repository.url,
         configuration: configuration.ahaExtension,
         source,
       },
