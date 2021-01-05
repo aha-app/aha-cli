@@ -29,6 +29,7 @@ export async function installExtension(api, dumpCode) {
   const contributionScripts = {};
   const configuration = readConfiguration();
   const form = new FormData();
+  const compilers = [];
   process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
   for (let contributionType in contributions) {
@@ -47,23 +48,16 @@ export async function installExtension(api, dumpCode) {
       // Compile and upload script. We just generate a promise here and
       // then wait for them all in parallel below.
 
-      // Compile the script.
-      // TODO: We could parallelize this to speed things up.
-      const { script, sourceMap } = await prepareScript(
-        contributionName,
-        contribution.entryPoint,
-        dumpCode
-      );
-
-      form.append("extension[scripts][][name]", contributionName);
-      form.append("extension[scripts[][script_text]", script, "script.txt");
-      form.append(
-        "extension[scripts[][source_map]",
-        sourceMap,
-        "source_map.txt"
+      // Compile the script. We do all of the scripts in parallel to speed
+      // things up.
+      compilers.push(
+        prepareScript(form, contributionName, contribution.entryPoint, dumpCode)
       );
     }
   }
+  ux.action.start("Compiling");
+  await Promise.all(compilers);
+  ux.action.stop("done");
 
   // Add general extension parameters
   form.append(
@@ -99,7 +93,7 @@ export async function installExtension(api, dumpCode) {
 }
 
 // Load script and resolve imports using rollup.
-async function prepareScript(name, path, dumpCode) {
+async function prepareScript(form, name, path, dumpCode) {
   // Check the script exists.
   if (!fs.existsSync(path)) {
     throw new Error(`Script for '${name}' does not exist at '${path}'`);
@@ -132,5 +126,7 @@ async function prepareScript(name, path, dumpCode) {
 
   await bundle.close();
 
-  return { script: code, sourceMap: map };
+  form.append("extension[scripts][][name]", name);
+  form.append("extension[scripts[][script_text]", code, "script.txt");
+  form.append("extension[scripts[][source_map]", map, "source_map.txt");
 }
