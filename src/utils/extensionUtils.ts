@@ -67,7 +67,7 @@ export async function installExtension(api, dumpCode) {
   form.append("extension[name]", configuration.description);
   form.append("extension[version]", configuration.version);
   form.append("extension[author]", configuration.author);
-  form.append("extension[repository]", configuration.respository.url);
+  form.append("extension[repository]", configuration.repository.url);
   form.append(
     "extension[configuration]",
     JSON.stringify(configuration.ahaExtension)

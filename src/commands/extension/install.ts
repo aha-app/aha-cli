@@ -13,6 +13,6 @@ export default class Install extends BaseCommand {
   };
 
   async run() {
-    installExtension(this.api, this.flags.dumpCode);
+    await installExtension(this.api, this.flags.dumpCode);
   }
 }
