@@ -2,6 +2,8 @@ import * as fs from "fs";
 import ux from "cli-ux";
 const rollup = require("rollup");
 const urlResolve = require("rollup-plugin-url-resolve");
+const FormData = require("form-data");
+const { Readable } = require("stream");
 
 export function readConfiguration() {
   const json = JSON.parse(
@@ -22,45 +24,76 @@ export async function installExtension(api, dumpCode) {
   // where it came from, and optionally remove the field if the extension
   // is removed.
 
-  // Read the script sources.
-  const source = [];
+  // Upload the sources for the contributions. Validate we don't have more
+  // than one contribution with the same name.
+  const contributionScripts = {};
   const configuration = readConfiguration();
+  const form = new FormData();
   process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
   for (let contributionType in contributions) {
     for (let contributionName in contributions[contributionType]) {
+      if (contributionScripts[contributionName]) {
+        throw new Error(
+          `Two extensions share the same name of '${contributionName}'. Contribution names must be unique within the extension.`
+        );
+      }
+
       const contribution = contributions[contributionType][contributionName];
       process.stdout.write(
         `   contributes ${contributionType}: '${contributionName}'\n`
       );
+
+      // Compile and upload script. We just generate a promise here and
+      // then wait for them all in parallel below.
+
+      // Compile the script.
+      // TODO: We could parallelize this to speed things up.
       const { script, sourceMap } = await prepareScript(
         contributionName,
         contribution.entryPoint,
         dumpCode
       );
-      source.push({
-        entryPoint: contribution.entryPoint,
-        script: script,
-        sourceMap: sourceMap,
-      });
+
+      form.append("extension[scripts][][name]", contributionName);
+      form.append("extension[scripts[][script_text]", script, "script.txt");
+      form.append(
+        "extension[scripts[][source_map]",
+        sourceMap,
+        "source_map.txt"
+      );
     }
   }
 
-  // Upload to the server.
+  // Add general extension parameters
+  form.append(
+    "extension[identifier]",
+    identifierFromConfiguration(configuration)
+  );
+  form.append("extension[name]", configuration.description);
+  form.append("extension[version]", configuration.version);
+  form.append("extension[author]", configuration.author);
+  form.append("extension[repository]", configuration.respository.url);
+  form.append(
+    "extension[configuration]",
+    JSON.stringify(configuration.ahaExtension)
+  );
+
+  // Upload all of the scripts and configuration in one go. This requires the
+  // use of form encoding, but it turns out to be much faster to just have one
+  // server round-trip with more data, than multiple round trips. It also allows
+  // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start("Uploading");
   await api.post(`/api/v1/extensions`, {
-    body: {
-      extension: {
-        identifier: identifierFromConfiguration(configuration),
-        name: configuration.description,
-        version: configuration.version,
-        author: configuration.author,
-        repository: configuration.respository.url,
-        configuration: configuration.ahaExtension,
-        source,
+    body: new Readable({
+      read() {
+        this.push(form.getBuffer());
+        this.push(null);
       },
+    }),
+    headers: {
+      "content-type": "multipart/form-data; boundary=" + form.getBoundary(),
     },
-    "content-type": "application/json",
   });
   ux.action.stop("done");
 }
