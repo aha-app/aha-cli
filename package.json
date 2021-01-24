@@ -11,6 +11,7 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^3",
+    "chalk": "^4.1.0",
     "chokidar": "^3.4.3",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",

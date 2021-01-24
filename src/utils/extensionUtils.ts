@@ -48,9 +48,6 @@ export async function installExtension(api, dumpCode: boolean) {
 
       // Compile and upload script. We just generate a promise here and
       // then wait for them all in parallel below.
-
-      // Compile the script. We do all of the scripts in parallel to speed
-      // things up.
       compilers.push(
         prepareScript(
           form,
