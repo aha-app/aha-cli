@@ -8,14 +8,18 @@ const { Readable } = require("stream");
 const REACT_JSX = "React.createElement";
 
 export function readConfiguration() {
-  return JSON.parse(fs.readFileSync("package.json", { encoding: "UTF-8" }));
+  try {
+    return JSON.parse(fs.readFileSync("package.json", { encoding: "UTF-8" }));
+  } catch (e) {
+    throw new Error(`Error loading package.json: ${e.message}`);
+  }
 }
 
 export function identifierFromConfiguration(configuration) {
   return configuration.name.replace("@", "").replace("/", ".");
 }
 
-export async function installExtension(api, dumpCode: boolean) {
+export async function installExtension(command, dumpCode: boolean) {
   // TODO: Perhaps the installation should upload the "contributes" section
   // from the package.json file as-is. The server can then track exactly
   // what the extension needs. If the extension creates a custom field then
@@ -50,6 +54,7 @@ export async function installExtension(api, dumpCode: boolean) {
       // then wait for them all in parallel below.
       compilers.push(
         prepareScript(
+          command,
           form,
           contributionName,
           contribution.entryPoint,
@@ -60,7 +65,11 @@ export async function installExtension(api, dumpCode: boolean) {
     }
   }
   ux.action.start("Compiling");
-  await Promise.all(compilers);
+  await Promise.all(
+    compilers
+  ); /*.catch((error) => {
+    throw new Error("Aborting");
+  });*/
   ux.action.stop("done");
 
   // Add general extension parameters
@@ -82,7 +91,7 @@ export async function installExtension(api, dumpCode: boolean) {
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start("Uploading");
-  await api.post(`/api/v1/extensions`, {
+  await command.api.post(`/api/v1/extensions`, {
     body: new Readable({
       read() {
         this.push(form.getBuffer());
@@ -98,6 +107,7 @@ export async function installExtension(api, dumpCode: boolean) {
 
 // Load script and resolve imports using esbuild.
 async function prepareScript(
+  command,
   form: FormData,
   name: string,
   path: string,
@@ -146,6 +156,7 @@ async function prepareScript(
     form.append("extension[scripts[][script_text]", code, "script.txt");
     form.append("extension[scripts[][source_map]", map, "source_map.txt");
   } catch (err) {
-    process.stdout.write(`\nError at ${path}\n${err.toString()}`);
+    ux.action.stop("failed");
+    command.error("Compilation error", { exit: 1 });
   }
 }

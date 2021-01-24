@@ -78,6 +78,11 @@ abstract class BaseCommand extends Command {
 
     return { url, token };
   }
+
+  // Catch all unhandled errors and display to the user in a reasonable way.
+  async catch(error) {
+    this.error(error.message, { exit: 1 });
+  }
 }
 
 export default BaseCommand;

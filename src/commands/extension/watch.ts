@@ -16,7 +16,7 @@ export default class Create extends BaseCommand {
       .watch(".", { ignoreInitial: true })
       .on("all", async (event, changedPath) => {
         this.log(`... detected file change: ${changedPath}`);
-        await installExtension(this.api, false);
+        await installExtension(this, false);
       });
   }
 }
