@@ -18,6 +18,7 @@ Credentials are saved in ~/.netrc`;
     ...BaseCommand.flags,
     authServer: flags.string({
       description: "server to use for authentication",
+      default: "https://secure.aha.io",
     }),
     browser: flags.string({
       description: "browser to use for login, e.g. 'safari' or 'firefox'",

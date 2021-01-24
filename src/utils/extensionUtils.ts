@@ -125,7 +125,7 @@ async function prepareScript(
       sourcesContent: false,
       loader: { ".js": "jsx", ".ts": "tsx" },
       define: {
-        "process.env.NODE_ENV": "\"production\"",
+        "process.env.NODE_ENV": '"production"',
       },
     });
 
