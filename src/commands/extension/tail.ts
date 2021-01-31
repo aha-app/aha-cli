@@ -1,6 +1,29 @@
 import BaseCommand from "../../base";
 import * as chalk from "chalk";
 
+interface LogContent {
+  t: string;
+  s: string;
+  m: string;
+}
+interface LogEntry {
+  createdAt: string;
+  content: LogContent[];
+  extensionContribution: {
+    identifier: string;
+  };
+}
+
+interface ExtensionLogResult {
+  body?: {
+    data: {
+      extensionLogs: {
+        nodes: LogEntry[];
+      };
+    };
+  };
+}
+
 export default class Tail extends BaseCommand {
   static description = "live tail extension logs";
 
@@ -21,7 +44,7 @@ export default class Tail extends BaseCommand {
         process.stdout.write("Stopping after one hour.\n");
         break;
       }
-      const result = await this.api.post(`/api/v2/graphql`, {
+      const result = (await this.api.post(`/api/v2/graphql`, {
         body: {
           query: `{
             extensionLogs(filters: {createdSince: "${lastTimestamp}"}) {
@@ -36,13 +59,13 @@ export default class Tail extends BaseCommand {
           }
           `,
         },
-      });
+      })) as ExtensionLogResult;
 
-      if (result.body.data.extensionLogs.nodes.length == 0) {
+      if (result.body && result.body.data.extensionLogs.nodes.length == 0) {
         // Nothing happening. Wait a bit before looping again.
         await new Promise((resolve) => setTimeout(resolve, loopDelayMs));
         if (loopDelayMs < loopDelayMax) loopDelayMs += 500;
-      } else {
+      } else if (result.body) {
         // Check faster next time.
         loopDelayMs = loopDelayStart;
 
@@ -66,7 +89,7 @@ export default class Tail extends BaseCommand {
     }
   }
 
-  colorizeSeverity(s) {
+  colorizeSeverity(s: string) {
     let color;
     switch (s) {
       case "e":

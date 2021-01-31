@@ -18,9 +18,12 @@ export default class Uninstall extends BaseCommand {
 
     // Convert the identifier into the ID and then delete.
     ux.action.start("Uninstalling");
-    const { body } = await this.api.get(`/api/v/extensions/${identifier}`, {
-      "content-type": "application/json",
-    });
+    const { body }: { body: any } = await this.api.get(
+      `/api/v/extensions/${identifier}`,
+      {
+        "content-type": "application/json",
+      }
+    );
     if (body.extension.length == 0) {
       ux.action.stop("done");
       process.stderr.write(

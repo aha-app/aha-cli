@@ -1,3 +1,4 @@
+import BaseCommand from "../base";
 import ux from "cli-ux";
 import { httpPlugin } from "./esbuild-http";
 const fs = require("fs");
@@ -15,11 +16,14 @@ export function readConfiguration() {
   }
 }
 
-export function identifierFromConfiguration(configuration) {
+export function identifierFromConfiguration(configuration: any) {
   return configuration.name.replace("@", "").replace("/", ".");
 }
 
-export async function installExtension(command, dumpCode: boolean) {
+export async function installExtension(
+  command: BaseCommand,
+  dumpCode: boolean
+) {
   // TODO: Perhaps the installation should upload the "contributes" section
   // from the package.json file as-is. The server can then track exactly
   // what the extension needs. If the extension creates a custom field then
@@ -29,7 +33,7 @@ export async function installExtension(command, dumpCode: boolean) {
 
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
-  const contributionScripts = {};
+  const contributionScripts: any = {};
   const configuration = readConfiguration();
   const form = new FormData();
   const compilers = [];
@@ -107,7 +111,7 @@ export async function installExtension(command, dumpCode: boolean) {
 
 // Load script and resolve imports using esbuild.
 async function prepareScript(
-  command,
+  command: BaseCommand,
   form: FormData,
   name: string,
   path: string,

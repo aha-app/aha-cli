@@ -15,11 +15,11 @@ Aha! command line interface
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g aha-cli
+$ npm install -g @aha-app/aha-cli
 $ aha COMMAND
 running command...
 $ aha (-v|--version|version)
-aha-cli/0.0.0 darwin-x64 node-v10.20.1
+@aha-app/aha-cli/1.0.0 darwin-x64 node-v12.19.1
 $ aha --help [COMMAND]
 USAGE
   $ aha COMMAND
@@ -28,28 +28,118 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`aha hello [FILE]`](#aha-hello-file)
+* [`aha auth:check`](#aha-authcheck)
+* [`aha auth:login`](#aha-authlogin)
+* [`aha extension:create`](#aha-extensioncreate)
+* [`aha extension:install`](#aha-extensioninstall)
+* [`aha extension:tail`](#aha-extensiontail)
+* [`aha extension:uninstall`](#aha-extensionuninstall)
+* [`aha extension:watch`](#aha-extensionwatch)
 * [`aha help [COMMAND]`](#aha-help-command)
 
-## `aha hello [FILE]`
+## `aha auth:check`
 
-describe the command here
+check if the stored credentials work
 
 ```
 USAGE
-  $ aha hello [FILE]
+  $ aha auth:check
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ aha hello
-  hello world from ./src/hello.ts!
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/hello.ts](https://github.com/aha-app/aha-cli/blob/v0.0.0/src/commands/hello.ts)_
+_See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/auth/check.ts)_
+
+## `aha auth:login`
+
+login to Aha! and save credentials for other commands
+
+```
+USAGE
+  $ aha auth:login
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+  --authServer=authServer    [default: https://secure.aha.io] server to use for authentication
+  --browser=browser          browser to use for login, e.g. 'safari' or 'firefox'
+
+DESCRIPTION
+  Credentials are saved in ~/.netrc
+```
+
+_See code: [src/commands/auth/login.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/auth/login.ts)_
+
+## `aha extension:create`
+
+create an example extension
+
+```
+USAGE
+  $ aha extension:create
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+```
+
+_See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/extension/create.ts)_
+
+## `aha extension:install`
+
+install the extension from the current directory
+
+```
+USAGE
+  $ aha extension:install
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+  --dumpCode                 dump all code as it is uploaded
+```
+
+_See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/extension/install.ts)_
+
+## `aha extension:tail`
+
+live tail extension logs
+
+```
+USAGE
+  $ aha extension:tail
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+```
+
+_See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/extension/tail.ts)_
+
+## `aha extension:uninstall`
+
+uninstall the extension in the current directory
+
+```
+USAGE
+  $ aha extension:uninstall
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+```
+
+_See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/extension/uninstall.ts)_
+
+## `aha extension:watch`
+
+watch the current directory for changes and install the extension each time a file changes
+
+```
+USAGE
+  $ aha extension:watch
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+```
+
+_See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.0.0/src/commands/extension/watch.ts)_
 
 ## `aha help [COMMAND]`
 

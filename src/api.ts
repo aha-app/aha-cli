@@ -1,6 +1,4 @@
-import { HTTP, HTTPError, HTTPRequestOptions } from "http-call";
-import Debug from "debug";
-const debug = Debug("aha");
+import { HTTP } from "http-call";
 
 interface IConfig {
   baseURL: string;

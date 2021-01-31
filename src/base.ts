@@ -1,13 +1,9 @@
-import Command, { flags, ParserOutput } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
+import { Input, OutputFlags } from "@oclif/parser";
 import AhaAPI from "./api";
 import netrc from "netrc-parser";
-import Debug from "debug";
-const debug = Debug("aha");
 
 abstract class BaseCommand extends Command {
-  _api: AhaAPI | null;
-  flags: ParserOutput;
-
   static flags = {
     subdomain: flags.string({
       char: "s",
@@ -15,11 +11,13 @@ abstract class BaseCommand extends Command {
     }),
   };
 
+  flags?: any;
+  _api?: AhaAPI;
+
   async init() {
     // do some initialization
-    const { flags } = this.parse(this.constructor);
+    const { flags } = this.parse(<Input<any>>this.constructor);
     this.flags = flags;
-    this._api = null;
   }
 
   get api(): AhaAPI {
@@ -41,11 +39,11 @@ abstract class BaseCommand extends Command {
     return newAPI;
   }
   resetAPI() {
-    this._api = null;
+    this._api = undefined;
   }
 
-  loadAuth() {
-    let subdomain = this.flags.subdomain;
+  loadAuth(): { url: string; token: string } {
+    let subdomain = this.flags?.subdomain;
     let token = null;
     let url = null;
 
@@ -54,7 +52,7 @@ abstract class BaseCommand extends Command {
       // User specified the domain on the command line.
       if (!netrc.machines[subdomain]) {
         throw new Error(
-          `No credentials found for ${server}, use "aha auth:login" to login first`
+          `No credentials found for ${subdomain}, use "aha auth:login" to login first`
         );
       }
       token = netrc.machines[subdomain].token;
@@ -63,7 +61,6 @@ abstract class BaseCommand extends Command {
       // Use the first type=aha url we find.
       for (subdomain in netrc.machines) {
         if (netrc.machines[subdomain].type === "aha") {
-          debug(`using credentials for ${subdomain}`);
           token = netrc.machines[subdomain].token;
           url = netrc.machines[subdomain].url;
           break;
@@ -71,7 +68,7 @@ abstract class BaseCommand extends Command {
       }
     }
 
-    if (!token)
+    if (!token || !url)
       throw new Error(
         `No credentials found, use "aha auth:login" to login first`
       );
@@ -80,7 +77,7 @@ abstract class BaseCommand extends Command {
   }
 
   // Catch all unhandled errors and display to the user in a reasonable way.
-  async catch(error) {
+  async catch(error: Error) {
     this.error(error.message, { exit: 1 });
   }
 }

@@ -8,6 +8,15 @@ import { HTTP } from "http-call";
 
 interface NetrcEntry {
   token: string;
+  url: string;
+  email: string;
+}
+
+interface TokenInfo {
+  url: string;
+  token: string;
+  domain: string;
+  email: string;
 }
 
 class LoginCommand extends BaseCommand {
@@ -47,7 +56,7 @@ Credentials are saved in ~/.netrc`;
     let subdomain;
     while (true) {
       try {
-        const { body } = await HTTP.get(
+        const { body }: { body: TokenInfo } = await HTTP.get(
           `${this.flags.authServer}/external/cli/poll?cli_token=${cliToken}`
         );
 

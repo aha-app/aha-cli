@@ -1,7 +1,8 @@
+import { Plugin } from "esbuild";
 import * as https from "https";
 import * as http from "http";
 
-const httpPlugin = {
+const httpPlugin: Plugin = {
   name: "http",
   setup(build) {
     // Intercept import paths starting with "http:" and "https:" so
@@ -28,7 +29,7 @@ const httpPlugin = {
     // handle the example import from unpkg.com but in reality this
     // would probably need to be more complex.
     build.onLoad({ filter: /.*/, namespace: "http-url" }, async (args) => {
-      let contents = await new Promise((resolve, reject) => {
+      let contents = (await new Promise((resolve, reject) => {
         function fetch(url: string) {
           let lib = url.startsWith("https") ? https : http;
           let req = lib
@@ -52,7 +53,7 @@ const httpPlugin = {
             .on("error", reject);
         }
         fetch(args.path);
-      });
+      })) as Buffer;
       return { contents };
     });
   },
