@@ -1,14 +1,14 @@
-import BaseCommand from '../../base';
+import BaseCommand from "../../base";
 
 export default class Create extends BaseCommand {
-  static description = 'create an example extension'
+  static description = "Create an example extension";
 
   static flags = {
     ...BaseCommand.flags,
-  }
+  };
 
   async run() {
-    this.log(`TODO: create`)
+    this.log(`TODO: create`);
   }
 }
 

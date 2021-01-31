@@ -4,7 +4,7 @@ import { installExtension } from "../../utils/extensionUtils";
 
 export default class Create extends BaseCommand {
   static description =
-    "watch the current directory for changes and install the extension each time a file changes";
+    "Watch the current directory for changes and install the extension each time a file changes";
 
   static flags = {
     ...BaseCommand.flags,

@@ -3,7 +3,7 @@ import { flags } from "@oclif/command";
 import { installExtension } from "../../utils/extensionUtils";
 
 export default class Install extends BaseCommand {
-  static description = "install the extension from the current directory";
+  static description = "Install the extension from the current directory";
 
   static flags = {
     ...BaseCommand.flags,

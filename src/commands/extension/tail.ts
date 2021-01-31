@@ -25,7 +25,7 @@ interface ExtensionLogResult {
 }
 
 export default class Tail extends BaseCommand {
-  static description = "live tail extension logs";
+  static description = "Live tail extension logs";
 
   static flags = {
     ...BaseCommand.flags,

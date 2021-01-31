@@ -6,7 +6,7 @@ import {
 } from "../../utils/extensionUtils";
 
 export default class Uninstall extends BaseCommand {
-  static description = "uninstall the extension in the current directory";
+  static description = "Uninstall the extension in the current directory";
 
   static flags = {
     ...BaseCommand.flags,

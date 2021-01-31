@@ -2,7 +2,7 @@ import BaseCommand from "../../base";
 import ux from "cli-ux";
 
 export default class Check extends BaseCommand {
-  static description = `check if the stored credentials work`;
+  static description = `Check if the stored credentials work`;
 
   static flags = {
     ...BaseCommand.flags,

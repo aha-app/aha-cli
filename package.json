@@ -1,7 +1,7 @@
 {
   "name": "@aha-app/aha-cli",
-  "description": "Aha! command line interface",
-  "version": "1.0.0",
+  "description": "Command line interface for Aha! (www.aha.io)",
+  "version": "1.0.3",
   "author": "@k1w1",
   "bin": {
     "aha": "./bin/run"
@@ -13,6 +13,7 @@
     "@oclif/plugin-help": "^3",
     "chalk": "^4.1.0",
     "chokidar": "^3.4.3",
+    "cli-ux": "^5.5.1",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "esbuild": "^0.8.33",
@@ -58,10 +59,10 @@
     "bin": "aha",
     "topics": {
       "auth": {
-        "description": "authentication"
+        "description": "Authenticate to Aha!"
       },
       "extension": {
-        "description": "manage extensions"
+        "description": "Manage extensions"
       }
     },
     "plugins": [
