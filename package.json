@@ -67,7 +67,10 @@
     },
     "plugins": [
       "@oclif/plugin-help"
-    ]
+    ],
+    "macos": {
+      "identifier": "io.aha.cli"
+    }
   },
   "repository": "aha-app/aha-cli",
   "scripts": {
