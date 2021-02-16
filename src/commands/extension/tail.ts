@@ -1,5 +1,5 @@
-import BaseCommand from "../../base";
-import * as chalk from "chalk";
+import BaseCommand from '../../base';
+import * as chalk from 'chalk';
 
 interface LogContent {
   t: string;
@@ -25,7 +25,7 @@ interface ExtensionLogResult {
 }
 
 export default class Tail extends BaseCommand {
-  static description = "Live tail extension logs";
+  static description = 'Live tail extension logs';
 
   static flags = {
     ...BaseCommand.flags,
@@ -41,7 +41,7 @@ export default class Tail extends BaseCommand {
     while (true) {
       // Only loop for one hour so this can't use infinite resources.
       if (startTime + 60 * 60 * 1000 < new Date().getTime()) {
-        process.stdout.write("Stopping after one hour.\n");
+        process.stdout.write('Stopping after one hour.\n');
         break;
       }
       const result = (await this.api.post(`/api/v2/graphql`, {
@@ -61,7 +61,7 @@ export default class Tail extends BaseCommand {
         },
       })) as ExtensionLogResult;
 
-      if (result.body && result.body.data.extensionLogs.nodes.length == 0) {
+      if (result.body && result.body.data.extensionLogs.nodes.length === 0) {
         // Nothing happening. Wait a bit before looping again.
         await new Promise((resolve) => setTimeout(resolve, loopDelayMs));
         if (loopDelayMs < loopDelayMax) loopDelayMs += 500;
@@ -69,19 +69,19 @@ export default class Tail extends BaseCommand {
         // Check faster next time.
         loopDelayMs = loopDelayStart;
 
-        for (let logGroup of result.body.data.extensionLogs.nodes) {
-          for (let log of logGroup.content) {
+        for (const logGroup of result.body.data.extensionLogs.nodes) {
+          for (const log of logGroup.content) {
             process.stdout.write(chalk.blue(log.t));
-            process.stdout.write(" ");
+            process.stdout.write(' ');
             process.stdout.write(
               chalk.dim(logGroup.extensionContribution.identifier)
             );
-            process.stdout.write(" ");
+            process.stdout.write(' ');
             process.stdout.write(this.colorizeSeverity(log.s));
-            process.stdout.write(" ");
-            if (typeof log.m === "string") process.stdout.write(log.m);
+            process.stdout.write(' ');
+            if (typeof log.m === 'string') process.stdout.write(log.m);
             else process.stdout.write(JSON.stringify(log.m));
-            process.stdout.write("\n");
+            process.stdout.write('\n');
           }
           lastTimestamp = logGroup.createdAt;
         }
@@ -92,16 +92,16 @@ export default class Tail extends BaseCommand {
   colorizeSeverity(s: string) {
     let color;
     switch (s) {
-      case "e":
+      case 'e':
         color = chalk.bgRed.dim.bold;
         break;
-      case "w":
+      case 'w':
         color = chalk.bgYellow.dim.bold;
         break;
-      case "i":
+      case 'i':
         color = chalk.bgCyan.dim.bold;
         break;
-      case "d":
+      case 'd':
         color = chalk.bgWhite.dim.bold;
         break;
       default:

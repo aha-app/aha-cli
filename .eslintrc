@@ -1,6 +1,15 @@
 {
-  "extends": [
-    "oclif",
-    "oclif-typescript"
-  ]
+  "extends": ["oclif", "oclif-typescript", "plugin:prettier/recommended"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "semi": ["error", "always"],
+    "object-curly-spacing": ["error", "always"],
+    "max-params": "off",
+    "no-warning-comments": "off",
+    "guard-for-in": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "no-await-in-loop": "off",
+    "no-constant-condition": "off"
+  }
 }

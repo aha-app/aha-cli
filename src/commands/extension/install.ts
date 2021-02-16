@@ -1,14 +1,14 @@
-import BaseCommand from "../../base";
-import { flags } from "@oclif/command";
-import { installExtension } from "../../utils/extensionUtils";
+import BaseCommand from '../../base';
+import { flags } from '@oclif/command';
+import { installExtension } from '../../utils/extension-utils';
 
 export default class Install extends BaseCommand {
-  static description = "Install the extension from the current directory";
+  static description = 'Install the extension from the current directory';
 
   static flags = {
     ...BaseCommand.flags,
     dumpCode: flags.boolean({
-      description: "dump all code as it is uploaded",
+      description: 'dump all code as it is uploaded',
     }),
   };
 
