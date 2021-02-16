@@ -93,7 +93,7 @@ export async function installExtension(
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start('Uploading');
-  await command.api.post('/api/v1/extensions', {
+  const response = await command.api.post('/api/v1/extensions', {
     body: new Readable({
       read() {
         this.push(form.getBuffer());
@@ -104,7 +104,24 @@ export async function installExtension(
       'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
     },
   });
-  ux.action.stop('done');
+
+  if (response?.body?.errors) {
+    ux.action.stop('error');
+
+    const errors: { [index: string]: string[] } = response.body.errors;
+    const errorTree = ux.tree();
+
+    Object.keys(errors).forEach((identifier) => {
+      errorTree.insert(identifier);
+      errors[identifier].forEach((error) =>
+        errorTree.nodes[identifier].insert(error)
+      );
+    });
+
+    errorTree.display();
+  } else {
+    ux.action.stop('done');
+  }
 }
 
 // Load script and resolve imports using esbuild.
