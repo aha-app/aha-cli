@@ -30,6 +30,19 @@ function skyUrlToPath(path: string) {
   if (matches) return matches[1];
 }
 
+/**
+ * Get the aha import code for externals import. i.e. when an extension says
+ *
+ *   import React from 'react';
+ *
+ * This will be translated by esbuild into something like
+ *
+ *   const React = aha.import('react');
+ */
+function pathToExternal(path: string): string {
+  return `aha.import('${path}')`;
+}
+
 export async function installExtension(
   command: BaseCommand,
   dumpCode: boolean
@@ -169,7 +182,7 @@ async function prepareScript(
           getModuleInfo: (path) => {
             const name = path.includes('-/') ? skyUrlToPath(path) : path;
             return {
-              varName: `window.require('${name}')`,
+              varName: pathToExternal(name ?? path),
               type: 'cjs',
             };
           },
