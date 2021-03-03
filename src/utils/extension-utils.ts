@@ -1,12 +1,14 @@
-import BaseCommand from '../base';
+import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
 import ux from 'cli-ux';
-import { httpPlugin } from './esbuild-http';
+import * as esbuild from 'esbuild';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
-import * as esbuild from 'esbuild';
 import { Readable } from 'stream';
+import BaseCommand from '../base';
+import { httpPlugin } from './esbuild-http';
 
 const REACT_JSX = 'React.createElement';
+const EXTERNALS = ['react', 'react-dom'];
 
 export function readConfiguration() {
   try {
@@ -18,6 +20,14 @@ export function readConfiguration() {
 
 export function identifierFromConfiguration(configuration: any) {
   return configuration.name.replace('@', '').replace('/', '.');
+}
+
+/**
+ * Converts a skypack url like /-/react@17.0.1?blah to just react
+ */
+function skyUrlToPath(path: string) {
+  const matches = path.match(/-\/(.+?)@/);
+  if (matches) return matches[1];
 }
 
 export async function installExtension(
@@ -144,12 +154,28 @@ async function prepareScript(
   }
 
   try {
+    const externalsFilter = EXTERNALS.map(
+      (extern) => `(^${extern}$)|(-/${extern}@)`
+    ).join('|');
+
     const bundle = await esbuild.build({
       jsxFactory,
       entryPoints: [path],
       bundle: true,
       outfile: 'bundle.js',
-      plugins: [httpPlugin],
+      plugins: [
+        globalExternalsWithRegExp({
+          modulePathFilter: new RegExp(externalsFilter),
+          getModuleInfo: (path) => {
+            const name = path.includes('-/') ? skyUrlToPath(path) : path;
+            return {
+              varName: `window.require('${name}')`,
+              type: 'cjs',
+            };
+          },
+        }) as any,
+        httpPlugin,
+      ],
       target: 'es2020',
       write: false,
       sourcemap: 'external',

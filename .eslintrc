@@ -10,6 +10,7 @@
     "guard-for-in": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "no-await-in-loop": "off",
-    "no-constant-condition": "off"
+    "no-constant-condition": "off",
+    "valid-jsdoc": "off"
   }
 }

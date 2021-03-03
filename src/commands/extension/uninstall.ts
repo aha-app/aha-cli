@@ -18,20 +18,20 @@ export default class Uninstall extends BaseCommand {
 
     // Convert the identifier into the ID and then delete.
     ux.action.start('Uninstalling');
-    const { body }: { body: any } = await this.api.get(
-      `/api/v/extensions/${identifier}`,
-      {
-        'content-type': 'application/json',
-      }
-    );
-    if (body.extension.length === 0) {
-      ux.action.stop('done');
-      process.stderr.write(
-        `No extension found with identifier '${identifier}'\n`
-      );
-      return;
-    }
-    await this.api.delete(`/api/v1/extensions/${body.extension.id}`, {
+    // const { body }: { body: any } = await this.api.get(
+    //   `/api/v1/extensions/${identifier}`,
+    //   {
+    //     'content-type': 'application/json',
+    //   }
+    // );
+    // if (body.extension.length === 0) {
+    //   ux.action.stop('done');
+    //   process.stderr.write(
+    //     `No extension found with identifier '${identifier}'\n`
+    //   );
+    //   return;
+    // }
+    await this.api.delete(`/api/v1/extensions/${identifier}`, {
       'content-type': 'application/json',
     });
     ux.action.stop('done');
