@@ -1,7 +1,7 @@
-import BaseCommand from "../../base";
+import BaseCommand from '../../base';
 
 export default class Create extends BaseCommand {
-  static description = "Create an example extension";
+  static description = 'Create an example extension';
 
   static flags = {
     ...BaseCommand.flags,

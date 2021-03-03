@@ -1,23 +1,23 @@
-import BaseCommand from "../base";
-import ux from "cli-ux";
-import { httpPlugin } from "./esbuild-http";
-const fs = require("fs");
-const esbuild = require("esbuild");
-const FormData = require("form-data");
-const { Readable } = require("stream");
+import BaseCommand from '../base';
+import ux from 'cli-ux';
+import { httpPlugin } from './esbuild-http';
+import * as FormData from 'form-data';
+import * as fs from 'fs';
+import * as esbuild from 'esbuild';
+import { Readable } from 'stream';
 
-const REACT_JSX = "React.createElement";
+const REACT_JSX = 'React.createElement';
 
 export function readConfiguration() {
   try {
-    return JSON.parse(fs.readFileSync("package.json", { encoding: "UTF-8" }));
-  } catch (e) {
-    throw new Error(`Error loading package.json: ${e.message}`);
+    return JSON.parse(fs.readFileSync('package.json', { encoding: 'UTF-8' }));
+  } catch (error) {
+    throw new Error(`Error loading package.json: ${error.message}`);
   }
 }
 
 export function identifierFromConfiguration(configuration: any) {
-  return configuration.name.replace("@", "").replace("/", ".");
+  return configuration.name.replace('@', '').replace('/', '.');
 }
 
 export async function installExtension(
@@ -36,57 +36,55 @@ export async function installExtension(
   const contributionScripts: any = {};
   const configuration = readConfiguration();
   const form = new FormData();
-  const compilers = [];
-  const scripts = [];
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
-  for (let contributionType in contributions) {
-    for (let contributionName in contributions[contributionType]) {
+
+  const compilers = Object.keys(contributions).flatMap((contributionType) => {
+    const typeContributions = contributions[contributionType];
+
+    return Object.keys(typeContributions).map((contributionName) => {
       if (contributionScripts[contributionName]) {
         throw new Error(
           `Two extensions share the same name of '${contributionName}'. Contribution names must be unique within the extension.`
         );
       }
 
-      const contribution = contributions[contributionType][contributionName];
+      const contribution = typeContributions[contributionName];
+
       process.stdout.write(
         `   contributes ${contributionType}: '${contributionName}'\n`
       );
 
       // Compile and upload script. We just generate a promise here and
       // then wait for them all in parallel below.
-      compilers.push(
-        prepareScript(
-          command,
-          form,
-          contributionName,
-          contribution.entryPoint,
-          dumpCode,
-          jsxFactory
-        )
+      return prepareScript(
+        command,
+        form,
+        contributionName,
+        contribution.entryPoint,
+        dumpCode,
+        jsxFactory
       );
-    }
-  }
-  ux.action.start("Compiling");
-  await Promise.all(
-    compilers
-  ); /*.catch((error) => {
-    throw new Error("Aborting");
-  });*/
-  ux.action.stop("done");
+    });
+  });
+
+  ux.action.start('Compiling');
+  await Promise.all(compilers);
+
+  ux.action.stop('done');
 
   // Add general extension parameters
   form.append(
-    "extension[identifier]",
+    'extension[identifier]',
     identifierFromConfiguration(configuration)
   );
-  form.append("extension[name]", configuration.description);
-  form.append("extension[version]", configuration.version);
-  form.append("extension[author]", configuration.author);
-  form.append("extension[repository]", configuration.repository.url);
+  form.append('extension[name]', configuration.description);
+  form.append('extension[version]', configuration.version);
+  form.append('extension[author]', configuration.author);
+  form.append('extension[repository]', configuration.repository.url);
   form.append(
-    "extension[configuration]",
+    'extension[configuration]',
     JSON.stringify(configuration.ahaExtension)
   );
 
@@ -94,8 +92,8 @@ export async function installExtension(
   // use of form encoding, but it turns out to be much faster to just have one
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
-  ux.action.start("Uploading");
-  await command.api.post(`/api/v1/extensions`, {
+  ux.action.start('Uploading');
+  const response = await command.api.post('/api/v1/extensions', {
     body: new Readable({
       read() {
         this.push(form.getBuffer());
@@ -103,10 +101,27 @@ export async function installExtension(
       },
     }),
     headers: {
-      "content-type": "multipart/form-data; boundary=" + form.getBoundary(),
+      'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
     },
   });
-  ux.action.stop("done");
+
+  if (response?.body?.errors) {
+    ux.action.stop('error');
+
+    const errors: { [index: string]: string[] } = response.body.errors;
+    const errorTree = ux.tree();
+
+    Object.keys(errors).forEach((identifier) => {
+      errorTree.insert(identifier);
+      errors[identifier].forEach((error) =>
+        errorTree.nodes[identifier].insert(error)
+      );
+    });
+
+    errorTree.display();
+  } else {
+    ux.action.stop('done');
+  }
 }
 
 // Load script and resolve imports using esbuild.
@@ -118,6 +133,11 @@ async function prepareScript(
   dumpCode: boolean,
   jsxFactory: string
 ) {
+  // If no path is provided then this contribution has no script
+  if (!path) {
+    return;
+  }
+
   // Check the script exists.
   if (!fs.existsSync(path)) {
     throw new Error(`Script for '${name}' does not exist at '${path}'`);
@@ -128,39 +148,39 @@ async function prepareScript(
       jsxFactory,
       entryPoints: [path],
       bundle: true,
-      outfile: "bundle.js",
+      outfile: 'bundle.js',
       plugins: [httpPlugin],
-      target: "es2020",
+      target: 'es2020',
       write: false,
-      sourcemap: "external",
+      sourcemap: 'external',
       sourcesContent: false,
-      loader: { ".js": "jsx", ".ts": "tsx" },
+      loader: { '.js': 'jsx', '.ts': 'tsx' },
       define: {
-        "process.env.NODE_ENV": '"production"',
+        'process.env.NODE_ENV': '"production"',
       },
     });
 
-    let code = "";
-    let map = "";
+    let code = '';
+    let map = '';
     for (const out of bundle.outputFiles) {
-      if (out.path.endsWith(".map")) {
+      if (out.path.endsWith('.map')) {
         map = map.concat(out.text);
       } else {
         code = code.concat(out.text);
 
         if (dumpCode) {
           process.stdout.write(`\n======= Start code for '${name}':\n`);
-          process.stdout.write(out.contents);
+          process.stdout.write(out.contents.toString());
           process.stdout.write(`\n======= End code for '${name}'\n`);
         }
       }
     }
 
-    form.append("extension[scripts][][name]", name);
-    form.append("extension[scripts[][script_text]", code, "script.txt");
-    form.append("extension[scripts[][source_map]", map, "source_map.txt");
-  } catch (err) {
-    ux.action.stop("failed");
-    command.error("Compilation error", { exit: 1 });
+    form.append('extension[scripts][][name]', name);
+    form.append('extension[scripts[][script_text]', code, 'script.txt');
+    form.append('extension[scripts[][source_map]', map, 'source_map.txt');
+  } catch (error) {
+    ux.action.stop('failed');
+    command.error('Compilation error', { exit: 1 });
   }
 }
