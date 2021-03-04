@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/aha-app/aha-cli/issues",
   "dependencies": {
+    "@fal-works/esbuild-plugin-global-externals": "^2.1.1",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^3",
