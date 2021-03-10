@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JSON schema for Aha! Develop extensions",
+  "description": "Validate ahaExtension key in package.json files",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contributes"],
+  "properties": {
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "settings": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": {
+            "$ref": "#/definitions/settingContribution"
+          }
+        },
+        "views": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/viewContribution" }
+        },
+        "commands": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/commandContribution"
+          }
+        },
+        "endpoints": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/endpointContribution"
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/eventContribution" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "contribution": {
+      "type": "object",
+      "required": ["title"],
+      "properties": { "title": { "type": "string" } }
+    },
+    "settingContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/contribution" },
+        {
+          "type": "object",
+          "required": ["scope", "type"],
+          "properties": {
+            "scope": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["account", "user", "project"]
+              }
+            },
+            "type": {
+              "type": "string",
+              "enum": ["boolean", "color", "string", "number"]
+            },
+            "default": {},
+            "description": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["label", "value"],
+                "properties": {
+                  "label": { "type": "string" },
+                  "value": {}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "codeContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/contribution" },
+        {
+          "type": "object",
+          "required": ["entryPoint"],
+          "properties": {
+            "entryPoint": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "viewPageContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/codeContribution" },
+        {
+          "type": "object",
+          "required": ["host", "location"],
+          "properties": {
+            "host": { "type": "string", "enum": ["page"] },
+            "location": {
+              "type": "object",
+              "required": ["menu"],
+              "properties": { "menu": { "type": "string" } }
+            }
+          }
+        }
+      ]
+    },
+    "viewOtherContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/codeContribution" },
+        {
+          "type": "object",
+          "required": ["host", "recordTypes"],
+          "properties": {
+            "host": {
+              "type": "string",
+              "enum": ["attribute", "tab"]
+            },
+            "recordTypes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Feature", "Epic", "Requirement"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "viewContribution": {
+      "anyOf": [
+        { "$ref": "#/definitions/viewPageContribution" },
+        { "$ref": "#/definitions/viewOtherContribution" }
+      ]
+    },
+    "commandContribution": {
+      "allOf": [{ "$ref": "#/definitions/codeContribution" }]
+    },
+    "endpointContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/codeContribution" },
+        {
+          "type": "object",
+          "properties": {
+            "public": { "type": "boolean" }
+          }
+        }
+      ]
+    },
+    "eventContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/codeContribution" },
+        {
+          "type": "object",
+          "properties": {
+            "handles": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1
+            }
+          }
+        }
+      ]
+    }
+  }
+}
