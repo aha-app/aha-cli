@@ -58,7 +58,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["account", "user", "project"]
+                "enum": ["account", "user"]
               }
             },
             "type": {
