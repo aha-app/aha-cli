@@ -1,7 +1,7 @@
 {
   "name": "@aha-app/aha-cli",
   "description": "Command line interface for Aha! (www.aha.io)",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "@k1w1",
   "bin": {
     "aha": "./bin/run"
@@ -50,7 +50,8 @@
     "/bin",
     "/lib",
     "/npm-shrinkwrap.json",
-    "/oclif.manifest.json"
+    "/oclif.manifest.json",
+    "/aha.d.ts"
   ],
   "homepage": "https://github.com/aha-app/aha-cli",
   "keywords": [
@@ -84,7 +85,7 @@
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md"
   },
-  "types": "lib/index.d.ts",
+  "types": "./aha.d.ts",
   "prettier": {
     "singleQuote": true
   }
