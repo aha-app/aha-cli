@@ -6,6 +6,9 @@
   "additionalProperties": false,
   "required": ["contributes"],
   "properties": {
+    "jsxFactory": {
+      "type": "string"
+    },
     "contributes": {
       "type": "object",
       "additionalProperties": false,
