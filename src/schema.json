@@ -6,6 +6,13 @@
   "additionalProperties": false,
   "required": ["contributes"],
   "properties": {
+    "jsxFactory": {
+      "type": "string"
+    },
+    "cspSources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "contributes": {
       "type": "object",
       "additionalProperties": false,

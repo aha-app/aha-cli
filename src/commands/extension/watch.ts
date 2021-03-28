@@ -13,7 +13,7 @@ export default class Create extends BaseCommand {
   async run() {
     this.log('Watching for changes in the current directory ...');
     chokidar
-      .watch('.', { ignoreInitial: true })
+      .watch('.', { ignoreInitial: true, ignored: '.git' })
       .on('all', async (event, changedPath) => {
         this.log(`... detected file change: ${changedPath}`);
         await installExtension(this, false);

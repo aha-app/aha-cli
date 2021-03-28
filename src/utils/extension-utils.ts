@@ -120,6 +120,7 @@ command: BaseCommand,
   const contributionScripts: any = {};
   const configuration = readConfiguration();
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
+  const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
   process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
 
@@ -147,7 +148,8 @@ command: BaseCommand,
         contributionName,
         contribution.entryPoint,
         dumpCode,
-        jsxFactory
+        jsxFactory,
+        jsxFragment
       );
     });
   });
@@ -181,7 +183,8 @@ async function prepareScript(
   name: string,
   path: string,
   dumpCode: boolean,
-  jsxFactory: string
+  jsxFactory: string,
+  jsxFragment: string
 ) {
   // If no path is provided then this contribution has no script
   if (!path) {
@@ -200,6 +203,7 @@ async function prepareScript(
 
     const bundle = await esbuild.build({
       jsxFactory,
+      jsxFragment,
       entryPoints: [path],
       bundle: true,
       outfile: 'bundle.js',
