@@ -4,6 +4,7 @@ import * as esbuild from 'esbuild';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 import { Readable } from 'stream';
+import { createGzip } from 'zlib';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 
@@ -20,6 +21,10 @@ export function readConfiguration() {
 
 export function identifierFromConfiguration(configuration: any) {
   return configuration.name.replace('@', '').replace('/', '.');
+}
+
+function fileNameFromConfiguration(configuration: any) {
+  return configuration.name.replace('@', '-').replace('/', '-');
 }
 
 /**
@@ -43,22 +48,77 @@ function pathToExternal(path: string): string {
   return `aha.import('${path}')`;
 }
 
+// Compile and upload an extension.
 export async function installExtension(
   command: BaseCommand,
   dumpCode: boolean
 ) {
-  // TODO: Perhaps the installation should upload the "contributes" section
-  // from the package.json file as-is. The server can then track exactly
-  // what the extension needs. If the extension creates a custom field then
-  // perhaps we could link the field back to the extension, so you could see
-  // where it came from, and optionally remove the field if the extension
-  // is removed.
+  const form = await prepareExtensionForm(command, dumpCode);
 
+  // Upload all of the scripts and configuration in one go. This requires the
+  // use of form encoding, but it turns out to be much faster to just have one
+  // server round-trip with more data, than multiple round trips. It also allows
+  // us to treat extension updates atomically - which prevents mismatched code.
+  ux.action.start('Uploading');
+  const response : any = await command.api.post('/api/v1/extensions', {
+    body: new Readable({
+      read() {
+        this.push(form.getBuffer());
+        this.push(null);
+      },
+    }),
+    headers: {
+      'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
+    },
+  });
+
+  if (response?.body?.errors) {
+    ux.action.stop('error');
+
+    const errors: { [index: string]: string[] } = response.body.errors;
+    const errorTree = ux.tree();
+
+    Object.keys(errors).forEach((identifier) => {
+      errorTree.insert(identifier);
+      errors[identifier].forEach((error) =>
+        errorTree.nodes[identifier].insert(error)
+      );
+    });
+
+    errorTree.display();
+  } else {
+    ux.action.stop('done');
+  }
+}
+
+// Generate a file that contains the extension configuration and code in the 
+// same form-data format that is used when it is uploaded.
+export async function buildExtension(
+  command: BaseCommand
+) {
+  const form = await prepareExtensionForm(command, false);
+  const configuration = readConfiguration();
+  const fileName = `${fileNameFromConfiguration(configuration)}.gz`;
+ 
+  ux.action.start('Saving');
+  const gzip = createGzip();
+  const output = fs.createWriteStream(fileName);
+  gzip.pipe(output);
+  gzip.write(form.getBuffer());
+  gzip.end();
+
+  ux.action.stop('done');
+}
+
+async function prepareExtensionForm(
+command: BaseCommand,
+  dumpCode: boolean
+) {
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
+  const form = new FormData();
   const contributionScripts: any = {};
   const configuration = readConfiguration();
-  const form = new FormData();
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
@@ -111,40 +171,7 @@ export async function installExtension(
     JSON.stringify(configuration.ahaExtension)
   );
 
-  // Upload all of the scripts and configuration in one go. This requires the
-  // use of form encoding, but it turns out to be much faster to just have one
-  // server round-trip with more data, than multiple round trips. It also allows
-  // us to treat extension updates atomically - which prevents mismatched code.
-  ux.action.start('Uploading');
-  const response = await command.api.post('/api/v1/extensions', {
-    body: new Readable({
-      read() {
-        this.push(form.getBuffer());
-        this.push(null);
-      },
-    }),
-    headers: {
-      'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
-    },
-  });
-
-  if (response?.body?.errors) {
-    ux.action.stop('error');
-
-    const errors: { [index: string]: string[] } = response.body.errors;
-    const errorTree = ux.tree();
-
-    Object.keys(errors).forEach((identifier) => {
-      errorTree.insert(identifier);
-      errors[identifier].forEach((error) =>
-        errorTree.nodes[identifier].insert(error)
-      );
-    });
-
-    errorTree.display();
-  } else {
-    ux.action.stop('done');
-  }
+  return form;
 }
 
 // Load script and resolve imports using esbuild.
