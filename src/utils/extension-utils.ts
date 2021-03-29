@@ -53,6 +53,10 @@ export async function installExtension(
   command: BaseCommand,
   dumpCode: boolean
 ) {
+  const configuration = readConfiguration();
+  process.stdout.write(
+    `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
+  );
   const form = await prepareExtensionForm(command, dumpCode);
 
   // Upload all of the scripts and configuration in one go. This requires the
@@ -60,7 +64,7 @@ export async function installExtension(
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start('Uploading');
-  const response : any = await command.api.post('/api/v1/extensions', {
+  const response: any = await command.api.post('/api/v1/extensions', {
     body: new Readable({
       read() {
         this.push(form.getBuffer());
@@ -91,15 +95,16 @@ export async function installExtension(
   }
 }
 
-// Generate a file that contains the extension configuration and code in the 
+// Generate a file that contains the extension configuration and code in the
 // same form-data format that is used when it is uploaded.
-export async function buildExtension(
-  command: BaseCommand
-) {
-  const form = await prepareExtensionForm(command, false);
+export async function buildExtension(command: BaseCommand) {
   const configuration = readConfiguration();
   const fileName = `${fileNameFromConfiguration(configuration)}.gz`;
- 
+  process.stdout.write(
+    `Building extension '${configuration.name}' to '${fileName}'\n`
+  );
+  const form = await prepareExtensionForm(command, false);
+
   ux.action.start('Saving');
   const gzip = createGzip();
   const output = fs.createWriteStream(fileName);
@@ -110,10 +115,7 @@ export async function buildExtension(
   ux.action.stop('done');
 }
 
-async function prepareExtensionForm(
-command: BaseCommand,
-  dumpCode: boolean
-) {
+async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
@@ -121,7 +123,6 @@ command: BaseCommand,
   const configuration = readConfiguration();
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
-  process.stdout.write(`Installing extension '${configuration.name}'\n`);
   const contributions = configuration.ahaExtension.contributes;
 
   const compilers = Object.keys(contributions).flatMap((contributionType) => {
