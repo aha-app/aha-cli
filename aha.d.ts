@@ -19,14 +19,15 @@ declare namespace Aha {
   }
 
   interface RenderExtensionProps {
+    isUpdate: boolean;
     record: RecordStub;
+    fields: { [index: string]: unknown };
     update: UpdateCallback;
     state: any;
-    fields: { [index: string]: unknown };
   }
 
   interface RenderExtension {
-    (container: HTMLElement, props: RenderExtensionProps): void;
+    (container: HTMLElement, props: RenderExtensionProps): void | Function;
   }
 
   interface CommandExtension<Param> {
