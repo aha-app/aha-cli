@@ -38,6 +38,17 @@ declare namespace Aha {
     placeholder?: string;
     default?: string;
   }
+
+  interface AuthOptions {
+    reAuth?: boolean;
+    useCachedRetry?: boolean;
+    parameters: unknown;
+  }
+
+  interface AuthData {}
+  interface AuthCallback {
+    (authData: AuthData): void;
+  }
 }
 
 interface Aha {
@@ -66,7 +77,14 @@ interface Aha {
    * @param name
    * @param args
    */
-  command<T>(name: string, args?: T);
+  command<T>(name: string, args?: T): void;
+
+  auth(service: string, options: Aha.AuthOptions): Promise<Aha.AuthData>;
+  auth(
+    service: string,
+    options: Aha.AuthOptions,
+    callback?: Aha.AuthCallback
+  ): void;
 }
 
 declare const aha: Aha;
