@@ -64,24 +64,25 @@ export async function installExtension(
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start('Uploading');
-  const response: any = await command.api.post('/api/v1/extensions', {
-    body: new Readable({
-      read() {
-        this.push(form.getBuffer());
-        this.push(null);
+  try {
+    const response: any = await command.api.post('/api/v1/extensions', {
+      body: new Readable({
+        read() {
+          this.push(form.getBuffer());
+          this.push(null);
+        },
+      }),
+      headers: {
+        'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
       },
-    }),
-    headers: {
-      'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
-    },
-  });
+    });
 
-  if (response?.body?.errors) {
+    ux.action.stop('done');
+  } catch (error) {
     ux.action.stop('error');
 
-    const errors: { [index: string]: string[] } = response.body.errors;
     const errorTree = ux.tree();
-
+    const errors: { [index: string]: string[] } = error.http.body.errors;
     Object.keys(errors).forEach((identifier) => {
       errorTree.insert(identifier);
       errors[identifier].forEach((error) =>
@@ -90,8 +91,6 @@ export async function installExtension(
     });
 
     errorTree.display();
-  } else {
-    ux.action.stop('done');
   }
 }
 

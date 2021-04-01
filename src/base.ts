@@ -1,13 +1,13 @@
-import Command, { flags } from "@oclif/command";
-import { Input, OutputFlags } from "@oclif/parser";
-import AhaAPI from "./api";
-import netrc from "netrc-parser";
+import Command, { flags } from '@oclif/command';
+import { Input, OutputFlags } from '@oclif/parser';
+import AhaAPI from './api';
+import netrc from 'netrc-parser';
 
 abstract class BaseCommand extends Command {
   static flags = {
     subdomain: flags.string({
-      char: "s",
-      description: "Aha! subdomain to use for authentication",
+      char: 's',
+      description: 'Aha! subdomain to use for authentication',
     }),
   };
 
@@ -60,7 +60,7 @@ abstract class BaseCommand extends Command {
     } else {
       // Use the first type=aha url we find.
       for (subdomain in netrc.machines) {
-        if (netrc.machines[subdomain].type === "aha") {
+        if (netrc.machines[subdomain].type === 'aha') {
           token = netrc.machines[subdomain].token;
           url = netrc.machines[subdomain].url;
           break;
