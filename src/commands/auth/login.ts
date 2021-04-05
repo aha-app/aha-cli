@@ -1,10 +1,10 @@
-import BaseCommand from "../../base";
-import { flags } from "@oclif/command";
-import ux from "cli-ux";
-import netrc from "netrc-parser";
-import open = require("open");
-import * as crypto from "crypto";
-import { HTTP } from "http-call";
+import BaseCommand from '../../base';
+import { flags } from '@oclif/command';
+import ux from 'cli-ux';
+import netrc from 'netrc-parser';
+import * as open from 'open';
+import * as crypto from 'crypto';
+import { HTTP } from 'http-call';
 
 interface NetrcEntry {
   token: string;
@@ -26,8 +26,8 @@ Credentials are saved in ~/.netrc`;
   static flags = {
     ...BaseCommand.flags,
     authServer: flags.string({
-      description: "server to use for authentication",
-      default: "https://secure.aha.io",
+      description: 'server to use for authentication',
+      default: 'https://secure.aha.io',
     }),
     browser: flags.string({
       description: "browser to use for login, e.g. 'safari' or 'firefox'",
@@ -35,10 +35,10 @@ Credentials are saved in ~/.netrc`;
   };
 
   async run() {
-    const cliToken = crypto.randomBytes(36).toString("hex");
+    const cliToken = crypto.randomBytes(36).toString('hex');
 
     process.stderr.write(
-      "Opening browser to login to Aha! and authorize the CLI\n"
+      'Opening browser to login to Aha! and authorize the CLI\n'
     );
     const cp = await open(
       `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`,
@@ -47,11 +47,11 @@ Credentials are saved in ~/.netrc`;
         wait: false,
       }
     );
-    cp.on("error", (err) => {
+    cp.on('error', (err) => {
       ux.warn(err);
-      ux.warn("Cannot open browser");
+      ux.warn('Cannot open browser');
     });
-    ux.action.start("Waiting for login");
+    ux.action.start('Waiting for login');
 
     let subdomain;
     while (true) {
@@ -73,21 +73,21 @@ Credentials are saved in ~/.netrc`;
         await new Promise((r) => setTimeout(r, 1000));
       }
     }
-    ux.action.stop("complete.");
+    ux.action.stop('complete.');
 
     // Try to use the token.
-    ux.action.start("Testing login");
+    ux.action.start('Testing login');
     this.flags.subdomain = subdomain;
     this.resetAPI();
-    await this.api.get("/api/v1/me");
-    ux.action.stop("Success!");
+    await this.api.get('/api/v1/me');
+    ux.action.stop('Success!');
   }
 
   private saveToken(host: string, entry: NetrcEntry) {
     netrc.loadSync();
 
     if (!netrc.machines[host]) netrc.machines[host] = {};
-    netrc.machines[host].type = "aha";
+    netrc.machines[host].type = 'aha';
     netrc.machines[host].email = entry.email;
     netrc.machines[host].token = entry.token;
     netrc.machines[host].url = entry.url;
