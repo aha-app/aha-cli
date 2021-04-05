@@ -19,7 +19,7 @@ $ npm install -g @aha-app/aha-cli
 $ aha COMMAND
 running command...
 $ aha (-v|--version|version)
-@aha-app/aha-cli/1.0.3 darwin-x64 node-v12.19.1
+@aha-app/aha-cli/1.1.0 darwin-x64 node-v12.15.0
 $ aha --help [COMMAND]
 USAGE
   $ aha COMMAND
@@ -30,6 +30,7 @@ USAGE
 <!-- commands -->
 * [`aha auth:check`](#aha-authcheck)
 * [`aha auth:login`](#aha-authlogin)
+* [`aha extension:build`](#aha-extensionbuild)
 * [`aha extension:create`](#aha-extensioncreate)
 * [`aha extension:install`](#aha-extensioninstall)
 * [`aha extension:tail`](#aha-extensiontail)
@@ -49,7 +50,7 @@ OPTIONS
   -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/auth/check.ts)_
+_See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/auth/check.ts)_
 
 ## `aha auth:login`
 
@@ -68,7 +69,21 @@ DESCRIPTION
   Credentials are saved in ~/.netrc
 ```
 
-_See code: [src/commands/auth/login.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/auth/login.ts)_
+_See code: [src/commands/auth/login.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/auth/login.ts)_
+
+## `aha extension:build`
+
+Build an extension into a zip file for ease of distribution
+
+```
+USAGE
+  $ aha extension:build
+
+OPTIONS
+  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+```
+
+_See code: [src/commands/extension/build.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/build.ts)_
 
 ## `aha extension:create`
 
@@ -82,7 +97,7 @@ OPTIONS
   -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/extension/create.ts)_
+_See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/create.ts)_
 
 ## `aha extension:install`
 
@@ -97,7 +112,7 @@ OPTIONS
   --dumpCode                 dump all code as it is uploaded
 ```
 
-_See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/extension/install.ts)_
+_See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/install.ts)_
 
 ## `aha extension:tail`
 
@@ -111,7 +126,7 @@ OPTIONS
   -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/extension/tail.ts)_
+_See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/tail.ts)_
 
 ## `aha extension:uninstall`
 
@@ -125,7 +140,7 @@ OPTIONS
   -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/extension/uninstall.ts)_
+_See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/uninstall.ts)_
 
 ## `aha extension:watch`
 
@@ -139,7 +154,7 @@ OPTIONS
   -s, --subdomain=subdomain  Aha! subdomain to use for authentication
 ```
 
-_See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.0.3/src/commands/extension/watch.ts)_
+_See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.1.0/src/commands/extension/watch.ts)_
 
 ## `aha help [COMMAND]`
 
