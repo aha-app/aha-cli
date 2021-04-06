@@ -4,7 +4,7 @@
   "version": "1.3.0",
   "author": "@k1w1",
   "bin": {
-    "aha": "./bin/run"
+    "aha": "./bin/aha"
   },
   "bugs": "https://github.com/aha-app/aha-cli/issues",
   "dependencies": {
