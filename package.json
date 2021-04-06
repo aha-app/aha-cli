@@ -6,6 +6,7 @@
   "bin": {
     "aha": "./bin/run"
   },
+  "type": "module",
   "bugs": "https://github.com/aha-app/aha-cli/issues",
   "dependencies": {
     "@fal-works/esbuild-plugin-global-externals": "^2.1.1",
