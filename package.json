@@ -6,7 +6,6 @@
   "bin": {
     "aha": "./bin/run"
   },
-  "type": "module",
   "bugs": "https://github.com/aha-app/aha-cli/issues",
   "dependencies": {
     "@fal-works/esbuild-plugin-global-externals": "^2.1.1",
@@ -18,7 +17,7 @@
     "cli-ux": "^5.5.1",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
-    "esbuild": "^0.11.2",
+    "esbuild": "^0.11.5",
     "form-data": "^3.0.0",
     "http-call": "^5.3.0",
     "netrc-parser": "^3.1.6",
@@ -48,9 +47,7 @@
     "node": ">=11.0.0"
   },
   "files": [
-    "/bin",
-    "/lib",
-    "/npm-shrinkwrap.json",
+    "/bin/aha",
     "/oclif.manifest.json",
     "/aha.d.ts"
   ],
@@ -82,7 +79,7 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme && cat bin/run | esbuild --platform=node --bundle --outfile=bin/aha",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md"
   },
