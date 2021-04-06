@@ -1,10 +1,27 @@
 declare namespace Aha {
-  interface RecordStub {
+  interface ApplicationModel {
+    typename: string;
+    getExtensionFields(identifier: string): Promise<any>;
+    getExtensionField<T>(
+      identifier: string,
+      fieldName: string
+    ): Promise<T | null>;
+    setExtensionField(
+      identifier: string,
+      fieldName: string,
+      value: any
+    ): Promise<void>;
+  }
+
+  interface RecordStub extends ApplicationModel {
     id: string;
     referenceNum: string;
     type: string;
   }
 
+  interface Account extends ApplicationModel {
+    id: string;
+  }
   interface Settings {
     get(name: string): Settings | unknown;
   }
@@ -45,7 +62,9 @@ declare namespace Aha {
     parameters: unknown;
   }
 
-  interface AuthData {}
+  interface AuthData {
+    token: string;
+  }
   interface AuthCallback {
     (authData: AuthData): void;
   }
@@ -85,6 +104,11 @@ interface Aha {
     options: Aha.AuthOptions,
     callback?: Aha.AuthCallback
   ): void;
+
+  account: Aha.Account;
+  models: {
+    [index: string]: any;
+  };
 }
 
 declare const aha: Aha;
