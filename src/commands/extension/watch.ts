@@ -58,6 +58,7 @@ export default class Create extends BaseCommand {
     }
     this.changedPaths = null;
     this.timeoutHandle = null;
+    // Put no async code above this line. The instance variables must be updated before awaiting
 
     try {
       await installExtension(this, false);
