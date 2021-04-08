@@ -74,7 +74,7 @@ export default class Create extends BaseCommand {
   }
 }
 
-function packageTemplate(identifier, name, author) {
+function packageTemplate(identifier: string, name: string, author: string) {
   return `{
   "name": "${identifier}",
   "description": "${name}",
