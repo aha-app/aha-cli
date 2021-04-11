@@ -64,6 +64,7 @@ export default class Create extends BaseCommand {
       await installExtension(this, false);
     } catch (error) {
       // Do nothing if the compile fails
+      this.error(error.message, { exit: false });
     } finally {
       this.performingInstall = false;
     }

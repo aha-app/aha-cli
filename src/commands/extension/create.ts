@@ -59,10 +59,10 @@ export default class Create extends BaseCommand {
       packageTemplate(identifier, name, author)
     );
     fs.mkdirSync(`${directoryName}/src`);
-    fs.mkdirSync(`${directoryName}/src/pages`);
+    fs.mkdirSync(`${directoryName}/src/views`);
     fs.mkdirSync(`${directoryName}/src/commands`);
     fs.writeFileSync(
-      `${directoryName}/src/pages/samplePage.js`,
+      `${directoryName}/src/views/samplePage.js`,
       pageTemplate()
     );
     fs.writeFileSync(
@@ -92,7 +92,7 @@ function packageTemplate(identifier: string, name: string, author: string) {
         "samplePage": {
           "title": "Sample page",
           "host": "page",
-          "entryPoint": "src/pages/samplePage.js",
+          "entryPoint": "src/views/samplePage.js",
           "location": {
             "menu": "Work"
           }

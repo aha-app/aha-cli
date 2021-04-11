@@ -53,11 +53,18 @@ export async function installExtension(
   command: BaseCommand,
   dumpCode: boolean
 ) {
-  const configuration = readConfiguration();
-  process.stdout.write(
-    `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
-  );
-  const form = await prepareExtensionForm(command, dumpCode);
+  let form:any = null;
+
+  try {
+    const configuration = readConfiguration();
+    process.stdout.write(
+      `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
+    );
+    form = await prepareExtensionForm(command, dumpCode);
+  } catch (error) {
+    ux.action.stop('error');
+    throw error;
+  }
 
   // Upload all of the scripts and configuration in one go. This requires the
   // use of form encoding, but it turns out to be much faster to just have one
