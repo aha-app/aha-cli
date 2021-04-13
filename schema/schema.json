@@ -44,6 +44,12 @@
         "events": {
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/eventContribution" }
+        },
+        "importers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/importerContribution"
+          }
         }
       }
     }
@@ -178,6 +184,9 @@
           }
         }
       ]
+    },
+    "importerContribution": {
+      "allOf": [{ "$ref": "#/definitions/codeContribution" }]
     }
   }
 }
