@@ -11,6 +11,7 @@ declare namespace Aha {
       fieldName: string,
       value: any
     ): Promise<void>;
+    save(): Promise<void>;
   }
 
   interface RecordStub extends ApplicationModel {
@@ -59,7 +60,7 @@ declare namespace Aha {
   interface AuthOptions {
     reAuth?: boolean;
     useCachedRetry?: boolean;
-    parameters: unknown;
+    parameters?: unknown;
   }
 
   interface AuthData {
@@ -67,6 +68,87 @@ declare namespace Aha {
   }
   interface AuthCallback {
     (authData: AuthData): void;
+  }
+
+  interface ListFiltersEvent {
+    action: 'listFilters';
+  }
+
+  interface ListFilter {
+    title: string;
+    required: boolean;
+    type: string;
+  }
+  interface ListFiltersCallback {
+    /**
+     * Return a list of available filters
+     */
+    (): Promise<{[index: string]: ListFilter}>
+  }
+
+  interface FilterValuesEvent {
+    action: 'filterValues';
+  }
+
+  /**
+   * Some filters will require information from the external server. For
+   * example, when filtering to an assigned user, you may want to fetch the
+   * list of users from the system you are importing from. filterValues
+   * returns the list of possible values for a filter field.
+   */
+  type FilterValuesCallback =
+    (props: {filterName: string, filters: {[index: string]: any}}) => Promise<FilterValue[]>;
+
+  interface FilterValue {
+    text?: string;
+    value: any;
+  }
+
+  interface ListCandidatesEvent {
+    action: 'listCandidates';
+  }
+
+  interface ListCandidatesCallback<T extends ImportRecord> {
+    (props: {
+      filters: {[index: string]: any},
+      nextPage?: any;
+    }): Promise<ListCandidate<T>>;
+  }
+
+  interface ListCandidate<T extends ImportRecord> {
+    records: T[];
+    nextPage?: any;
+  }
+
+  interface RenderRecordEvent {
+    action: 'renderRecord';
+  }
+
+  interface RenderRecordCallback<T extends ImportRecord> {
+    (props: {record: T, onUnmounted: () => any}): void
+  }
+
+  interface ImportRecordEvent {
+    action: 'importRecord'
+  }
+
+  interface ImportRecordCallback<T extends ImportRecord> {
+    (props: {importRecord: T, ahaRecord: RecordStub}): Promise<void>
+  }
+
+  interface ImportRecord {
+    uniqueId: string;
+    name: string;
+    identifier?: string;
+    url?: string;
+  }
+
+  interface Importer<T extends ImportRecord> {
+    on(event: ListFiltersEvent, callback: ListFiltersCallback):void;
+    on(event: FilterValuesEvent, callback: FilterValuesCallback):void;
+    on(event: ListCandidatesEvent, callback: ListCandidatesCallback<T>):void;
+    on(event: RenderRecordEvent, callback: RenderRecordCallback<T>): void;
+    on(event: ImportRecordEvent, callback: ImportRecordCallback<T>): void;
   }
 }
 
@@ -97,6 +179,8 @@ interface Aha {
    * @param args
    */
   command<T>(name: string, args?: T): void;
+
+  getImporter<T extends Aha.ImportRecord>(identifier: string): Aha.Importer<T>;
 
   auth(service: string, options: Aha.AuthOptions): Promise<Aha.AuthData>;
   auth(
