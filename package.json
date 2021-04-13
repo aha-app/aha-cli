@@ -49,6 +49,7 @@
   "files": [
     "/bin",
     "/lib",
+    "/schema",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json",
     "/aha.d.ts"
