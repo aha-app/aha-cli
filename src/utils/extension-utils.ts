@@ -53,7 +53,7 @@ export async function installExtension(
   command: BaseCommand,
   dumpCode: boolean
 ) {
-  let form:any = null;
+  let form: any = null;
 
   try {
     const configuration = readConfiguration();
@@ -174,7 +174,10 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
   form.append('extension[name]', configuration.description);
   form.append('extension[version]', configuration.version);
   form.append('extension[author]', configuration.author);
-  form.append('extension[repository]', configuration.repository.url);
+  form.append(
+    'extension[repository]',
+    configuration.repository?.url || configuration.repository
+  );
   form.append(
     'extension[configuration]',
     JSON.stringify(configuration.ahaExtension)
