@@ -72,7 +72,7 @@ export async function installExtension(
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start('Uploading');
   try {
-    const response: any = await command.api.post('/api/v1/extensions', {
+    await command.api.post('/api/v1/extensions', {
       body: new Readable({
         read() {
           this.push(form.getBuffer());
@@ -161,10 +161,16 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
     });
   });
 
-  ux.action.start('Compiling');
-  await Promise.all(compilers);
+  const progressBar = ux.progress({
+    format: 'Compiling... [{bar}] {percentage}% | {value}/{total}',
+  });
+  progressBar.start(compilers.length, 0);
 
-  ux.action.stop('done');
+  await Promise.all(
+    compilers.map((p) => p.then(() => progressBar.increment()))
+  );
+
+  progressBar.stop();
 
   // Add general extension parameters
   form.append(
