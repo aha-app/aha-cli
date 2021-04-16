@@ -1,16 +1,22 @@
 declare namespace Aha {
-  interface ApplicationModel {
+  class ApplicationModel {
     typename: string;
+
+    id: string;
+
     getExtensionFields(identifier: string): Promise<any>;
+
     getExtensionField<T>(
       identifier: string,
       fieldName: string
     ): Promise<T | null>;
+
     setExtensionField(
       identifier: string,
       fieldName: string,
       value: any
     ): Promise<void>;
+
     save(): Promise<void>;
   }
 
@@ -83,7 +89,7 @@ declare namespace Aha {
     /**
      * Return a list of available filters
      */
-    (): Promise<{[index: string]: ListFilter}>
+    (): Promise<{ [index: string]: ListFilter }>;
   }
 
   interface FilterValuesEvent {
@@ -96,8 +102,10 @@ declare namespace Aha {
    * list of users from the system you are importing from. filterValues
    * returns the list of possible values for a filter field.
    */
-  type FilterValuesCallback =
-    (props: {filterName: string, filters: {[index: string]: any}}) => Promise<FilterValue[]>;
+  type FilterValuesCallback = (props: {
+    filterName: string;
+    filters: { [index: string]: any };
+  }) => Promise<FilterValue[]>;
 
   interface FilterValue {
     text?: string;
@@ -109,10 +117,9 @@ declare namespace Aha {
   }
 
   interface ListCandidatesCallback<T extends ImportRecord> {
-    (props: {
-      filters: {[index: string]: any},
-      nextPage?: any;
-    }): Promise<ListCandidate<T>>;
+    (props: { filters: { [index: string]: any }; nextPage?: any }): Promise<
+      ListCandidate<T>
+    >;
   }
 
   interface ListCandidate<T extends ImportRecord> {
@@ -125,15 +132,15 @@ declare namespace Aha {
   }
 
   interface RenderRecordCallback<T extends ImportRecord> {
-    (props: {record: T, onUnmounted: () => any}): void
+    (props: { record: T; onUnmounted: () => any }): void;
   }
 
   interface ImportRecordEvent {
-    action: 'importRecord'
+    action: 'importRecord';
   }
 
   interface ImportRecordCallback<T extends ImportRecord> {
-    (props: {importRecord: T, ahaRecord: RecordStub}): Promise<void>
+    (props: { importRecord: T; ahaRecord: RecordStub }): Promise<void>;
   }
 
   interface ImportRecord {
@@ -144,15 +151,27 @@ declare namespace Aha {
   }
 
   interface Importer<T extends ImportRecord> {
-    on(event: ListFiltersEvent, callback: ListFiltersCallback):void;
-    on(event: FilterValuesEvent, callback: FilterValuesCallback):void;
-    on(event: ListCandidatesEvent, callback: ListCandidatesCallback<T>):void;
+    on(event: ListFiltersEvent, callback: ListFiltersCallback): void;
+    on(event: FilterValuesEvent, callback: FilterValuesCallback): void;
+    on(event: ListCandidatesEvent, callback: ListCandidatesCallback<T>): void;
     on(event: RenderRecordEvent, callback: RenderRecordCallback<T>): void;
     on(event: ImportRecordEvent, callback: ImportRecordCallback<T>): void;
   }
 }
 
 interface Aha {
+  /**
+   * The current account
+   */
+  account: Aha.Account;
+
+  /**
+   * Fetch a model constructor
+   */
+  models: {
+    [index: string]: any;
+  };
+
   /**
    * Register an extension function
    *
@@ -189,12 +208,32 @@ interface Aha {
     callback?: Aha.AuthCallback
   ): void;
 
-  account: Aha.Account;
-  models: {
-    [index: string]: any;
-  };
+  triggerBrowser(event: string, args: any): void;
+  triggerServer(event: string, args: any): void;
 }
 
 declare const aha: Aha;
 declare const csrfToken: () => string;
 declare const Env: { [index: string]: string };
+
+declare namespace JSX {
+  interface IntrinsicElements {
+    'aha-flex': Partial<
+      {
+        className: string;
+        direction: 'column' | 'row';
+        children: React.ReactNode;
+        wrap: CSSStyleDeclaration['flexWrap'];
+      } & Pick<
+        CSSStyleDeclaration,
+        'justifyContent' | 'gap' | 'alignItems' | 'alignContent'
+      >
+    >;
+    'aha-icon': { icon: string };
+    'aha-button': any;
+    'aha-menu': any;
+    'aha-menu-item': any;
+    'aha-action-menu': any;
+    'aha-spinner': any;
+  }
+}
