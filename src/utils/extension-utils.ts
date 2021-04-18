@@ -130,36 +130,45 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
   const contributions = configuration.ahaExtension.contributes;
+  const scriptPaths: string[] = [];
 
-  const compilers = Object.keys(contributions).flatMap((contributionType) => {
-    const typeContributions = contributions[contributionType];
+  const compilers = Object.keys(contributions)
+    .flatMap((contributionType) => {
+      const typeContributions = contributions[contributionType];
 
-    return Object.keys(typeContributions).map((contributionName) => {
-      if (contributionScripts[contributionName]) {
-        throw new Error(
-          `Two extensions share the same name of '${contributionName}'. Contribution names must be unique within the extension.`
+      return Object.keys(typeContributions).map((contributionName) => {
+        if (contributionScripts[contributionName]) {
+          throw new Error(
+            `Two extensions share the same name of '${contributionName}'. Contribution names must be unique within the extension.`
+          );
+        }
+
+        const contribution = typeContributions[contributionName];
+
+        process.stdout.write(
+          `   contributes ${contributionType}: '${contributionName}'\n`
         );
-      }
 
-      const contribution = typeContributions[contributionName];
+        // Only compile each entrypoint once.
+        if (scriptPaths.includes(contribution.entryPoint)) {
+          return;
+        }
+        scriptPaths.push(contribution.entryPoint);
 
-      process.stdout.write(
-        `   contributes ${contributionType}: '${contributionName}'\n`
-      );
-
-      // Compile and upload script. We just generate a promise here and
-      // then wait for them all in parallel below.
-      return prepareScript(
-        command,
-        form,
-        contributionName,
-        contribution.entryPoint,
-        dumpCode,
-        jsxFactory,
-        jsxFragment
-      );
-    });
-  });
+        // Compile and upload script. We just generate a promise here and
+        // then wait for them all in parallel below.
+        return prepareScript(
+          command,
+          form,
+          contributionName,
+          contribution.entryPoint,
+          dumpCode,
+          jsxFactory,
+          jsxFragment
+        );
+      });
+    })
+    .filter((n) => n);
 
   const progressBar = ux.progress({
     format: 'Compiling... [{bar}] {percentage}% | {value}/{total}',
