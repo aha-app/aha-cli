@@ -123,7 +123,6 @@ function commandTemplate() {
 
 function pageTemplate() {
   return `import React from "react";
-import { render } from "react-dom";
 
 const Styles = () => {
   return (
@@ -140,13 +139,12 @@ const Styles = () => {
   );
 };
 
-aha.on("samplePage", ({ container, settings }) => {
-  render(
+aha.on("samplePage", ({ settings }) => {
+  return (
     <>
       <Styles />
       <div className='title'>Sample page</div>
-    </>,
-    container
+    </>
   );
 });`;
 }
