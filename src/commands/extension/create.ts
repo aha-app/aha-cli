@@ -110,7 +110,7 @@ function packageTemplate(identifier: string, name: string, author: string) {
 }
 
 function commandTemplate() {
-  return `aha.on("sampleCommand", ({ record, settings }) => {
+  return `aha.on("sampleCommand", ({ record }, { settings }) => {
   if (record) {
     aha.commandOutput(
       \`Running sample command for record: \${record.typename} / \${record.referenceNum}.\`
@@ -139,7 +139,7 @@ const Styles = () => {
   );
 };
 
-aha.on("samplePage", ({ settings }) => {
+aha.on("samplePage", ({ record, fields }, { settings }) => {
   return (
     <>
       <Styles />
