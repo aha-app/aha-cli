@@ -1,6 +1,8 @@
 import BaseCommand from '../../base';
 import ux from 'cli-ux';
 import * as fs from 'fs';
+import * as path from 'path';
+import { packageInfo, packageRoot } from '../../utils/packageInfo';
 
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
@@ -53,10 +55,37 @@ export default class Create extends BaseCommand {
 
     // Create the extension and template files.
     ux.action.start('Creating');
+
     fs.mkdirSync(directoryName);
     fs.writeFileSync(
       `${directoryName}/package.json`,
       packageTemplate(identifier, name, author)
+    );
+
+    const modulePath = path.join(
+      directoryName,
+      'node_modules',
+      '@aha-app',
+      'aha-cli'
+    );
+    fs.mkdirSync(path.join(modulePath, 'schema'), { recursive: true });
+    fs.copyFileSync(
+      path.join(packageRoot(), 'aha.d.ts'),
+      path.join(modulePath, 'aha.d.ts')
+    );
+    fs.copyFileSync(
+      path.join(packageRoot(), 'schema', 'schema.json'),
+      path.join(modulePath, 'schema', 'schema.json')
+    );
+    fs.copyFileSync(
+      path.join(packageRoot(), 'schema', 'package-schema.json'),
+      path.join(modulePath, 'schema', 'package-schema.json')
+    );
+    fs.writeFileSync(`${directoryName}/tsconfig.json`, tsconfigTemplate());
+    fs.mkdirSync(`${directoryName}/.vscode`);
+    fs.writeFileSync(
+      `${directoryName}/.vscode/settings.json`,
+      vscodeTemplate()
     );
     fs.mkdirSync(`${directoryName}/src`);
     fs.mkdirSync(`${directoryName}/src/views`);
@@ -75,6 +104,8 @@ export default class Create extends BaseCommand {
 }
 
 function packageTemplate(identifier: string, name: string, author: string) {
+  const version = packageInfo()['version'];
+
   return `{
   "name": "${identifier}",
   "description": "${name}",
@@ -85,6 +116,9 @@ function packageTemplate(identifier: string, name: string, author: string) {
     "url": "Add github URL here"
   },
   "license": "MIT",
+  "devDependencies": {
+    "@aha-app/aha-cli": "^${version}"
+  },
   "ahaExtension": {
     "cspSources": [],
     "contributes": {
@@ -106,6 +140,33 @@ function packageTemplate(identifier: string, name: string, author: string) {
       }
     }
   }
+}`;
+}
+
+function tsconfigTemplate() {
+  return `{
+  "compilerOptions": {
+    "checkJs": true,
+    "noEmit": true,
+    "lib": ["DOM", "ES6", "ES2019"],
+    "jsx": "preserve",
+    "typeRoots": ["node_modules/@types", "node_modules/@aha-app"],
+    "allowSyntheticDefaultImports": true,
+    "module": "ES6",
+    "moduleResolution": "node",
+    "target": "ES6"
+  }
+}`;
+}
+
+function vscodeTemplate() {
+  return `{
+  "json.schemas": [
+    {
+      "fileMatch": ["package.json"],
+      "url": "./node_modules/@aha-app/aha-cli/schema/package-schema.json"
+    }
+  ]
 }`;
 }
 
