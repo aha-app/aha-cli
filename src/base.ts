@@ -52,7 +52,7 @@ abstract class BaseCommand extends Command {
       // User specified the domain on the command line.
       if (!netrc.machines[subdomain]) {
         throw new Error(
-          `No credentials found for ${subdomain}, use "aha auth:login" to login first`
+          `No credentials found for ${subdomain}, use "aha auth:login -s ${subdomain}" to login first`
         );
       }
       token = netrc.machines[subdomain].token;
