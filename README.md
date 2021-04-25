@@ -1,31 +1,24 @@
 aha-cli
 =======
 
-Aha! command line interface
+Command line interface for working with [Aha!](https://www.aha.io).
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/aha-cli.svg)](https://npmjs.org/package/aha-cli)
-[![Downloads/week](https://img.shields.io/npm/dw/aha-cli.svg)](https://npmjs.org/package/aha-cli)
-[![License](https://img.shields.io/npm/l/aha-cli.svg)](https://github.com/aha-app/aha-cli/blob/master/package.json)
+Currently supported commands are for creating and managing extensions. 
 
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
 # Usage
-<!-- usage -->
 ```sh-session
 $ npm install -g @aha-app/aha-cli
-$ aha COMMAND
-running command...
-$ aha (-v|--version|version)
-@aha-app/aha-cli/1.9.1 darwin-x64 node-v12.15.0
-$ aha --help [COMMAND]
-USAGE
-  $ aha COMMAND
-...
+$ aha auth:login
+Authentication to Aha!...
+$ aha extension:create
+Create a new extension...
+$ aha extension:install
+Install the extension into your Aha! account...
 ```
-<!-- usagestop -->
 # Commands
 <!-- commands -->
 * [`aha auth:check`](#aha-authcheck)
