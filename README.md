@@ -11,7 +11,7 @@ Currently supported commands are for creating and managing extensions.
 <!-- tocstop -->
 # Usage
 ```sh-session
-$ npm install -g @aha-app/aha-cli
+$ npm install -g aha-cli
 $ aha auth:login
 Authentication to Aha!...
 $ aha extension:create

@@ -1,5 +1,5 @@
 {
-  "name": "@aha-app/aha-cli",
+  "name": "aha-cli",
   "description": "Command line interface for Aha! (www.aha.io)",
   "version": "1.9.2",
   "author": "Aha! (support@aha.io)",

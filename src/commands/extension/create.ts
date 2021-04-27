@@ -62,10 +62,7 @@ export default class Create extends BaseCommand {
       packageTemplate(identifier, name, author)
     );
 
-    fs.writeFileSync(
-      `${directoryName}/README.md`,
-      readmeTemplate(name)
-    );
+    fs.writeFileSync(`${directoryName}/README.md`, readmeTemplate(name));
 
     const modulePath = path.join(
       directoryName,
@@ -109,7 +106,7 @@ export default class Create extends BaseCommand {
 }
 
 function readmeTemplate(name: string) {
-    return `# ${name}
+  return `# ${name}
 
 TODO: Supply a short overview of the functionality the extension brings to Aha! Develop
 This [Aha! Develop](https://www.aha.io/develop/overview) extension enables...
@@ -136,7 +133,7 @@ Install the ${name} extension by clicking [here](https://secure.aha.io/settings/
 Install \`aha-cli\`:
 
 \`\`\`sh
- npm install -g @aha-app/aha-cli
+ npm install -g aha-cli
 \`\`\`
 
 Clone the repo:
@@ -164,7 +161,7 @@ aha extension:build
 \`\`\`
 
 To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API]()
-`
+`;
 }
 
 function packageTemplate(identifier: string, name: string, author: string) {
@@ -181,7 +178,7 @@ function packageTemplate(identifier: string, name: string, author: string) {
   },
   "license": "MIT",
   "devDependencies": {
-    "@aha-app/aha-cli": "^${version}"
+    "aha-cli": "^${version}"
   },
   "ahaExtension": {
     "cspSources": [],
@@ -228,7 +225,7 @@ function vscodeTemplate() {
   "json.schemas": [
     {
       "fileMatch": ["package.json"],
-      "url": "./node_modules/@aha-app/aha-cli/schema/package-schema.json"
+      "url": "./node_modules/aha-cli/schema/package-schema.json"
     }
   ]
 }`;
