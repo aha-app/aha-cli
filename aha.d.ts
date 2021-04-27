@@ -1997,14 +1997,15 @@ declare namespace Aha {
 
   interface RenderExtensionProps {
     isUpdate: boolean;
-    record: RecordStub;
-    fields: { [index: string]: unknown };
-    update: UpdateCallback;
-    state: any;
+    onUnmounted: (callback: () => void) => void;
+    record?: RecordStub;
+    fields?: { [index: string]: unknown };
+    update?: UpdateCallback;
+    state?: any;
   }
 
   interface RenderExtension {
-    (container: HTMLElement, props: RenderExtensionProps): void | Function;
+    (props: RenderExtensionProps, context: Context): void | React.ReactNode;
   }
 
   interface CommandExtension<Param> {
@@ -2036,7 +2037,7 @@ declare namespace Aha {
   interface ListFilter {
     title: string;
     required: boolean;
-    type: 'text' | 'select';
+    type: 'autocomplete' | 'text' | 'select';
   }
 
   interface ListFilters {
