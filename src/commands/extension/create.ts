@@ -174,7 +174,7 @@ function packageTemplate(identifier: string, name: string, author: string) {
   "author": "${author}",
   "repository": {
     "type": "git",
-    "url": "Add github URL here"
+    "url": "TODO: Add the GitHub URL to your extension in package.json"
   },
   "license": "MIT",
   "devDependencies": {
