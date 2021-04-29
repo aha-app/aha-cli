@@ -2,6 +2,16 @@ import * as crypto from 'crypto';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 
+/**
+ * A simple filesystem cache that stores keys by hash.
+ *
+ * ```
+ * const cache = await SimpleCache.create('path/to/cache/dir');
+ * await cache.has('abc123'); // false
+ * await cache.set('abc123', Buffer.concat('hello'));
+ * await cache.has('abc123'); // true
+ * await cache.get('abc123'); // Buffer('hello')
+ */
 export class SimpleCache {
   private location: string;
 
