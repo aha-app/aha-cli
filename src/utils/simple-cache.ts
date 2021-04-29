@@ -15,6 +15,11 @@ import { promises as fs } from 'fs';
 export class SimpleCache {
   private location: string;
 
+  /**
+   * Create the cache. If the location directory does not exist it will be created
+   *
+   * @param location Filesystem path
+   */
   static async create(location: string) {
     const resolved = path.resolve(location);
 
@@ -36,16 +41,28 @@ export class SimpleCache {
     this.location = path.resolve(location);
   }
 
+  /**
+   * @param url key identifiying the file
+   * @param data file data
+   */
   async set(url: string, data: Buffer) {
     const filePath = path.join(this.location, this.hash(url));
     return fs.writeFile(filePath, data);
   }
 
+  /**
+   * @param url key identifying the file
+   * @returns Buffer of the stored file data
+   */
   async get(url: string) {
     if (!(await this.hash(url))) throw new Error(`URL ${url} is not cached`);
     return fs.readFile(path.join(this.location, this.hash(url)));
   }
 
+  /**
+   * @param url key identifying the file
+   * @returns true of false if the cache has an entry for the key
+   */
   async has(url: string) {
     try {
       const stat = await fs.stat(path.join(this.location, this.hash(url)));
@@ -55,6 +72,10 @@ export class SimpleCache {
     }
   }
 
+  /**
+   * @param url key identifying the file
+   * @returns hashed key
+   */
   hash(url: string) {
     const hasher = crypto.createHmac('sha256', this.location);
     return hasher.update(url).digest('hex');
