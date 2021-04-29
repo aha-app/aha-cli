@@ -52,7 +52,8 @@ function pathToExternal(path: string): string {
 // Compile and upload an extension.
 export async function installExtension(
   command: BaseCommand,
-  dumpCode: boolean
+  dumpCode: boolean,
+  skipCache = false
 ) {
   let form: any = null;
 
@@ -61,7 +62,7 @@ export async function installExtension(
     process.stdout.write(
       `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
     );
-    form = await prepareExtensionForm(command, dumpCode);
+    form = await prepareExtensionForm(command, dumpCode, skipCache);
   } catch (error) {
     ux.action.stop('error');
     throw error;
@@ -126,7 +127,11 @@ export async function buildExtension(command: BaseCommand) {
   ux.action.stop('done');
 }
 
-async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
+async function prepareExtensionForm(
+  command: BaseCommand,
+  dumpCode: boolean,
+  skipCache: boolean
+) {
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
@@ -136,7 +141,7 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
   const contributions = configuration.ahaExtension.contributes;
   const scriptPaths: string[] = [];
-  const cache = await SimpleCache.create('.aha-cache');
+  const cache = skipCache ? undefined : await SimpleCache.create('.aha-cache');
 
   const compilers = Object.keys(contributions)
     .flatMap((contributionType) => {
@@ -211,7 +216,7 @@ async function prepareScript(
   dumpCode: boolean,
   jsxFactory: string,
   jsxFragment: string,
-  cache: SimpleCache
+  cache?: SimpleCache
 ) {
   // If no path is provided then this contribution has no script
   if (!path) {

@@ -10,9 +10,12 @@ export default class Install extends BaseCommand {
     dumpCode: flags.boolean({
       description: 'dump all code as it is uploaded',
     }),
+    noCache: flags.boolean({
+      description: 'skip cached http imports',
+    }),
   };
 
   async run() {
-    await installExtension(this, this.flags.dumpCode);
+    await installExtension(this, this.flags.dumpCode, this.flags.noCache);
   }
 }
