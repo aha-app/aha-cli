@@ -88,16 +88,20 @@ export async function installExtension(
   } catch (error) {
     ux.action.stop('error');
 
-    const errorTree = ux.tree();
-    const errors: { [index: string]: string[] } = error.http.body.errors;
-    Object.keys(errors).forEach((identifier) => {
-      errorTree.insert(identifier);
-      errors[identifier].forEach((error) =>
-        errorTree.nodes[identifier].insert(error)
-      );
-    });
+    if (error.http.body.errors) {
+      const errorTree = ux.tree();
+      const errors: { [index: string]: string[] } = error.http.body.errors;
+      Object.keys(errors).forEach((identifier) => {
+        errorTree.insert(identifier);
+        errors[identifier].forEach((error) =>
+          errorTree.nodes[identifier].insert(error)
+        );
+      });
 
-    errorTree.display();
+      errorTree.display();
+    } else {
+      throw new Error(error.http.body.error);
+    }
   }
 }
 
