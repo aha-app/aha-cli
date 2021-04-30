@@ -100,6 +100,7 @@ export default class Create extends BaseCommand {
       `${directoryName}/src/commands/sampleCommand.js`,
       commandTemplate()
     );
+    fs.writeFileSync(`${directoryName}/.gitignore`, gitignoreTemplate());
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
@@ -269,4 +270,10 @@ aha.on("samplePage", ({ record, fields }, { settings }) => {
     </>
   );
 });`;
+}
+
+function gitignoreTemplate() {
+  return `node_modules
+.aha-cache
+`;
 }

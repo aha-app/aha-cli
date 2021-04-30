@@ -1,4 +1,5 @@
 import BaseCommand from '../../base';
+import { flags } from '@oclif/command';
 import * as chokidar from 'chokidar';
 import { installExtension } from '../../utils/extension-utils';
 
@@ -9,6 +10,9 @@ export default class Create extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
+    noCache: flags.boolean({
+      description: 'skip cached http imports',
+    }),
   };
 
   changedPaths?: string[] | null;
@@ -61,7 +65,7 @@ export default class Create extends BaseCommand {
     // Put no async code above this line. The instance variables must be updated before awaiting
 
     try {
-      await installExtension(this, false);
+      await installExtension(this, false, this.flags.noCache);
     } catch (error) {
       // Do nothing if the compile fails
       this.error(error.message, { exit: false });

@@ -7,6 +7,7 @@ import { Readable } from 'stream';
 import { createGzip } from 'zlib';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
+import { SimpleCache } from './simple-cache';
 
 const REACT_JSX = 'React.createElement';
 const EXTERNALS = ['react', 'react-dom'];
@@ -51,7 +52,8 @@ function pathToExternal(path: string): string {
 // Compile and upload an extension.
 export async function installExtension(
   command: BaseCommand,
-  dumpCode: boolean
+  dumpCode: boolean,
+  skipCache = false
 ) {
   let form: any = null;
 
@@ -60,7 +62,7 @@ export async function installExtension(
     process.stdout.write(
       `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
     );
-    form = await prepareExtensionForm(command, dumpCode);
+    form = await prepareExtensionForm(command, dumpCode, skipCache);
   } catch (error) {
     ux.action.stop('error');
     throw error;
@@ -125,7 +127,11 @@ export async function buildExtension(command: BaseCommand) {
   ux.action.stop('done');
 }
 
-async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
+async function prepareExtensionForm(
+  command: BaseCommand,
+  dumpCode: boolean,
+  skipCache: boolean
+) {
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
@@ -135,6 +141,7 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
   const contributions = configuration.ahaExtension.contributes;
   const scriptPaths: string[] = [];
+  const cache = skipCache ? undefined : await SimpleCache.create('.aha-cache');
 
   const compilers = Object.keys(contributions)
     .flatMap((contributionType) => {
@@ -155,7 +162,7 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
 
         // Only compile each entrypoint once.
         if (scriptPaths.includes(contribution.entryPoint)) {
-          return;
+          return null;
         }
         scriptPaths.push(contribution.entryPoint);
 
@@ -168,7 +175,8 @@ async function prepareExtensionForm(command: BaseCommand, dumpCode: boolean) {
           contribution.entryPoint,
           dumpCode,
           jsxFactory,
-          jsxFragment
+          jsxFragment,
+          cache
         );
       });
     })
@@ -207,7 +215,8 @@ async function prepareScript(
   path: string,
   dumpCode: boolean,
   jsxFactory: string,
-  jsxFragment: string
+  jsxFragment: string,
+  cache?: SimpleCache
 ) {
   // If no path is provided then this contribution has no script
   if (!path) {
@@ -241,7 +250,7 @@ async function prepareScript(
             };
           },
         }) as any,
-        httpPlugin,
+        httpPlugin({ cache }),
       ],
       target: 'es2020',
       write: false,
