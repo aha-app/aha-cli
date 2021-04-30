@@ -125,7 +125,7 @@ TODO: Add a short .gif screen recording showing some of the highlights of your e
 
 **Note: In order to install an extension into your Aha! Develop account, you must be an account administrator.**
 
-# TODO: Fill in a link to your built extension package
+TODO: Fill in a link to your built extension package
 Install the ${name} extension by clicking [here](https://secure.aha.io/settings/account/extensions/install?url=).
 
 ## Working on the extension
@@ -160,7 +160,7 @@ When you are finished working on your extension, build it so that others can ins
 aha extension:build
 \`\`\`
 
-To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API]()
+To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API](https://www.aha.io/support/develop/extensions)
 `;
 }
 
