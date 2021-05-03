@@ -25,7 +25,9 @@ export function identifierFromConfiguration(configuration: any) {
 }
 
 function fileNameFromConfiguration(configuration: any) {
-  return configuration.name.replace('@', '-').replace('/', '-');
+  return [configuration.name.replace('@', '-'), `v${configuration.version}`]
+    .join('-')
+    .replace('/', '-');
 }
 
 /**
