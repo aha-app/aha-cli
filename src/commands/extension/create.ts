@@ -134,7 +134,7 @@ Install the ${name} extension by clicking [here](https://secure.aha.io/settings/
 Install \`aha-cli\`:
 
 \`\`\`sh
- npm install -g aha-cli
+npm install -g aha-cli
 \`\`\`
 
 Clone the repo:
@@ -161,7 +161,7 @@ When you are finished working on your extension, build it so that others can ins
 aha extension:build
 \`\`\`
 
-To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API]()
+To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API](https://www.aha.io/support/develop/extensions)
 `;
 }
 
