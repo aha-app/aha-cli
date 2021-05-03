@@ -131,7 +131,7 @@ Install the ${name} extension by clicking [here](https://secure.aha.io/settings/
 
 ## Working on the extension
 
-Install \`aha-cli\`:
+Install [\`aha-cli\`](https://github.com/aha-app/aha-cli):
 
 \`\`\`sh
 npm install -g aha-cli
