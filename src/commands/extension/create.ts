@@ -3,6 +3,8 @@ import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as path from 'path';
 import { packageInfo, packageRoot } from '../../utils/packageInfo';
+import * as inquirer from 'inquirer';
+import { countReset } from 'console';
 
 type Contribution = {
   title: string;
@@ -17,6 +19,193 @@ type Contribution = {
   scope: string[] | null;
 }
 
+function camelize(str: string) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return ""; 
+    return index === 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
+
+const extensionQuestions = [
+  {
+    type: 'input',
+    name: 'name',
+    message: 'Enter a human readable name for your extension',
+    default: 'Sample Extension'
+  },
+  {
+    type: 'input',
+    name: 'author',
+    message: 'Who are you? Your personal or organization github handle is a good identifier'
+  },
+  {
+    type: 'input',
+    name: 'identifier',
+    message: 'Each extension must have a universally unique identifer that is also a valid NPM package name.\nGenerally a good identifier is <organization-name>.<extension-name>.\nEnter an identifier',
+    validate: (input: string, answers: { [k: string]: string }) => {
+      if (!(input.match(/^[^.]+\.([^.]+)$/))) {
+        return 'The identifier should contain exactly one period';
+      }
+      if (!input.match(/^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/)) {
+        return 'The identifier should be a valid NPM package name';
+      }
+      return true;
+    }
+  }
+]
+
+const contributionQuestions = [
+  {
+    type: 'input',
+    name: 'title',
+    message: 'Enter a human readable title for your contribution',
+    default: 'Sample Page'
+  },
+  {
+    type: 'input',
+    name: 'name',
+    message: 'Enter a name for your contribution',
+    default: (answers: { [k: string]: string }) => {
+      return camelize(answers.title);
+    }
+  },
+  {
+    type: 'list',
+    name: 'contributionType',
+    message: 'Select a type for your contribution',
+    choices: [
+      { name: 'view', value: 'view' },
+      { name: 'command', value: 'command' },
+      { name: 'endpoint', value: 'endpoint' },
+      { name: 'event handler', value: 'handler' },
+      { name: 'importer', value: 'importer' },
+      { name: 'setting', value: 'setting' }
+    ],
+    default: 'view'
+  },
+  {
+    type: 'input',
+    name: 'entryPoint',
+    message: 'Enter an entry point for your contribution',
+    default: (answers: { [k: string]: string }) => {
+      return `/src/${answers["contributionType"]}s/${answers["name"]}.js`;
+    },
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType != 'setting';
+    }
+  },
+  {
+    type: 'list',
+    name: 'host',
+    message: 'Enter the host for your view',
+    choices: [
+      { name: 'attribute', value: 'attribute' },
+      { name: 'tab', value: 'tab' },
+      { name: 'page', value: 'page' }
+    ],
+    default: 'page',
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'view';
+    }
+  },
+  {
+    type: 'checkbox',
+    name: 'recordTypes',
+    message: 'Select the record types for your contribution',
+    choices: [
+      { name: 'Feature', value: 'Feature' },
+      { name: 'Requirement', value: 'Requirement' },
+      { name: 'Epic', value: 'Epic' },
+      { name: 'Release', value: 'Release' }
+    ],
+    default: ['Feature', 'Requirement', 'Release'],
+    when: (answers: { [k: string]: string }) => {
+      return answers.host != 'page' && answers.contributionType == 'view';
+    }
+  },
+  {
+    type: 'list',
+    name: 'location',
+    message: 'Enter a location for your page',
+    choices: [
+      { name: 'Work', value: { "menu": "Work" } },
+      { name: 'Plan', value: { "menu": "Plan" } },
+      { name: 'Document', value: { "menu": "Document" } }
+    ],
+    default: { "menu": "Work" },
+    when: (answers: { [k: string]: string }) => {
+      return answers.host == 'page'
+    }
+  },
+  {
+    type: 'list',
+    name: 'type',
+    message: 'Enter the type for your setting',
+    choices: [
+      "boolean", "color", "string", "number"
+    ],
+    default: 'color',
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'setting'
+    }
+  },
+  {
+    type: 'input',
+    name: 'description',
+    message: 'Enter a description for your setting',
+    default: 'Choose a color',
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'setting'
+    }
+  },
+  {
+    type: 'input',
+    name: 'default',
+    message: 'Enter the default value for your setting',
+    default: (answers: { [k: string]: string }) => {
+      switch(answers.type){
+        case 'boolean':
+          return 'true';
+        case 'color':
+          return '#000000';
+        case 'Default String':
+          return '';
+        case 'number':
+          return '42';
+      }
+    },
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'setting'
+    }
+  },
+  {
+    type: 'checkbox',
+    name: 'scope',
+    message: 'Select the scops for your setting',
+    choices: [
+      { name: 'Account', value: 'account' },
+      { name: 'User', value: 'user' }
+    ],
+    default: ['account', 'user'],
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'setting';
+    }
+  },
+  {
+    type: 'input',
+    name: 'handles',
+    message: 'Enter the events your contribution handles, separated by commas',
+    default: 'aha.audit,aha.workflow-board.shipped',
+    filter: (input: string, answers: { [k: string]: string }) => {
+      const cleanInput = input.replace(/\s+/g, '');
+      return cleanInput.split(',');
+    },
+    when: (answers: { [k: string]: string }) => {
+      return answers.contributionType == 'handler';
+    }
+  }
+];
+
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
 
@@ -26,40 +215,12 @@ export default class Create extends BaseCommand {
 
   async run() {
     // Prompt the user for the key information we need.
-    const name = await ux.prompt('Give your extension a human readable name');
-    const author = await ux.prompt(
-      'Who are you? Your personal or organization github handle is a good identifier'
-    );
-    process.stdout.write(
-      'Each extension must have a universally unique identifer that is also a valid NPM package name.\n'
-    );
-    process.stdout.write(
-      'Generally a good identifier is <organization-name>.<extension-name>.\n'
-    );
-    let identifier;
-    let matches = null;
-    do {
-      const possibleIdentifier = await ux.prompt('Extension identifier');
-      if (!(matches = possibleIdentifier.match(/^[^.]+\.([^.]+)$/))) {
-        process.stdout.write(
-          'The identifier should contain exactly one period.\n'
-        );
-        continue;
-      }
-      if (
-        !possibleIdentifier.match(
-          /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/
-        )
-      ) {
-        process.stdout.write(
-          'The identifier should be a valid NPM package name.\n'
-        );
-        continue;
-      }
-      identifier = possibleIdentifier;
-    } while (!identifier);
-
-    const directoryName = matches[1];
+    
+    const extensionAnswers = (await inquirer.prompt(extensionQuestions));
+    const name = extensionAnswers.name;
+    const author = extensionAnswers.author;
+    const identifier = extensionAnswers.identifier
+    const directoryName = identifier.match(/^[^.]+\.([^.]+)$/)[1];
 
     // Check if the extension already exists.
     if (fs.existsSync(directoryName)) {
@@ -80,154 +241,47 @@ export default class Create extends BaseCommand {
 
     do {
       process.stdout.write("\n");
-      let contribFailed = false;
-      do {
-        contribFailed = false;
-        const contributionTitle = await this.prompt_with_default('Enter a human readable title for your contribution (Sample Page)', 'Sample Page');
-        const contributionName: string = await this.prompt_with_default(`Enter a name for your contribution (${this.camelize(contributionTitle)})`, this.camelize(contributionTitle));
-        let contribution: Contribution = {
-          title: contributionTitle,
-          entryPoint: null,
-          host: null,
-          location: null,
-          recordTypes: null,
-          handles: null,
-          description: null,
-          default: null,
-          type: null,
-          scope: null
-        };
-        const contributionPrompt = await this.prompt_with_default('Which contribution type would you like to add: [v]iew, [c]ommand, [e]ndpoint, [s]etting, [i]mporter, event [h]andler? (view)', 'v');
-        switch(contributionPrompt.toLowerCase().charAt(0)) {
-          case 'v':
-            let vPromptFailed = false;
-            contribution.entryPoint = await this.prompt_with_default(`Enter an entry point for your contribution (/src/views/${contributionName}.js)`, `/src/views/${contributionName}.js`);
-            paths.push(contribution.entryPoint);
-            do {
-              vPromptFailed = false;
-              switch ((await this.prompt_with_default('Is this an [a]ttribute, [t]ab, or [p]age view? (page)', 'p')).toLowerCase().charAt(0)) {
-                case 'a':
-                  contribution.host = "attribute";
-                  contribution.recordTypes = ["Feature", "Requirement", "Epic", "Release"];
-                  break;
-                case 't':
-                  contribution.host = "tab";
-                  contribution.recordTypes = ["Feature", "Requirement", "Epic", "Release"];
-                  break;
-                case 'p':
-                  contribution.host = "page";
-                  switch ((await this.prompt_with_default('Which location for your page: [p]lan, [w]ork, or [d]ocument? (work)', 'w')).toLowerCase().charAt(0)) {
-                    case 'p':
-                      contribution.location = { "menu": "Plan" };
-                      break;
-                    case 'w':
-                      contribution.location = { "menu": "Work" };
-                      break;
-                    case 'd':
-                      contribution.location = { "menu": "Document" };
-                      break;
-                    default:
-                      process.stdout.write('Unable to understand input, please try again\n');
-                      vPromptFailed = true;
-                      break;
-                  }
-                  break;
-                default:
-                  process.stdout.write('Unable to understand input, please try again\n');
-                  vPromptFailed = true;
-                  break;
-              }
-            } while (vPromptFailed)
-            views[contributionName] = contribution;
-            break;
-          case 'c':
-            contribution.entryPoint = await this.prompt_with_default(`Enter an entry point for your contribution (/src/commands/${contributionName}.js)`, `/src/commands/${contributionName}.js`);
-            paths.push(contribution.entryPoint);
-            commands[contributionName] = contribution;
-            break;
-          case 'e':
-            contribution.entryPoint = await this.prompt_with_default(`Enter an entry point for your contribution (/src/endpoints/${contributionName}.js)`, `/src/endpoints/${contributionName}.js`);
-            paths.push(contribution.entryPoint);
-            endpoints[contributionName] = contribution;
-            break;
-          case 's':
-            contribution.description = await this.prompt_with_default('Enter a description for your setting (Choose a color)', 'Choose a color');
-            let sPromptFailed = false;
-            do {
-              sPromptFailed = false;
-              switch((await this.prompt_with_default('Enter the type of setting: [b]oolean, [c]olor, [s]tring, or [n]umber? (color)', 'c')).toLowerCase().charAt(0)) {
-                case 'b':
-                  contribution.type = "boolean";
-                  contribution.default = await this.prompt_with_default('Enter a default value (true)', 'true');
-                  break;
-                case 'c':
-                  contribution.type = "color";
-                  contribution.default = await this.prompt_with_default('Enter a default value (#000000)', '#000000');
-                  break;
-                case 's':
-                  contribution.type = "string";
-                  contribution.default = await this.prompt_with_default('Enter a default value (Default String)', 'Default String');
-                  break;
-                case 'n':
-                  contribution.type = "number";
-                  contribution.default = await this.prompt_with_default('Enter a default value (42)', '42');
-                  break;
-                default:
-                  process.stdout.write('Unable to understand input, please try again\n');
-                  sPromptFailed = true;
-                  break;
-              }
-            } while (sPromptFailed)
-            let s1PromptFailed = false;
-            do {
-              s1PromptFailed = false;
-              switch((await this.prompt_with_default('Enter the scope of setting: [a]ccount, [u]ser, or [b]oth? (both)', 'b')).toLowerCase().charAt(0)) {
-                case 'a':
-                  contribution.scope = ["account"];
-                  break;
-                case 'u':
-                  contribution.scope = ["user"];
-                  break;
-                case 'b':
-                  contribution.scope = ["account", "user"];
-                  break;
-                default:
-                  process.stdout.write('Unable to understand input, please try again\n');
-                  s1PromptFailed = true;
-                  break;
-              }
-            } while (s1PromptFailed)
-            // TODO: Get options ?
-            settings[contributionName] = contribution;
-            break;
-          case 'i':
-            contribution.entryPoint = await this.prompt_with_default(`Enter an entry point for your contribution (/src/importers/${contributionName}.js)`, `/src/importers/${contributionName}.js`);
-            paths.push(contribution.entryPoint);
-            importers[contributionName] = contribution;
-            break;
-          case 'h':
-            contribution.entryPoint = await this.prompt_with_default(`Enter an entry point for your contribution (/src/handlers/${contributionName}.js)`, `/src/handlers/${contributionName}.js`);
-            paths.push(contribution.entryPoint);
-            let addingHandles = true;
-            let handles: string[] = [];
-            while (addingHandles) {
-              const handle = await ux.prompt("Enter an event to handle, return to stop adding events",{required: false});
-              if (handle != '') {
-                handles.push(handle);
-              } else {
-                addingHandles = false;
-              }
-            }
-            contribution.handles = handles;
-            eventHandlers[contributionName] = contribution;
-            break;
-          default:
-            process.stdout.write(`Unable to add contribution type: ${contributionPrompt}`);
-            contribFailed = true;
-            break;
-        }
-      } while (contribFailed)                                
-    } while ((await this.prompt_with_default('Add another contribution [y]es or [n]o (no)', 'n')).toLowerCase().charAt(0) == 'y')
+      
+      var answers = await inquirer.prompt(contributionQuestions);
+
+      let contribution: Contribution = {
+        title: answers.title,
+        entryPoint: answers.entryPoint,
+        host: answers.host,
+        location: answers.location,
+        recordTypes: answers.recordTypes,
+        handles: answers.handles,
+        description: answers.description,
+        default: answers.default,
+        type: answers.type,
+        scope: answers.scope
+      };
+
+      if(answers.entryPoint) {
+        paths.push(answers.entryPoint);
+      }
+
+      switch(answers.contributionType){
+        case 'view':
+          views[answers.name] = contribution;
+          break;
+        case 'command':
+          commands[answers.name] = contribution;
+          break;
+        case 'endpoint':
+          endpoints[answers.name] = contribution;
+          break;
+        case 'handler':
+          eventHandlers[answers.name] = contribution;
+          break;
+        case 'importer':
+          importers[answers.name] = contribution;
+          break;
+        case 'setting':
+          settings[answers.name] = contribution;
+          break;
+      }                  
+    } while ((await inquirer.prompt({type:"list", name:'add', message:'Add another contribution?', default: 'no', choices: ['yes', 'no']})).add == 'yes')
 
     let ahaExtensionSchema: { [k: string]: any } = {};
     ahaExtensionSchema.contributes = {};
@@ -345,19 +399,6 @@ export default class Create extends BaseCommand {
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
-
-  async prompt_with_default(text: string, defaultInput: string): Promise<string> {
-    const inputValue = await ux.prompt(text, {required: false});
-    return inputValue == '' ? defaultInput : inputValue;
-  }
-  
-  camelize(str: string) {
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-      if (+match === 0) return ""; 
-      return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    });
-  }
-
 }
 
 
