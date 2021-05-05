@@ -2,7 +2,7 @@ import BaseCommand from '../../base';
 import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as path from 'path';
-import { packageInfo, packageRoot } from '../../utils/packageInfo';
+import { packageInfo, packageRoot } from '../../utils/package-info';
 
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
@@ -64,12 +64,7 @@ export default class Create extends BaseCommand {
 
     fs.writeFileSync(`${directoryName}/README.md`, readmeTemplate(name));
 
-    const modulePath = path.join(
-      directoryName,
-      'node_modules',
-      '@aha-app',
-      'aha-cli'
-    );
+    const modulePath = path.join(directoryName, 'node_modules', 'aha-cli');
     fs.mkdirSync(path.join(modulePath, 'schema'), { recursive: true });
     fs.copyFileSync(
       path.join(packageRoot(), 'aha.d.ts'),
@@ -216,12 +211,12 @@ function tsconfigTemplate() {
     "noEmit": true,
     "lib": ["DOM", "ES6", "ES2019"],
     "jsx": "preserve",
-    "typeRoots": ["node_modules/@types", "node_modules/@aha-app"],
     "allowSyntheticDefaultImports": true,
     "module": "ES6",
     "moduleResolution": "node",
     "target": "ES6"
-  }
+  },
+  "include": ["node_modules/aha-cli/aha.d.ts", "src/**/*.ts*"]
 }`;
 }
 
