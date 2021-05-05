@@ -256,7 +256,7 @@ async function prepareScript(
       write: false,
       sourcemap: 'external',
       sourcesContent: false,
-      loader: { '.js': 'jsx', '.ts': 'tsx' },
+      loader: { '.js': 'jsx' },
       define: {
         'process.env.NODE_ENV': '"production"',
       },
