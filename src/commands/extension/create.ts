@@ -91,7 +91,7 @@ const contributionQuestions = [
       return `/src/${answers["contributionType"]}/${answers["name"]}.js`;
     },
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType != 'setting';
+      return answers.contributionType != 'settings';
     }
   },
   {
@@ -105,7 +105,7 @@ const contributionQuestions = [
     ],
     default: 'page',
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'view';
+      return answers.contributionType == 'views';
     }
   },
   {
@@ -120,7 +120,7 @@ const contributionQuestions = [
     ],
     default: ['Feature', 'Requirement', 'Release'],
     when: (answers: { [k: string]: string }) => {
-      return answers.host != 'page' && answers.contributionType == 'view';
+      return answers.host != 'page' && answers.contributionType == 'views';
     }
   },
   {
@@ -146,7 +146,7 @@ const contributionQuestions = [
     ],
     default: 'color',
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'setting'
+      return answers.contributionType == 'settings'
     }
   },
   {
@@ -155,7 +155,7 @@ const contributionQuestions = [
     message: 'Enter a description for your setting',
     default: 'Choose a color',
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'setting'
+      return answers.contributionType == 'settings'
     }
   },
   {
@@ -175,7 +175,7 @@ const contributionQuestions = [
       }
     },
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'setting'
+      return answers.contributionType == 'settings'
     }
   },
   {
@@ -188,7 +188,7 @@ const contributionQuestions = [
     ],
     default: ['account', 'user'],
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'setting';
+      return answers.contributionType == 'settings';
     }
   },
   {
@@ -201,7 +201,7 @@ const contributionQuestions = [
       return cleanInput.split(',');
     },
     when: (answers: { [k: string]: string }) => {
-      return answers.contributionType == 'handler';
+      return answers.contributionType == 'eventHandlers';
     }
   }
 ];
