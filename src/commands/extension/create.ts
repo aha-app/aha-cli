@@ -2,9 +2,8 @@ import BaseCommand from '../../base';
 import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as path from 'path';
-import { packageInfo, packageRoot } from '../../utils/packageInfo';
+import { packageInfo, packageRoot } from '../../utils/package-info';
 import * as inquirer from 'inquirer';
-import { countReset } from 'console';
 
 type Contribution = {
   title: string;
@@ -205,7 +204,6 @@ const contributionQuestions = [
     }
   }
 ];
-
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
 
@@ -304,12 +302,7 @@ export default class Create extends BaseCommand {
 
     fs.writeFileSync(`${directoryName}/README.md`, readmeTemplate(extensionAnswers.name));
 
-    const modulePath = path.join(
-      directoryName,
-      'node_modules',
-      '@aha-app',
-      'aha-cli'
-    );
+    const modulePath = path.join(directoryName, 'node_modules', 'aha-cli');
     fs.mkdirSync(path.join(modulePath, 'schema'), { recursive: true });
     fs.copyFileSync(
       path.join(packageRoot(), 'aha.d.ts'),
@@ -385,28 +378,6 @@ export default class Create extends BaseCommand {
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
-
-  // findAllByKey(obj: {}, keyToFind: string): {} {
-  //   return Object.entries(obj)
-  //     .reduce((acc, [key, value]) => (key === keyToFind)
-  //       ? acc.concat(value)
-  //       : (typeof value === 'object')
-  //       ? acc.concat(this.findAllByKey(value, keyToFind))
-  //       : acc
-  //     , [])
-  // }
-  // getValues (prop) => (obj) => {
-  //   if (!Object.keys(obj).length) { return []; }
-  
-  //   return Object.entries(obj).reduce((acc, [key, val]) => {
-  //     if (key === prop) {
-  //       acc.push(val);
-  //     } else {
-  //       acc.push(Array.isArray(val) ? val.map(getIds).flat() : getIds(val));
-  //     }
-  //     return acc.flat();
-  //   }, []);
-  // }
 }
 
 
@@ -502,12 +473,12 @@ function tsconfigTemplate() {
     "noEmit": true,
     "lib": ["DOM", "ES6", "ES2019"],
     "jsx": "preserve",
-    "typeRoots": ["node_modules/@types", "node_modules/@aha-app"],
     "allowSyntheticDefaultImports": true,
     "module": "ES6",
     "moduleResolution": "node",
     "target": "ES6"
-  }
+  },
+  "include": ["node_modules/aha-cli/aha.d.ts", "src/**/*.ts*"]
 }`;
 }
 
