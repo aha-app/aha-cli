@@ -74,12 +74,12 @@ const contributionQuestions = [
     name: 'contributionType',
     message: 'Select a type for your contribution',
     choices: [
-      { name: 'view', value: 'view' },
-      { name: 'command', value: 'command' },
-      { name: 'endpoint', value: 'endpoint' },
-      { name: 'event handler', value: 'handler' },
-      { name: 'importer', value: 'importer' },
-      { name: 'setting', value: 'setting' }
+      { name: 'view', value: 'views' },
+      { name: 'command', value: 'commands' },
+      { name: 'endpoint', value: 'endpoints' },
+      { name: 'event handler', value: 'eventHandlers' },
+      { name: 'importer', value: 'importers' },
+      { name: 'setting', value: 'settings' }
     ],
     default: 'view'
   },
@@ -88,7 +88,7 @@ const contributionQuestions = [
     name: 'entryPoint',
     message: 'Enter an entry point for your contribution',
     default: (answers: { [k: string]: string }) => {
-      return `/src/${answers["contributionType"]}s/${answers["name"]}.js`;
+      return `/src/${answers["contributionType"]}/${answers["name"]}.js`;
     },
     when: (answers: { [k: string]: string }) => {
       return answers.contributionType != 'setting';
@@ -214,102 +214,84 @@ export default class Create extends BaseCommand {
   };
 
   async run() {
-    // Prompt the user for the key information we need.
-    
     const extensionAnswers = (await inquirer.prompt(extensionQuestions));
-    const name = extensionAnswers.name;
-    const author = extensionAnswers.author;
-    const identifier = extensionAnswers.identifier
-    const directoryName = identifier.match(/^[^.]+\.([^.]+)$/)[1];
+    const directoryName = extensionAnswers.identifier.match(/^[^.]+\.([^.]+)$/)[1];
 
     // Check if the extension already exists.
     if (fs.existsSync(directoryName)) {
       throw new Error(`A directory named '${directoryName}' already exists.`);
     }
 
-    let views: {[k: string]: Contribution} = {};
-    let commands: {[k: string]: Contribution} = {};
-    let endpoints: {[k: string]: Contribution} = {};
-    let settings: {[k: string]: Contribution} = {};
-    let importers: {[k: string]: Contribution} = {};
-    let eventHandlers: {[k: string]: Contribution} = {};
-    let paths: string[] = [];
-
-    process.stdout.write(
-      'Now create a contribution...\n'
-    );
-
-    do {
-      process.stdout.write("\n");
-      
-      var answers = await inquirer.prompt(contributionQuestions);
-
-      let contribution: Contribution = {
-        title: answers.title,
-        entryPoint: answers.entryPoint,
-        host: answers.host,
-        location: answers.location,
-        recordTypes: answers.recordTypes,
-        handles: answers.handles,
-        description: answers.description,
-        default: answers.default,
-        type: answers.type,
-        scope: answers.scope
-      };
-
-      if(answers.entryPoint) {
-        paths.push(answers.entryPoint);
-      }
-
-      switch(answers.contributionType){
-        case 'view':
-          views[answers.name] = contribution;
-          break;
-        case 'command':
-          commands[answers.name] = contribution;
-          break;
-        case 'endpoint':
-          endpoints[answers.name] = contribution;
-          break;
-        case 'handler':
-          eventHandlers[answers.name] = contribution;
-          break;
-        case 'importer':
-          importers[answers.name] = contribution;
-          break;
-        case 'setting':
-          settings[answers.name] = contribution;
-          break;
-      }                  
-    } while ((await inquirer.prompt({type:"list", name:'add', message:'Add another contribution?', default: 'no', choices: ['yes', 'no']})).add == 'yes')
-
     let ahaExtensionSchema: { [k: string]: any } = {};
     ahaExtensionSchema.contributes = {};
 
-    if(Object.keys(views).length > 0){
-      ahaExtensionSchema.contributes.views = views;
-    }
-    if(Object.keys(commands).length > 0){
-      ahaExtensionSchema.contributes.commands = commands;
-    }
-    if(Object.keys(endpoints).length > 0){
-      ahaExtensionSchema.contributes.endpoints = endpoints;
-    }
-    if(Object.keys(settings).length > 0){
-      ahaExtensionSchema.contributes.settings = settings;
-    }
-    if(Object.keys(importers).length > 0){
-      ahaExtensionSchema.contributes.importers = importers;
-    }
-    if(Object.keys(eventHandlers).length > 0){
-      ahaExtensionSchema.contributes.eventHandlers = eventHandlers;
-    }
+    const createContributions = (await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'createContributions',
+        message: 'Are you ready to add contributions?',
+        default: true,
+        choices: [
+          {
+            name: "yes",
+            value: true
+          },
+          {
+            name: "skip for now",
+            value: false
+          }
+        ]
+      }
+    ])).createContributions
 
-    const ahaExtensionsSchemaString = JSON.stringify(
-      {"ahaExtentsion": ahaExtensionSchema},
-      (key, value) => {
-        if (value !== null) return value
-      }, 2);
+    if (createContributions) {
+      do {
+        process.stdout.write("\n");
+        
+        var answers = await inquirer.prompt(contributionQuestions);
+        
+        let contribution: Contribution = {
+          title: answers.title,
+          entryPoint: answers.entryPoint,
+          host: answers.host,
+          location: answers.location,
+          recordTypes: answers.recordTypes,
+          handles: answers.handles,
+          description: answers.description,
+          default: answers.default,
+          type: answers.type,
+          scope: answers.scope
+        };
+               
+        ahaExtensionSchema.contributes[answers.contributionType] = ahaExtensionSchema.contributes[answers.contributionType] || {};
+        ahaExtensionSchema.contributes[answers.contributionType][answers.name] = contribution;               
+      } while ((await inquirer.prompt({
+        type: 'list',
+        name: 'add',
+        message: 'Add another contribution?',
+        default: 'no',
+        choices: [ 'yes', 'no' ]
+      })).add == 'yes')
+    } else {
+      ahaExtensionSchema.contributes = {
+        views: {
+          samplePage: {
+            title: 'Sample Page',
+            entryPoint: '/src/views/samplePage.js',
+            host: 'page',
+            location: {
+              home: 'Work'
+            }
+          }
+        },
+        commands: {
+          sampleCommand: {
+            title: 'Sample Command',
+            entryPoint: '/src/commands/sampleCommand.js'
+          }
+        }
+      };
+    }
 
     // Create the extension and template files.
     ux.action.start('Creating');
@@ -317,10 +299,10 @@ export default class Create extends BaseCommand {
     fs.mkdirSync(directoryName);
     fs.writeFileSync(
       `${directoryName}/package.json`,
-      packageTemplate(identifier, name, author, ahaExtensionSchema)
+      packageTemplate(extensionAnswers.identifier, extensionAnswers.name, extensionAnswers.author, ahaExtensionSchema)
     );
 
-    fs.writeFileSync(`${directoryName}/README.md`, readmeTemplate(name));
+    fs.writeFileSync(`${directoryName}/README.md`, readmeTemplate(extensionAnswers.name));
 
     const modulePath = path.join(
       directoryName,
@@ -349,46 +331,50 @@ export default class Create extends BaseCommand {
     );
     
     let directories: string[] = [];
-    paths.forEach((fullPath) => {
-      directories = fullPath.split('/').slice(1, fullPath.split('/').length-1);
-      directories.forEach((dir, index) => {
-        const fullPathToDir = directories.slice(0,index).join('/') + '/' + dir;
-        if (!fs.existsSync(`${directoryName}/${fullPathToDir}`)) {
-          fs.mkdirSync(`${directoryName}/${fullPathToDir}`);
-        }
-      });
-    });
 
-    for(const contributionName in views) {
-      const contribution = views[contributionName];
+    const paths = JSON.stringify(ahaExtensionSchema).match(/("?)entryPoint\1.*?"(.*?)"/g);
+    if(paths){
+      paths.forEach((fullPath) => {
+        directories = fullPath.split('/').slice(1, fullPath.split('/').length-1);
+        directories.forEach((dir, index) => {
+          const fullPathToDir = directories.slice(0,index).join('/') + '/' + dir;
+          if (!fs.existsSync(`${directoryName}/${fullPathToDir}`)) {
+            fs.mkdirSync(`${directoryName}/${fullPathToDir}`);
+          }
+        });
+      });
+    }
+
+    for(const contributionName in ahaExtensionSchema.contributes.views) {
+      const contribution = ahaExtensionSchema.contributes.views[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
         viewTemplate(contributionName, contribution.title, contribution.host)
       );
     }
-    for(const contributionName in commands) {
-      const contribution = commands[contributionName];
+    for(const contributionName in ahaExtensionSchema.contributes.commands) {
+      const contribution = ahaExtensionSchema.contributes.commands[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
         commandTemplate(contributionName)
       );
     }
-    for(const contributionName in endpoints) {
-      const contribution = endpoints[contributionName];
+    for(const contributionName in ahaExtensionSchema.contributes.endpoints) {
+      const contribution = ahaExtensionSchema.contributes.endpoints[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
         endpointTemplate(contributionName)
       );
     }
-    for(const contributionName in importers) {
-      const contribution = importers[contributionName];
+    for(const contributionName in ahaExtensionSchema.contributes.importers) {
+      const contribution = ahaExtensionSchema.contributes.importers[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        importerTemplate(identifier, contributionName)
+        importerTemplate(extensionAnswers.identifier, contributionName)
       );
     }
-    for(const contributionName in eventHandlers) {
-      const contribution = eventHandlers[contributionName];
+    for(const contributionName in ahaExtensionSchema.contributes.eventHandlers) {
+      const contribution = ahaExtensionSchema.contributes.eventHandlers[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
         eventHandlerTemplate(contribution.handles || [])
@@ -399,6 +385,28 @@ export default class Create extends BaseCommand {
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
+
+  // findAllByKey(obj: {}, keyToFind: string): {} {
+  //   return Object.entries(obj)
+  //     .reduce((acc, [key, value]) => (key === keyToFind)
+  //       ? acc.concat(value)
+  //       : (typeof value === 'object')
+  //       ? acc.concat(this.findAllByKey(value, keyToFind))
+  //       : acc
+  //     , [])
+  // }
+  // getValues (prop) => (obj) => {
+  //   if (!Object.keys(obj).length) { return []; }
+  
+  //   return Object.entries(obj).reduce((acc, [key, val]) => {
+  //     if (key === prop) {
+  //       acc.push(val);
+  //     } else {
+  //       acc.push(Array.isArray(val) ? val.map(getIds).flat() : getIds(val));
+  //     }
+  //     return acc.flat();
+  //   }, []);
+  // }
 }
 
 
