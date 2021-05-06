@@ -120,7 +120,7 @@ export default {
       name: 'entryPoint',
       message: 'Enter an entry point for your contribution:',
       default: (answers: { [k: string]: string }) => {
-        return `/src/${answers.contributionType}/${answers.name}.js`;
+        return `src/${answers.contributionType}/${answers.name}.js`;
       },
       when: (answers: { [k: string]: string }) => {
         return answers.contributionType != 'settings';
