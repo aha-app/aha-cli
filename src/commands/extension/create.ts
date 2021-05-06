@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { packageInfo, packageRoot } from '../../utils/package-info';
 import * as inquirer from 'inquirer';
+import templates from '../../utils/contribution-templates';
 
 type Contribution = {
   title: string;
@@ -342,35 +343,35 @@ export default class Create extends BaseCommand {
       const contribution = ahaExtensionSchema.contributes.views[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        viewTemplate(contributionName, contribution.title, contribution.host)
+        templates.viewTemplate(contributionName, contribution.title, contribution.host)
       );
     }
     for(const contributionName in ahaExtensionSchema.contributes.commands) {
       const contribution = ahaExtensionSchema.contributes.commands[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        commandTemplate(contributionName)
+        templates.commandTemplate(contributionName)
       );
     }
     for(const contributionName in ahaExtensionSchema.contributes.endpoints) {
       const contribution = ahaExtensionSchema.contributes.endpoints[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        endpointTemplate(contributionName)
+        templates.endpointTemplate(contributionName)
       );
     }
     for(const contributionName in ahaExtensionSchema.contributes.importers) {
       const contribution = ahaExtensionSchema.contributes.importers[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        importerTemplate(extensionAnswers.identifier, contributionName)
+        templates.importerTemplate(extensionAnswers.identifier, contributionName)
       );
     }
     for(const contributionName in ahaExtensionSchema.contributes.eventHandlers) {
       const contribution = ahaExtensionSchema.contributes.eventHandlers[contributionName];
       fs.writeFileSync(
         `${directoryName}${contribution.entryPoint}`,
-        eventHandlerTemplate(contribution.handles || [])
+        templates.eventHandlerTemplate(contribution.handles || [])
       );
     }
 
@@ -379,7 +380,6 @@ export default class Create extends BaseCommand {
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
 }
-
 
 function readmeTemplate(name: string) {
   return `# ${name}
@@ -491,128 +491,6 @@ function vscodeTemplate() {
     }
   ]
 }`;
-}
-
-function viewTemplate(name: string, title: string, host: string) {
-  if (host == 'attribute'){
-    return `import React from "react";
-
-const Styles = () => {
-  return (
-    <style>
-      {\`
-    .text-class {
-      color: var(--aha-black-800);
-    }
-    \`}
-    </style>
-  );
-};
-
-aha.on("${name}", ({ record, fields, onUnmounted }, { identifier, settings }) => {
-  return (
-    <>
-      <Styles />
-      <div className='text-class'>${title}</div>
-    </>
-  );
-});`;
-  } else {
-    return `import React from "react";
-
-const Styles = () => {
-  return (
-    <style>
-      {\`
-    .title {
-      color: var(--aha-green-800);
-      font-size: 20px;
-      text-align: center;
-      margin: 20px;
-    }
-    \`}
-    </style>
-  );
-};
-
-aha.on("${name}", ({ ${host != 'page' ? 'record, ' : ''}fields, onUnmounted }, { identifier, settings }) => {
-  return (
-    <>
-      <Styles />
-      <div className='title'>${title}</div>
-    </>
-  );
-});`;
-  }
-}
-
-function commandTemplate(name: string) {
-  return `aha.on("${name}", ({ record }, { identifier, settings }) => {
-  if (record) {
-    aha.commandOutput(
-      \`Running sample command for record: \${record.typename} / \${record.referenceNum}.\`
-    );
-  } else {
-    aha.commandOutput(\`Running sample command without a record.\`);
-  }
-});`;
-}
-
-function endpointTemplate(name: string) {
-  return `aha.on("${name}", ({ headers, payload }, { identifier, settings }) => {
-  //Endpoint code goes here
-});`;
-}
-
-function importerTemplate(identifier: string, name: string) {
-  return `const importer = aha.getImporter("${identifier}.${name}");
-
-importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identifier, settings}) => {
-  return { records: [], nextPage: 2 };
-});
-
-//Optional
-//importer.on({ action: "listFilters" }, ({}, {identifier, settings}) => {
-//  return {
-//    filterName: {
-//      title: "Filter Name",
-//      required: true,
-//      type: "text",
-//    },
-//  };
-//});
-
-//Optional
-//importer.on({ action: "filterValues" }, async ({ filterName, filters }, {identifier, settings}) => {
-//  return [{ text: "Filter Text", value: "Filter Value" }];
-//});
-
-//Optional
-//importer.on({ action: "renderRecord" }, ({ record, onUnmounted }, { identifier, settings }) => {
-//  onUnmounted(() => {
-//    console.log("Un-mounting component for", record.identifier);
-//  });
-//
-//  return \`\${record.identifier} \${record.name}\`;
-//});
-
-//Optional
-//importer.on({ action: "importRecord" }, async ({ importRecord, ahaRecord }, {identifier, settings}) => {
-//  //Import record code goes here
-//});
-`;
-}
-
-function eventHandlerTemplate(events: string[]) {
-  let returnTemplate = "";
-  events.forEach((event) => {
-    returnTemplate += `
-aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
-  //Event handler code for ${event}
-});
-`
-  });
-  return returnTemplate;
 }
 
 function gitignoreTemplate() {
