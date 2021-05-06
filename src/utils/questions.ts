@@ -26,18 +26,18 @@ export default {
     {
       type: 'input',
       name: 'name',
-      message: 'Enter a human readable name for your extension',
+      message: 'Enter a human readable name for your extension:',
       default: 'Sample Extension'
     },
     {
       type: 'input',
       name: 'author',
-      message: 'Who are you? Your personal or organization github handle is a good identifier'
+      message: 'Who are you? Your personal or organization github handle is a good identifier:'
     },
     {
       type: 'input',
       name: 'identifier',
-      message: 'Each extension must have a universally unique identifer that is also a valid NPM package name.\nGenerally a good identifier is <organization-name>.<extension-name>.\nEnter an identifier',
+      message: 'Each extension must have a universally unique identifer that is also a valid NPM package name.\nGenerally a good identifier is <organization-name>.<extension-name>.\nEnter an identifier:',
       validate: (input: string, answers: { [k: string]: string }) => {
         if (!(input.match(/^[^.]+\.([^.]+)$/))) {
           return 'The identifier should contain exactly one period';
@@ -79,13 +79,13 @@ export default {
     {
       type: 'input',
       name: 'title',
-      message: 'Enter a human readable title for your contribution',
+      message: 'Enter a human readable title for your contribution:',
       default: 'Sample Page'
     },
     {
       type: 'input',
       name: 'name',
-      message: 'Enter a name for your contribution',
+      message: 'Enter a name for your contribution:',
       default: (answers: { [k: string]: string }) => {
         return answers.title.replace(/^([A-Z])|[\s-_]+(\w)/g, function(match, p1, p2, offset) {
           if (p2) return p2.toUpperCase();
@@ -96,7 +96,7 @@ export default {
     {
       type: 'list',
       name: 'contributionType',
-      message: 'Select a type for your contribution',
+      message: 'Select a type for your contribution:',
       choices: [
         { name: 'view', value: 'views' },
         { name: 'command', value: 'commands' },
@@ -110,7 +110,7 @@ export default {
     {
       type: 'input',
       name: 'entryPoint',
-      message: 'Enter an entry point for your contribution',
+      message: 'Enter an entry point for your contribution:',
       default: (answers: { [k: string]: string }) => {
         return `/src/${answers.contributionType}/${answers.name}.js`;
       },
@@ -121,7 +121,7 @@ export default {
     {
       type: 'list',
       name: 'host',
-      message: 'Enter the host for your view',
+      message: 'Enter the host for your view:',
       choices: [
         { name: 'attribute', value: 'attribute' },
         { name: 'tab', value: 'tab' },
@@ -135,7 +135,7 @@ export default {
     {
       type: 'checkbox',
       name: 'recordTypes',
-      message: 'Select the record types for your contribution',
+      message: 'Select the record types for your contribution:',
       choices: [
         { name: 'Feature', value: 'Feature' },
         { name: 'Requirement', value: 'Requirement' },
@@ -150,7 +150,7 @@ export default {
     {
       type: 'list',
       name: 'location',
-      message: 'Enter a location for your page',
+      message: 'Enter a location for your page:',
       choices: [
         { name: 'Work', value: { menu: 'Work' } },
         { name: 'Plan', value: { menu: 'Plan' } },
@@ -164,7 +164,7 @@ export default {
     {
       type: 'list',
       name: 'type',
-      message: 'Enter the type for your setting',
+      message: 'Enter the type for your setting:',
       choices: [
         'boolean', 'color', 'string', 'number'
       ],
@@ -176,7 +176,7 @@ export default {
     {
       type: 'input',
       name: 'description',
-      message: 'Enter a description for your setting',
+      message: 'Enter a description for your setting:',
       default: (answers: { [k: string]: string }) => {
         switch(answers.type){
           case 'boolean':
@@ -196,7 +196,7 @@ export default {
     {
       type: 'input',
       name: 'default',
-      message: 'Enter the default value for your setting',
+      message: 'Enter the default value for your setting:',
       default: (answers: { [k: string]: string }) => {
         switch(answers.type){
           case 'boolean':
@@ -216,7 +216,7 @@ export default {
     {
       type: 'checkbox',
       name: 'scope',
-      message: 'Select the scops for your setting',
+      message: 'Select the scops for your setting:',
       choices: [
         { name: 'Account', value: 'account' },
         { name: 'User', value: 'user' }
@@ -229,7 +229,7 @@ export default {
     {
       type: 'input',
       name: 'handles',
-      message: 'Enter the events your contribution handles, separated by commas',
+      message: 'Enter the events your contribution handles, separated by commas:',
       default: 'aha.audit,aha.workflow-board.shipped',
       filter: (input: string, answers: { [k: string]: string }) => {
         const cleanInput = input.replace(/\s+/g, '');
