@@ -16,14 +16,16 @@ export default {
       });
     }
     for (const contributionType in contributions) {
-      for(const contributionName in contributions[contributionType]) {
-        const contribution = contributions[contributionType][contributionName];
-        fs.writeFileSync(
-          `${directory}${contribution.entryPoint}`,
-          exports.default[`${contributionType}Template`](
-            contributionName, contribution
-          )
-        );
+      if (contributionType != 'settings') {
+        for(const contributionName in contributions[contributionType]) {
+          const contribution = contributions[contributionType][contributionName];
+          fs.writeFileSync(
+            `${directory}${contribution.entryPoint}`,
+            exports.default[`${contributionType}Template`](
+              contributionName, contribution
+            )
+          );
+        }
       }
     }
   },
