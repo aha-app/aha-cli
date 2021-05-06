@@ -16,43 +16,60 @@ export default class Create extends BaseCommand {
     if (!fs.existsSync('./package.json')) {
       throw new Error('Unable to find package.json in the current directory.');
     }
-    
-    var packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+
+    const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
     if (!packageJson.ahaExtension) {
-      throw new Error('Unable to find the ahaExtension entry in package.json.')
+      throw new Error('Unable to find the ahaExtension entry in package.json.');
     }
 
-    packageJson.ahaExtension.contributes = packageJson.ahaExtension.contributes || {};
-    
-    var newContributions: { [k: string]: any } = {};
+    packageJson.ahaExtension.contributes =
+      packageJson.ahaExtension.contributes || {};
+
+    const newContributions: { [k: string]: any } = {};
 
     do {
-      process.stdout.write("\n");
-      
+      process.stdout.write('\n');
+
       const contribution = await questions.getContributionFromQuestions();
 
-      newContributions[contribution.type] = newContributions[contribution.type] || {};
-      newContributions[contribution.type][contribution.name] = contribution.contribution;      
-      packageJson.ahaExtension.contributes[contribution.type] = packageJson.ahaExtension.contributes[contribution.type] || {};
-      packageJson.ahaExtension.contributes[contribution.type][contribution.name] = contribution.contribution;               
-    } while ((await inquirer.prompt(questions.addAnotherContributionQuestion)).add == 'yes')
-    
+      newContributions[contribution.type] =
+        newContributions[contribution.type] || {};
+      newContributions[contribution.type][contribution.name] =
+        contribution.contribution;
+      packageJson.ahaExtension.contributes[contribution.type] =
+        packageJson.ahaExtension.contributes[contribution.type] || {};
+      packageJson.ahaExtension.contributes[contribution.type][
+        contribution.name
+      ] = contribution.contribution;
+    } while (
+      (await inquirer.prompt(questions.addAnotherContributionQuestion)).add ==
+      'yes'
+    );
+
     // Update the package.json file
     ux.action.start('Writing package.json file');
     fs.writeFileSync(
       `./package.json`,
-      JSON.stringify(packageJson,
+      JSON.stringify(
+        packageJson,
         (key, value) => {
-          if (value !== null) return value
-        }, 2)
+          if (value !== null) return value;
+        },
+        2
+      )
     );
     ux.action.stop('Finished writing package.json file');
 
     // Create the contributions
     ux.action.start('Creating contributions');
 
-    templates.writeContributionTemplates(fs, '.', packageJson.name, newContributions);
+    templates.writeContributionTemplates(
+      fs,
+      '.',
+      packageJson.name,
+      newContributions
+    );
 
     ux.action.stop('Contributions created');
   }
