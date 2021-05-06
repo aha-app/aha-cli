@@ -32,7 +32,7 @@ export default {
     {
       type: 'input',
       name: 'author',
-      message: 'Who are you? Your personal or organization github handle is a good identifier:'
+      message: 'Who are you? Your personal or organization GitHub handle is a good identifier:'
     },
     {
       type: 'input',
@@ -150,7 +150,7 @@ export default {
     {
       type: 'list',
       name: 'location',
-      message: 'Enter a location for your page:',
+      message: 'Enter a navigation menu location for your page:',
       choices: [
         { name: 'Work', value: { menu: 'Work' } },
         { name: 'Plan', value: { menu: 'Plan' } },
