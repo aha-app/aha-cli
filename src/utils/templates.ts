@@ -1,14 +1,24 @@
 import { packageInfo } from './package-info';
 
 export default {
-  writeContributionTemplates(fs: any, directory: string, name: string, contributions: { [k: string]: any }) {
+  writeContributionTemplates(
+    fs: any,
+    directory: string,
+    name: string,
+    contributions: { [k: string]: any }
+  ) {
     let directories: string[] = [];
-    const paths = JSON.stringify(contributions).match(/("?)entryPoint\1.*?"(.*?)"/g);
-    if(paths){
+    const paths = JSON.stringify(contributions).match(
+      /("?)entryPoint\1.*?"(.*?)"/g
+    );
+    if (paths) {
       paths.forEach((fullPath) => {
-        directories = fullPath.split('/').slice(1, fullPath.split('/').length-1);
+        directories = fullPath
+          .split('/')
+          .slice(1, fullPath.split('/').length - 1);
         directories.forEach((dir, index) => {
-          const fullPathToDir = directories.slice(0,index).join('/') + '/' + dir;
+          const fullPathToDir =
+            directories.slice(0, index).join('/') + '/' + dir;
           if (!fs.existsSync(`${directory}/${fullPathToDir}`)) {
             fs.mkdirSync(`${directory}/${fullPathToDir}`);
           }
@@ -16,13 +26,15 @@ export default {
       });
     }
     for (const contributionType in contributions) {
-      if (contributionType != 'settings') {
-        for(const contributionName in contributions[contributionType]) {
-          const contribution = contributions[contributionType][contributionName];
+      if (contributionType !== 'settings') {
+        for (const contributionName in contributions[contributionType]) {
+          const contribution =
+            contributions[contributionType][contributionName];
           fs.writeFileSync(
             `${directory}${contribution.entryPoint}`,
             exports.default[`${contributionType}Template`](
-              contributionName, contribution
+              contributionName,
+              contribution
             )
           );
         }
@@ -31,7 +43,7 @@ export default {
   },
 
   viewsTemplate(contributionName: string, contribution: { [k: string]: any }) {
-    if (contribution.host == 'attribute'){
+    if (contribution.host === 'attribute') {
       return `import React from "react";
 
 const Styles = () => {
@@ -54,8 +66,8 @@ aha.on("${contributionName}", ({ record, fields, onUnmounted }, { identifier, se
     </>
   );
 });`;
-    } else {
-      return `import React from "react";
+    }
+    return `import React from "react";
 
 const Styles = () => {
   return (
@@ -72,7 +84,9 @@ const Styles = () => {
   );
 };
 
-aha.on("${contributionName}", ({ ${contribution.host != 'page' ? 'record, ' : ''}fields, onUnmounted }, { identifier, settings }) => {
+aha.on("${contributionName}", ({ ${
+      contribution.host === 'page' ? '' : 'record, '
+    }fields, onUnmounted }, { identifier, settings }) => {
   return (
     <>
       <Styles />
@@ -80,10 +94,12 @@ aha.on("${contributionName}", ({ ${contribution.host != 'page' ? 'record, ' : ''
     </>
   );
 });`;
-    }
   },
 
-  commandsTemplate(contributionName: string, contribution: { [k: string]: any }) {
+  commandsTemplate(
+    contributionName: string,
+    _contribution: { [k: string]: any }
+  ) {
     return `aha.on("${contributionName}", ({ record }, { identifier, settings }) => {
   if (record) {
     aha.commandOutput(
@@ -95,13 +111,16 @@ aha.on("${contributionName}", ({ ${contribution.host != 'page' ? 'record, ' : ''
 });`;
   },
 
-  endpointsTemplate(contributionName: string, contribution: { [k: string]: any }) {
-  return `aha.on("${contributionName}", ({ headers, payload }, { identifier, settings }) => {
+  endpointsTemplate(contributionName: string) {
+    return `aha.on("${contributionName}", ({ headers, payload }, { identifier, settings }) => {
   //Endpoint code goes here
 });`;
   },
 
-  importersTemplate(contributionName: string, contribution: { [k: string]: any }) {
+  importersTemplate(
+    contributionName: string,
+    contribution: { [k: string]: any }
+  ) {
     return `const importer = aha.getImporter("${contribution.name}.${contributionName}");
 
 importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identifier, settings}) => {
@@ -140,20 +159,28 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
 `;
   },
 
-  eventHandlersTemplate(contributionName: string, contribution: { [k: string]: any }) {
+  eventHandlersTemplate(
+    contributionName: string,
+    contribution: { [k: string]: any }
+  ) {
     let returnTemplate = '';
     contribution.handles.forEach((event: string) => {
       returnTemplate += `
 aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
   //Event handler code for ${event}
 });
-`
+`;
     });
     return returnTemplate;
   },
 
-  packageTemplate(identifier: string, name: string, author: string, ahaExtensionsSchema: { [k: string]: any }) {
-    const version = packageInfo()['version'];
+  packageTemplate(
+    identifier: string,
+    name: string,
+    author: string,
+    ahaExtensionsSchema: { [k: string]: any }
+  ) {
+    const version = packageInfo().version;
     const packageJson: { [k: string]: any } = {
       name: identifier,
       description: name,
@@ -161,20 +188,23 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
       author: author,
       repository: {
         type: 'git',
-        url: 'TODO: Add the GitHub URL to your extension in package.json'
+        url: 'TODO: Add the GitHub URL to your extension in package.json',
       },
       license: 'MIT',
       devDependencies: {
-        'aha-cli': version
+        'aha-cli': version,
       },
-      ahaExtension: ahaExtensionsSchema
+      ahaExtension: ahaExtensionsSchema,
     };
-    return JSON.stringify(packageJson,
+    return JSON.stringify(
+      packageJson,
       (key, value) => {
-        if (value !== null) return value
-      }, 2);
+        if (value !== null) return value;
+      },
+      2
+    );
   },
-  
+
   readmeTemplate(name: string) {
     return `# ${name}
   
@@ -237,7 +267,7 @@ After building, you can upload the \`.gz\` file to a publicly accessible URL, su
 To learn more about developing Aha! Develop extensions, including the API reference, the full documentation is located here: [Aha! Develop Extension API](https://www.aha.io/support/develop/extensions)
 `;
   },
-  
+
   tsconfigTemplate() {
     return `{
   "compilerOptions": {
@@ -253,7 +283,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
   "include": ["node_modules/aha-cli/aha.d.ts", "src/**/*.ts*"]
 }`;
   },
-  
+
   vscodeTemplate() {
     return `{
   "json.schemas": [
@@ -264,10 +294,10 @@ To learn more about developing Aha! Develop extensions, including the API refere
   ]
 }`;
   },
-  
+
   gitignoreTemplate() {
     return `node_modules
 .aha-cache
 `;
-  }
-}
+  },
+};
