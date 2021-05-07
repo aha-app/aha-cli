@@ -115,7 +115,7 @@ export async function buildExtension(command: BaseCommand) {
   process.stdout.write(
     `Building extension '${configuration.name}' to '${fileName}'\n`
   );
-  const form = await prepareExtensionForm(command, false);
+  const form = await prepareExtensionForm(command, false, false);
 
   ux.action.start('Saving');
   const gzip = createGzip();
