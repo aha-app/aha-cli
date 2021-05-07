@@ -12,6 +12,7 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^3",
+    "@types/inquirer": "^7.3.1",
     "chalk": "^4.1.0",
     "chokidar": "^3.4.3",
     "cli-ux": "^5.5.1",
