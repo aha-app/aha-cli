@@ -109,13 +109,13 @@ export async function installExtension(
 
 // Generate a file that contains the extension configuration and code in the
 // same form-data format that is used when it is uploaded.
-export async function buildExtension(command: BaseCommand) {
+export async function buildExtension(command: BaseCommand, skipCache = false) {
   const configuration = readConfiguration();
   const fileName = `${fileNameFromConfiguration(configuration)}.gz`;
   process.stdout.write(
     `Building extension '${configuration.name}' to '${fileName}'\n`
   );
-  const form = await prepareExtensionForm(command, false);
+  const form = await prepareExtensionForm(command, false, skipCache);
 
   ux.action.start('Saving');
   const gzip = createGzip();
