@@ -2,7 +2,7 @@ import * as inquirer from 'inquirer';
 
 const questions = {
   async getContributionFromQuestions() {
-    const answers = await inquirer.prompt(
+    const answers: { [k: string]: any } = await inquirer.prompt(
       exports.default.contributionQuestions
     );
     return {
@@ -55,7 +55,7 @@ const questions = {
     },
   ],
 
-  addContributionsQuestion: {
+  addContributionsQuestion: [{
     type: 'list',
     name: 'createContributions',
     message: 'Are you ready to add contributions?',
@@ -70,15 +70,15 @@ const questions = {
         value: false,
       },
     ],
-  },
+  }],
 
-  addAnotherContributionQuestion: {
+  addAnotherContributionQuestion: [{
     type: 'list',
     name: 'add',
     message: 'Add another contribution?',
     default: 'no',
     choices: ['yes', 'no'],
-  },
+  }],
 
   contributionQuestions: [
     {
