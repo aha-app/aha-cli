@@ -25,7 +25,9 @@ export function identifierFromConfiguration(configuration: any) {
 }
 
 function fileNameFromConfiguration(configuration: any) {
-  return `${identifierFromConfiguration(configuration)}-v${configuration.version}`;
+  return `${identifierFromConfiguration(configuration)}-v${
+    configuration.version
+  }`;
 }
 
 /**
@@ -74,7 +76,7 @@ export async function installExtension(
   // us to treat extension updates atomically - which prevents mismatched code.
   ux.action.start('Uploading');
   try {
-    const response: any = await command.api.post('/api/v1/extensions', {
+    await command.api.post('/api/v1/extensions', {
       body: new Readable({
         read() {
           this.push(form.getBuffer());

@@ -1,4 +1,4 @@
-import { HTTP } from "http-call";
+import { HTTP } from 'http-call';
 
 interface IConfig {
   baseURL: string;
@@ -6,6 +6,7 @@ interface IConfig {
 
 class AhaAPI {
   http: typeof HTTP;
+
   config: IConfig;
 
   constructor(config: IConfig) {

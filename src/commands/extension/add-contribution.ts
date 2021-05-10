@@ -43,7 +43,7 @@ export default class Create extends BaseCommand {
         contribution.name
       ] = contribution.contribution;
     } while (
-      (await inquirer.prompt(questions.addAnotherContributionQuestion)).add ==
+      (await inquirer.prompt(questions.addAnotherContributionQuestion)).add ===
       'yes'
     );
 

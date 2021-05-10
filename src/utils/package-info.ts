@@ -13,7 +13,7 @@ export function packageRoot() {
         _packageRoot = searchDir;
         return searchDir;
       }
-    } catch (err) {}
+    } catch (error) {}
 
     searchDir = path.dirname(searchDir);
   }

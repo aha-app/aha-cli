@@ -1,11 +1,11 @@
-import BaseCommand from '../../base';
 import ux from 'cli-ux';
 import * as fs from 'fs';
-import * as path from 'path';
-import { packageRoot } from '../../utils/package-info';
 import * as inquirer from 'inquirer';
-import templates from '../../utils/templates';
+import * as path from 'path';
+import BaseCommand from '../../base';
+import { packageRoot } from '../../utils/package-info';
 import questions from '../../utils/questions';
+import templates from '../../utils/templates';
 
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
@@ -45,8 +45,8 @@ export default class Create extends BaseCommand {
         ahaExtensionSchema.contributes[contribution.type][contribution.name] =
           contribution.contribution;
       } while (
-        (await inquirer.prompt(questions.addAnotherContributionQuestion)).add ==
-        'yes'
+        (await inquirer.prompt(questions.addAnotherContributionQuestion))
+          .add === 'yes'
       );
     } else {
       ahaExtensionSchema.contributes = {

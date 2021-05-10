@@ -1,6 +1,6 @@
 import * as inquirer from 'inquirer';
 
-export default {
+const questions = {
   async getContributionFromQuestions() {
     const answers = await inquirer.prompt(
       exports.default.contributionQuestions
@@ -41,7 +41,7 @@ export default {
       name: 'identifier',
       message:
         'Each extension must have a universally unique identifer that is also a valid NPM package name.\nGenerally a good identifier is <organization-name>.<extension-name>.\nEnter an identifier:',
-      validate: (input: string, answers: { [k: string]: string }) => {
+      validate: (input: string, _answers: { [k: string]: string }) => {
         if (!input.match(/^[^.]+\.([^.]+)$/)) {
           return 'The identifier should contain exactly one period';
         }
@@ -94,7 +94,7 @@ export default {
       default: (answers: { [k: string]: string }) => {
         return answers.title.replace(
           /^([A-Z])|[\s-_]+(\w)/g,
-          function (match, p1, p2, offset) {
+          function (_match, p1, p2, _offset) {
             if (p2) return p2.toUpperCase();
             return p1.toLowerCase();
           }
@@ -123,7 +123,7 @@ export default {
         return `src/${answers.contributionType}/${answers.name}.js`;
       },
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType != 'settings';
+        return answers.contributionType !== 'settings';
       },
     },
     {
@@ -137,7 +137,7 @@ export default {
       ],
       default: 'page',
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType == 'views';
+        return answers.contributionType === 'views';
       },
     },
     {
@@ -152,7 +152,7 @@ export default {
       ],
       default: ['Feature', 'Requirement', 'Release'],
       when: (answers: { [k: string]: string }) => {
-        return answers.host != 'page' && answers.contributionType == 'views';
+        return answers.host !== 'page' && answers.contributionType === 'views';
       },
     },
     {
@@ -166,7 +166,7 @@ export default {
       ],
       default: { menu: 'Work' },
       when: (answers: { [k: string]: string }) => {
-        return answers.host == 'page';
+        return answers.host === 'page';
       },
     },
     {
@@ -176,7 +176,7 @@ export default {
       choices: ['boolean', 'color', 'string', 'number'],
       default: 'color',
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType == 'settings';
+        return answers.contributionType === 'settings';
       },
     },
     {
@@ -196,7 +196,7 @@ export default {
         }
       },
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType == 'settings';
+        return answers.contributionType === 'settings';
       },
     },
     {
@@ -216,7 +216,7 @@ export default {
         }
       },
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType == 'settings';
+        return answers.contributionType === 'settings';
       },
     },
     {
@@ -248,3 +248,5 @@ export default {
     },
   ],
 };
+
+export default questions;
