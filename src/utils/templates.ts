@@ -14,8 +14,8 @@ export default {
           const contribution =
             contributions[contributionType][contributionName];
           directories = contribution.entryPoint
-              .split('/')
-              .slice(0, contribution.entryPoint.split('/').length - 1);
+            .split('/')
+            .slice(0, contribution.entryPoint.split('/').length - 1);
           directories.forEach((dir, index) => {
             const fullPathToDir =
               directories.slice(0, index).join('/') + '/' + dir;

@@ -55,30 +55,34 @@ const questions = {
     },
   ],
 
-  addContributionsQuestion: [{
-    type: 'list',
-    name: 'createContributions',
-    message: 'Are you ready to add contributions?',
-    default: true,
-    choices: [
-      {
-        name: 'yes',
-        value: true,
-      },
-      {
-        name: 'skip for now',
-        value: false,
-      },
-    ],
-  }],
+  addContributionsQuestion: [
+    {
+      type: 'list',
+      name: 'createContributions',
+      message: 'Are you ready to add contributions?',
+      default: true,
+      choices: [
+        {
+          name: 'yes',
+          value: true,
+        },
+        {
+          name: 'skip for now',
+          value: false,
+        },
+      ],
+    },
+  ],
 
-  addAnotherContributionQuestion: [{
-    type: 'list',
-    name: 'add',
-    message: 'Add another contribution?',
-    default: 'no',
-    choices: ['yes', 'no'],
-  }],
+  addAnotherContributionQuestion: [
+    {
+      type: 'list',
+      name: 'add',
+      message: 'Add another contribution?',
+      default: 'no',
+      choices: ['yes', 'no'],
+    },
+  ],
 
   contributionQuestions: [
     {
