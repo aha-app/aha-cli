@@ -8,30 +8,23 @@ export default {
     contributions: { [k: string]: any }
   ) {
     let directories: string[] = [];
-    const paths = JSON.stringify(contributions).match(
-      /("?)entryPoint\1.*?"(.*?)"/g
-    );
-    if (paths) {
-      paths.forEach((fullPath) => {
-        directories = fullPath
-          .split('/')
-          .slice(1, fullPath.split('/').length - 1);
-        directories.forEach((dir, index) => {
-          const fullPathToDir =
-            directories.slice(0, index).join('/') + '/' + dir;
-          if (!fs.existsSync(`${directory}/${fullPathToDir}`)) {
-            fs.mkdirSync(`${directory}/${fullPathToDir}`);
-          }
-        });
-      });
-    }
     for (const contributionType in contributions) {
       if (contributionType !== 'settings') {
         for (const contributionName in contributions[contributionType]) {
           const contribution =
             contributions[contributionType][contributionName];
+          directories = contribution.entryPoint
+              .split('/')
+              .slice(0, contribution.entryPoint.split('/').length - 1);
+          directories.forEach((dir, index) => {
+            const fullPathToDir =
+              directories.slice(0, index).join('/') + '/' + dir;
+            if (!fs.existsSync(`${directory}/${fullPathToDir}`)) {
+              fs.mkdirSync(`${directory}/${fullPathToDir}`);
+            }
+          });
           fs.writeFileSync(
-            `${directory}${contribution.entryPoint}`,
+            `${directory}/${contribution.entryPoint}`,
             exports.default[`${contributionType}Template`](
               contributionName,
               contribution

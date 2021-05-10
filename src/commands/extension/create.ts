@@ -53,7 +53,7 @@ export default class Create extends BaseCommand {
         views: {
           samplePage: {
             title: 'Sample Page',
-            entryPoint: '/src/views/samplePage.js',
+            entryPoint: 'src/views/samplePage.js',
             host: 'page',
             location: {
               home: 'Work',
@@ -63,7 +63,7 @@ export default class Create extends BaseCommand {
         commands: {
           sampleCommand: {
             title: 'Sample Command',
-            entryPoint: '/src/commands/sampleCommand.js',
+            entryPoint: 'src/commands/sampleCommand.js',
           },
         },
       };
