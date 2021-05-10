@@ -1,7 +1,7 @@
 import Command, { flags } from '@oclif/command';
-import { Input, OutputFlags } from '@oclif/parser';
-import AhaAPI from './api';
+import { Input } from '@oclif/parser';
 import netrc from 'netrc-parser';
+import AhaAPI from './api';
 
 abstract class BaseCommand extends Command {
   static flags = {
@@ -12,21 +12,22 @@ abstract class BaseCommand extends Command {
   };
 
   flags?: any;
+
   _api?: AhaAPI;
 
   async init() {
     // do some initialization
-    const { flags } = this.parse(<Input<any>>this.constructor);
+    const { flags } = this.parse(this.constructor as Input<any>);
     this.flags = flags;
   }
 
   get api(): AhaAPI {
     if (this._api) {
       return this._api;
-    } else {
-      this._api = this.prepareAPI();
-      return this._api;
     }
+
+    this._api = this.prepareAPI();
+    return this._api;
   }
 
   prepareAPI(): AhaAPI {
@@ -38,6 +39,7 @@ abstract class BaseCommand extends Command {
     };
     return newAPI;
   }
+
   resetAPI() {
     this._api = undefined;
   }

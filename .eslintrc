@@ -9,6 +9,7 @@
     "no-warning-comments": "off",
     "guard-for-in": "off",
     "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
     "no-await-in-loop": "off",
     "no-constant-condition": "off",
     "valid-jsdoc": "off"

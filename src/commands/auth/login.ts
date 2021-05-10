@@ -66,8 +66,8 @@ Credentials are saved in ~/.netrc`;
         subdomain = domain;
 
         break;
-      } catch (err) {
-        if (!err.http || err.http.statusCode != 408) throw err;
+      } catch (error) {
+        if (!error.http || error.http.statusCode !== 408) throw error;
 
         // Sleep a little before polling again
         await new Promise((r) => setTimeout(r, 1000));

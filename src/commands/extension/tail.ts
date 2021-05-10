@@ -24,6 +24,40 @@ interface ExtensionLogResult {
   };
 }
 
+const colorizeSeverity = (s: string) => {
+  let color;
+  switch (s) {
+    case 'e':
+      color = chalk.bgRed.dim.bold;
+      break;
+    case 'w':
+      color = chalk.bgYellow.dim.bold;
+      break;
+    case 'i':
+      color = chalk.bgCyan.dim.bold;
+      break;
+    case 'd':
+      color = chalk.bgWhite.dim.bold;
+      break;
+    default:
+      color = chalk.dim.bold;
+  }
+
+  return color(` ${s.toUpperCase()} `);
+};
+
+const outputLog = (logGroup: LogEntry, log: LogContent) => {
+  process.stdout.write(chalk.blue(log.t));
+  process.stdout.write(' ');
+  process.stdout.write(chalk.dim(logGroup.extensionContribution.identifier));
+  process.stdout.write(' ');
+  process.stdout.write(colorizeSeverity(log.s));
+  process.stdout.write(' ');
+  if (typeof log.m === 'string') process.stdout.write(log.m);
+  else process.stdout.write(JSON.stringify(log.m));
+  process.stdout.write('\n');
+};
+
 export default class Tail extends BaseCommand {
   static description = 'Live tail extension logs';
 
@@ -71,43 +105,11 @@ export default class Tail extends BaseCommand {
 
         for (const logGroup of result.body.data.extensionLogs.nodes) {
           for (const log of logGroup.content) {
-            process.stdout.write(chalk.blue(log.t));
-            process.stdout.write(' ');
-            process.stdout.write(
-              chalk.dim(logGroup.extensionContribution.identifier)
-            );
-            process.stdout.write(' ');
-            process.stdout.write(this.colorizeSeverity(log.s));
-            process.stdout.write(' ');
-            if (typeof log.m === 'string') process.stdout.write(log.m);
-            else process.stdout.write(JSON.stringify(log.m));
-            process.stdout.write('\n');
+            outputLog(logGroup, log);
           }
           lastTimestamp = logGroup.createdAt;
         }
       }
     }
-  }
-
-  colorizeSeverity(s: string) {
-    let color;
-    switch (s) {
-      case 'e':
-        color = chalk.bgRed.dim.bold;
-        break;
-      case 'w':
-        color = chalk.bgYellow.dim.bold;
-        break;
-      case 'i':
-        color = chalk.bgCyan.dim.bold;
-        break;
-      case 'd':
-        color = chalk.bgWhite.dim.bold;
-        break;
-      default:
-        color = chalk.dim.bold;
-    }
-
-    return color(` ${s.toUpperCase()} `);
   }
 }
