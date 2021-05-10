@@ -6,7 +6,6 @@ executors:
     docker:
       - image: cimg/node:16.1.0
 
-# comment
 jobs:
   tsc:
     executor: node
@@ -14,7 +13,7 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
-      - run: tsc
+      - run: yarn run prepack
 
   lint:
     executor: node
@@ -22,7 +21,7 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: yarn
-      - run: yarn posttest
+      - run: yarn run posttest
 
 workflows:
   version: 2.1
