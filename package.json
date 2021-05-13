@@ -90,6 +90,9 @@
   },
   "types": "./aha.d.ts",
   "prettier": {
-    "singleQuote": true
+    "jsxSingleQuote": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "arrowParens": "avoid"
   }
 }
