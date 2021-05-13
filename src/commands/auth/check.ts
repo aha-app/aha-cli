@@ -2,6 +2,8 @@ import BaseCommand from '../../base';
 import ux from 'cli-ux';
 
 export default class Check extends BaseCommand {
+  static needsAuth = true;
+
   static description = `Check if the stored credentials work`;
 
   static flags = {

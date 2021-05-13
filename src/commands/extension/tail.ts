@@ -59,6 +59,8 @@ const outputLog = (logGroup: LogEntry, log: LogContent) => {
 };
 
 export default class Tail extends BaseCommand {
+  static needsAuth = true;
+
   static description = 'Live tail extension logs';
 
   static flags = {

@@ -79,6 +79,7 @@ Credentials are saved in ~/.netrc`;
     ux.action.start('Testing login');
     this.flags.subdomain = subdomain;
     this.resetAPI();
+    await this.initAPI();
     await this.api.get('/api/v1/me');
     ux.action.stop('Success!');
   }
