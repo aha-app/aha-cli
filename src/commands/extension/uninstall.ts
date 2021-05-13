@@ -6,6 +6,8 @@ import {
 } from '../../utils/extension-utils';
 
 export default class Uninstall extends BaseCommand {
+  static needsAuth = true;
+
   static description = 'Uninstall the extension in the current directory';
 
   static flags = {

@@ -12,7 +12,7 @@ function fetch(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http;
     const req = lib
-      .get(url, (res) => {
+      .get(url, res => {
         if (
           res.headers.location &&
           [301, 302, 307].includes(Number(res.statusCode))
@@ -21,7 +21,7 @@ function fetch(url: string): Promise<Buffer> {
           req.abort();
         } else if (res.statusCode === 200) {
           const chunks: Uint8Array[] = [];
-          res.on('data', (chunk) => chunks.push(chunk));
+          res.on('data', chunk => chunks.push(chunk));
           res.on('end', () => resolve(Buffer.concat(chunks)));
         } else {
           reject(new Error(`GET ${url} failed: status ${res.statusCode}`));
@@ -41,7 +41,7 @@ const httpPlugin = (options: HttpPluginOptions): Plugin => {
       // esbuild doesn't attempt to map them to a file system location.
       // Tag them with the "http-url" namespace to associate them with
       // this plugin.
-      build.onResolve({ filter: /^https?:\/\// }, (args) => ({
+      build.onResolve({ filter: /^https?:\/\// }, args => ({
         path: args.path,
         namespace: 'http-url',
       }));
@@ -51,7 +51,7 @@ const httpPlugin = (options: HttpPluginOptions): Plugin => {
       // files will be in the "http-url" namespace. Make sure to keep
       // the newly resolved URL in the "http-url" namespace so imports
       // inside it will also be resolved as URLs recursively.
-      build.onResolve({ filter: /.*/, namespace: 'http-url' }, (args) => ({
+      build.onResolve({ filter: /.*/, namespace: 'http-url' }, args => ({
         path: new URL(args.path, args.importer).toString(),
         namespace: 'http-url',
       }));
@@ -60,7 +60,7 @@ const httpPlugin = (options: HttpPluginOptions): Plugin => {
       // from the internet. This has just enough logic to be able to
       // handle the example import from unpkg.com but in reality this
       // would probably need to be more complex.
-      build.onLoad({ filter: /.*/, namespace: 'http-url' }, async (args) => {
+      build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => {
         let contents: Buffer;
 
         if (cache && (await cache.has(args.path))) {

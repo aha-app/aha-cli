@@ -95,9 +95,9 @@ export async function installExtension(
     if (error.http.body.errors) {
       const errorTree = ux.tree();
       const errors: { [index: string]: string[] } = error.http.body.errors;
-      Object.keys(errors).forEach((identifier) => {
+      Object.keys(errors).forEach(identifier => {
         errorTree.insert(identifier);
-        errors[identifier].forEach((error) =>
+        errors[identifier].forEach(error =>
           errorTree.nodes[identifier].insert(error)
         );
       });
@@ -146,10 +146,10 @@ async function prepareExtensionForm(
   const cache = skipCache ? undefined : await SimpleCache.create('.aha-cache');
 
   const compilers = Object.keys(contributions)
-    .flatMap((contributionType) => {
+    .flatMap(contributionType => {
       const typeContributions = contributions[contributionType];
 
-      return Object.keys(typeContributions).map((contributionName) => {
+      return Object.keys(typeContributions).map(contributionName => {
         if (contributionScripts[contributionName]) {
           throw new Error(
             `Two extensions share the same name of '${contributionName}'. Contribution names must be unique within the extension.`
@@ -182,7 +182,7 @@ async function prepareExtensionForm(
         );
       });
     })
-    .filter((n) => n);
+    .filter(n => n);
 
   ux.action.start('Compiling');
   await Promise.all(compilers);
@@ -232,7 +232,7 @@ async function prepareScript(
 
   try {
     const externalsFilter = EXTERNALS.map(
-      (extern) => `(^${extern}$)|(-/${extern}@)`
+      extern => `(^${extern}$)|(-/${extern}@)`
     ).join('|');
 
     const bundle = await esbuild.build({
@@ -244,7 +244,7 @@ async function prepareScript(
       plugins: [
         globalExternalsWithRegExp({
           modulePathFilter: new RegExp(externalsFilter),
-          getModuleInfo: (path) => {
+          getModuleInfo: path => {
             const name = path.includes('-/') ? skyUrlToPath(path) : path;
             return {
               varName: pathToExternal(name ?? path),

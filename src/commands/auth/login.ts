@@ -47,7 +47,7 @@ Credentials are saved in ~/.netrc`;
         wait: false,
       }
     );
-    cp.on('error', (err) => {
+    cp.on('error', err => {
       ux.warn(err);
       ux.warn('Cannot open browser');
     });
@@ -70,7 +70,7 @@ Credentials are saved in ~/.netrc`;
         if (!error.http || error.http.statusCode !== 408) throw error;
 
         // Sleep a little before polling again
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
     ux.action.stop('complete.');
@@ -79,6 +79,7 @@ Credentials are saved in ~/.netrc`;
     ux.action.start('Testing login');
     this.flags.subdomain = subdomain;
     this.resetAPI();
+    await this.initAPI();
     await this.api.get('/api/v1/me');
     ux.action.stop('Success!');
   }

@@ -59,6 +59,8 @@ const outputLog = (logGroup: LogEntry, log: LogContent) => {
 };
 
 export default class Tail extends BaseCommand {
+  static needsAuth = true;
+
   static description = 'Live tail extension logs';
 
   static flags = {
@@ -97,7 +99,7 @@ export default class Tail extends BaseCommand {
 
       if (result.body && result.body.data.extensionLogs.nodes.length === 0) {
         // Nothing happening. Wait a bit before looping again.
-        await new Promise((resolve) => setTimeout(resolve, loopDelayMs));
+        await new Promise(resolve => setTimeout(resolve, loopDelayMs));
         if (loopDelayMs < loopDelayMax) loopDelayMs += 500;
       } else if (result.body) {
         // Check faster next time.

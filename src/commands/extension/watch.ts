@@ -5,6 +5,8 @@ import { installExtension } from '../../utils/extension-utils';
 
 const WAIT_TIMEOUT = 250;
 export default class Create extends BaseCommand {
+  static needsAuth = true;
+
   static description =
     'Watch the current directory for changes and install the extension each time a file changes';
 
