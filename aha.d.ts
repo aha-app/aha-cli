@@ -6,6 +6,13 @@ declare namespace Aha {
     | EpicOrder_workflowBoardPosition
     | EpicOrder_createdAt
     | EpicOrder_position;
+  type ExtensionFieldableTypeEnum_EPIC = 'EPIC';
+  type ExtensionFieldableTypeEnum_FEATURE = 'FEATURE';
+  type ExtensionFieldableTypeEnum_REQUIREMENT = 'REQUIREMENT';
+  type ExtensionFieldableTypeEnumEnum =
+    | ExtensionFieldableTypeEnum_EPIC
+    | ExtensionFieldableTypeEnum_FEATURE
+    | ExtensionFieldableTypeEnum_REQUIREMENT;
   type FeatureOrder_workflowBoardPosition = 'workflowBoardPosition';
   type FeatureOrder_createdAt = 'createdAt';
   type FeatureOrder_position = 'position';
@@ -63,8 +70,26 @@ declare namespace Aha {
   type WorkUnitEnum_MINUTES = 'MINUTES';
   type WorkUnitEnum_POINTS = 'POINTS';
   type WorkUnitEnumEnum = WorkUnitEnum_MINUTES | WorkUnitEnum_POINTS;
+  type ExtensionFieldableSubjectUnion =
+    | Account
+    | Epic
+    | Feature
+    | Project
+    | Requirement
+    | User;
   type RecordUnion = Epic | Feature | Requirement;
   type TaskableSubjectUnion = Feature;
+  type CapacityEstimateInterface = Epic | Feature | Requirement;
+  type ExtensionFieldsInterface =
+    | Account
+    | Epic
+    | Feature
+    | Project
+    | Requirement
+    | User;
+  type ReferenceInterface = Epic | Feature | Release | Requirement;
+  type TaskableInterface = Feature;
+  type UserAssignableInterface = Epic | Feature | Requirement;
   type EpicFilters = {
     /**
      * Only show epics in active releases
@@ -86,6 +111,21 @@ declare namespace Aha {
      * Filters contributions by contribution type: 'commands', 'endpoints', 'events', 'importers', 'settings', or 'views'
      */
     contributes: string;
+  };
+  type ExtensionFieldsFilters = {
+    name: string;
+    /**
+     * The record type that the extension field belongs to.
+     */
+    extensionFieldableType: ExtensionFieldableTypeEnumEnum;
+    /**
+     * Finds fields for the extension with the specified ID
+     */
+    extensionId: string;
+    /**
+     * Finds fields for the extension with the specified identifier. Example: 'aha-develop.github-import'
+     */
+    extensionIdentifier: string;
   };
   type ExtensionLogFilters = {
     /**
@@ -142,6 +182,7 @@ declare namespace Aha {
   };
   /**
    * Attributes for Account
+   * @category Aha! Model Attributes
    */
   interface AccountAttributes {
     readonly id: string;
@@ -152,38 +193,52 @@ declare namespace Aha {
     readonly extensionFields: Array<ExtensionField>;
   }
 
+  type AccountQuery = Query<Account, never>;
+
   /**
    * Account Aha! model
    *
    * An Aha! account
+   *
+   * Instance type: [[Account]]
+   *
+   * @category Aha! Model
    */
-  class Account extends ApplicationModel implements AccountAttributes {
-    static typename: 'Account';
+  interface AccountConstructor {
+    typename: 'Account';
 
-    static select<F extends keyof AccountAttributes>(
-      names: F[]
-    ): Query<Account, never>;
+    select<F extends keyof AccountAttributes>(names: F[]): AccountQuery;
 
-    static select<F extends keyof AccountAttributes>(
-      ...names: F[]
-    ): Query<Account, never>;
+    select<F extends keyof AccountAttributes>(...names: F[]): AccountQuery;
 
-    static blank(attrs: AccountAttributes): Account;
+    blank(attrs: AccountAttributes): Account;
 
+    new (attributes: Partial<AccountAttributes>): Account;
+  }
+
+  /**
+   * Account Aha! model
+   *
+   * An Aha! account
+   *
+   * Constructor: [[AccountConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Account
+    extends ApplicationModel,
+      AccountAttributes,
+      HasExtensionFields {
     readonly typename: 'Account';
 
+    readonly query: AccountQuery;
+
     attributes: AccountAttributes;
-
-    readonly id: string;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
   }
 
   /**
    * Attributes for BookmarksRecordPosition
+   * @category Aha! Model Attributes
    */
   interface BookmarksRecordPositionAttributes {
     /**
@@ -201,49 +256,57 @@ declare namespace Aha {
     readonly recordType: string;
   }
 
+  type BookmarksRecordPositionQuery = Query<BookmarksRecordPosition, never>;
+
   /**
    * BookmarksRecordPosition Aha! model
    *
    * The position of a record in a specific bookmark type. This is used to sort records in different ways when they belong to different views.
+   *
+   * Instance type: [[BookmarksRecordPosition]]
+   *
+   * @category Aha! Model
    */
-  class BookmarksRecordPosition
-    extends ApplicationModel
-    implements BookmarksRecordPositionAttributes {
-    static typename: 'BookmarksRecordPosition';
+  interface BookmarksRecordPositionConstructor {
+    typename: 'BookmarksRecordPosition';
 
-    static select<F extends keyof BookmarksRecordPositionAttributes>(
+    select<F extends keyof BookmarksRecordPositionAttributes>(
       names: F[]
-    ): Query<BookmarksRecordPosition, never>;
+    ): BookmarksRecordPositionQuery;
 
-    static select<F extends keyof BookmarksRecordPositionAttributes>(
+    select<F extends keyof BookmarksRecordPositionAttributes>(
       ...names: F[]
-    ): Query<BookmarksRecordPosition, never>;
+    ): BookmarksRecordPositionQuery;
 
-    static blank(
-      attrs: BookmarksRecordPositionAttributes
+    blank(attrs: BookmarksRecordPositionAttributes): BookmarksRecordPosition;
+
+    new (
+      attributes: Partial<BookmarksRecordPositionAttributes>
     ): BookmarksRecordPosition;
+  }
 
+  /**
+   * BookmarksRecordPosition Aha! model
+   *
+   * The position of a record in a specific bookmark type. This is used to sort records in different ways when they belong to different views.
+   *
+   * Constructor: [[BookmarksRecordPositionConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface BookmarksRecordPosition
+    extends ApplicationModel,
+      BookmarksRecordPositionAttributes {
     readonly typename: 'BookmarksRecordPosition';
 
+    readonly query: BookmarksRecordPositionQuery;
+
     attributes: BookmarksRecordPositionAttributes;
-
-    /**
-     * The type of bookmark this position applies to. For example: 'Iteration', 'Bookmarks::WorkflowBoard'
-     */
-
-    readonly bookmarkType: string;
-    readonly id: string;
-    /**
-     * The position of the record. Smaller / more negative is higher.
-     */
-
-    readonly position: number;
-    readonly recordId: string;
-    readonly recordType: string;
   }
 
   /**
    * Attributes for BookmarksTeamBacklog
+   * @category Aha! Model Attributes
    */
   interface BookmarksTeamBacklogAttributes {
     readonly id: string;
@@ -255,41 +318,57 @@ declare namespace Aha {
     readonly records: Array<RecordUnion>;
   }
 
+  type BookmarksTeamBacklogQuery = Query<BookmarksTeamBacklog, never>;
+
   /**
    * BookmarksTeamBacklog Aha! model
    *
    * A reorderable backlog for a team
+   *
+   * Instance type: [[BookmarksTeamBacklog]]
+   *
+   * @category Aha! Model
    */
-  class BookmarksTeamBacklog
-    extends ApplicationModel
-    implements BookmarksTeamBacklogAttributes {
-    static typename: 'BookmarksTeamBacklog';
+  interface BookmarksTeamBacklogConstructor {
+    typename: 'BookmarksTeamBacklog';
 
-    static select<F extends keyof BookmarksTeamBacklogAttributes>(
+    select<F extends keyof BookmarksTeamBacklogAttributes>(
       names: F[]
-    ): Query<BookmarksTeamBacklog, never>;
+    ): BookmarksTeamBacklogQuery;
 
-    static select<F extends keyof BookmarksTeamBacklogAttributes>(
+    select<F extends keyof BookmarksTeamBacklogAttributes>(
       ...names: F[]
-    ): Query<BookmarksTeamBacklog, never>;
+    ): BookmarksTeamBacklogQuery;
 
-    static blank(attrs: BookmarksTeamBacklogAttributes): BookmarksTeamBacklog;
+    blank(attrs: BookmarksTeamBacklogAttributes): BookmarksTeamBacklog;
 
+    new (
+      attributes: Partial<BookmarksTeamBacklogAttributes>
+    ): BookmarksTeamBacklog;
+  }
+
+  /**
+   * BookmarksTeamBacklog Aha! model
+   *
+   * A reorderable backlog for a team
+   *
+   * Constructor: [[BookmarksTeamBacklogConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface BookmarksTeamBacklog
+    extends ApplicationModel,
+      BookmarksTeamBacklogAttributes {
     readonly typename: 'BookmarksTeamBacklog';
 
+    readonly query: BookmarksTeamBacklogQuery;
+
     attributes: BookmarksTeamBacklogAttributes;
-
-    readonly id: string;
-    /**
-     * The project / team this backlog applies to
-     */
-
-    readonly projectId: string;
-    readonly records: Array<RecordUnion>;
   }
 
   /**
    * Attributes for BookmarksWorkflowBoard
+   * @category Aha! Model Attributes
    */
   interface BookmarksWorkflowBoardAttributes {
     /**
@@ -321,63 +400,57 @@ declare namespace Aha {
     readonly records: Array<RecordUnion>;
   }
 
+  type BookmarksWorkflowBoardQuery = Query<BookmarksWorkflowBoard, never>;
+
   /**
    * BookmarksWorkflowBoard Aha! model
    *
    * A workflow board for a team or iteration
+   *
+   * Instance type: [[BookmarksWorkflowBoard]]
+   *
+   * @category Aha! Model
    */
-  class BookmarksWorkflowBoard
-    extends ApplicationModel
-    implements BookmarksWorkflowBoardAttributes {
-    static typename: 'BookmarksWorkflowBoard';
+  interface BookmarksWorkflowBoardConstructor {
+    typename: 'BookmarksWorkflowBoard';
 
-    static select<F extends keyof BookmarksWorkflowBoardAttributes>(
+    select<F extends keyof BookmarksWorkflowBoardAttributes>(
       names: F[]
-    ): Query<BookmarksWorkflowBoard, never>;
+    ): BookmarksWorkflowBoardQuery;
 
-    static select<F extends keyof BookmarksWorkflowBoardAttributes>(
+    select<F extends keyof BookmarksWorkflowBoardAttributes>(
       ...names: F[]
-    ): Query<BookmarksWorkflowBoard, never>;
+    ): BookmarksWorkflowBoardQuery;
 
-    static blank(
-      attrs: BookmarksWorkflowBoardAttributes
+    blank(attrs: BookmarksWorkflowBoardAttributes): BookmarksWorkflowBoard;
+
+    new (
+      attributes: Partial<BookmarksWorkflowBoardAttributes>
     ): BookmarksWorkflowBoard;
+  }
 
+  /**
+   * BookmarksWorkflowBoard Aha! model
+   *
+   * A workflow board for a team or iteration
+   *
+   * Constructor: [[BookmarksWorkflowBoardConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface BookmarksWorkflowBoard
+    extends ApplicationModel,
+      BookmarksWorkflowBoardAttributes {
     readonly typename: 'BookmarksWorkflowBoard';
 
+    readonly query: BookmarksWorkflowBoardQuery;
+
     attributes: BookmarksWorkflowBoardAttributes;
-
-    /**
-     * Currently active filters on the board
-     */
-
-    readonly filters: any;
-    readonly id: string;
-    /**
-     * The project or team whose records appear on this board
-     */
-
-    readonly projectId: string;
-    /**
-     * How to view the board: 'my_work', 'team_work', or 'none'
-     */
-
-    readonly view: string;
-    /**
-     * The ID of the workflow of the records on this board
-     */
-
-    readonly workflowId: string;
-    /**
-     * The iteration whose records appear on this board, if applicable
-     */
-
-    readonly iteration: Iteration;
-    readonly records: Array<RecordUnion>;
   }
 
   /**
    * Attributes for Epic
+   * @category Aha! Model Attributes
    */
   interface EpicAttributes {
     readonly commentsCount: number;
@@ -389,7 +462,7 @@ declare namespace Aha {
     readonly id: string;
     name: string;
     /**
-     * Path to the epic's details page
+     * Path to the details page
      */
 
     readonly path: string;
@@ -399,7 +472,7 @@ declare namespace Aha {
 
     position: number;
     /**
-     * Reference number of the epic. Example: DEV-E-123
+     * Reference number of the record. Example: DEV-123
      */
 
     readonly referenceNum: string;
@@ -449,105 +522,53 @@ declare namespace Aha {
     readonly extensionFields: Array<ExtensionField>;
     readonly features: Array<Feature>;
     readonly tags: Array<Tag>;
+  }
+
+  type EpicQuery = Query<Epic, EpicFilters>;
+
+  /**
+   * Epic Aha! model
+   *
+   * A high-level record that can contain multiple related features
+   *
+   * Instance type: [[Epic]]
+   *
+   * @category Aha! Model
+   */
+  interface EpicConstructor {
+    typename: 'Epic';
+
+    select<F extends keyof EpicAttributes>(names: F[]): EpicQuery;
+
+    select<F extends keyof EpicAttributes>(...names: F[]): EpicQuery;
+
+    where(filters: Partial<EpicFilters>): EpicQuery;
+
+    blank(attrs: EpicAttributes): Epic;
+
+    new (attributes: Partial<EpicAttributes>): Epic;
   }
 
   /**
    * Epic Aha! model
    *
    * A high-level record that can contain multiple related features
+   *
+   * Constructor: [[EpicConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class Epic extends ApplicationModel implements EpicAttributes {
-    static typename: 'Epic';
-
-    static select<F extends keyof EpicAttributes>(
-      names: F[]
-    ): Query<Epic, EpicFilters>;
-
-    static select<F extends keyof EpicAttributes>(
-      ...names: F[]
-    ): Query<Epic, EpicFilters>;
-
-    static where(filters: Partial<EpicFilters>): Query<Epic, EpicFilters>;
-
-    static blank(attrs: EpicAttributes): Epic;
-
+  interface Epic extends ApplicationModel, EpicAttributes, HasExtensionFields {
     readonly typename: 'Epic';
 
+    readonly query: EpicQuery;
+
     attributes: EpicAttributes;
-
-    readonly commentsCount: number;
-    /**
-     * Long-form description in HTML
-     */
-
-    description: string;
-    readonly id: string;
-    name: string;
-    /**
-     * Path to the epic's details page
-     */
-
-    readonly path: string;
-    /**
-     * Position of the epic when a record_position does not apply
-     */
-
-    position: number;
-    /**
-     * Reference number of the epic. Example: DEV-E-123
-     */
-
-    readonly referenceNum: string;
-    assignedToUser: User;
-    iteration: Iteration;
-    /**
-     * Originally estimated amount of work
-     */
-
-    readonly originalEstimate: Estimate;
-    readonly project: Project;
-    release: Release;
-    /**
-     * Current estimate of work left to do
-     */
-
-    readonly remainingEstimate: Estimate;
-    /**
-     * Team this epic belongs to
-     */
-
-    team: Project;
-    /**
-     * Current team workflow status
-     */
-
-    teamWorkflowStatus: WorkflowStatus;
-    /**
-     * Amount of work done so far
-     */
-
-    readonly workDone: Estimate;
-    /**
-     * Current overall workflow status
-     */
-
-    workflowStatus: WorkflowStatus;
-    /**
-     * The position of a record when it is listed in a specific bookmark type
-     */
-
-    readonly bookmarksRecordPositions: Array<BookmarksRecordPosition>;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
-    readonly features: Array<Feature>;
-    readonly tags: Array<Tag>;
   }
 
   /**
    * Attributes for Estimate
+   * @category Aha! Model Attributes
    */
   interface EstimateAttributes {
     /**
@@ -559,39 +580,49 @@ declare namespace Aha {
     readonly value: number;
   }
 
+  type EstimateQuery = Query<Estimate, never>;
+
   /**
    * Estimate Aha! model
    *
    * An estimate of work done or work remaining for a record
+   *
+   * Instance type: [[Estimate]]
+   *
+   * @category Aha! Model
    */
-  class Estimate extends ApplicationModel implements EstimateAttributes {
-    static typename: 'Estimate';
+  interface EstimateConstructor {
+    typename: 'Estimate';
 
-    static select<F extends keyof EstimateAttributes>(
-      names: F[]
-    ): Query<Estimate, never>;
+    select<F extends keyof EstimateAttributes>(names: F[]): EstimateQuery;
 
-    static select<F extends keyof EstimateAttributes>(
-      ...names: F[]
-    ): Query<Estimate, never>;
+    select<F extends keyof EstimateAttributes>(...names: F[]): EstimateQuery;
 
-    static blank(attrs: EstimateAttributes): Estimate;
+    blank(attrs: EstimateAttributes): Estimate;
 
+    new (attributes: Partial<EstimateAttributes>): Estimate;
+  }
+
+  /**
+   * Estimate Aha! model
+   *
+   * An estimate of work done or work remaining for a record
+   *
+   * Constructor: [[EstimateConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Estimate extends ApplicationModel, EstimateAttributes {
     readonly typename: 'Estimate';
 
+    readonly query: EstimateQuery;
+
     attributes: EstimateAttributes;
-
-    /**
-     * A string representation of the estimate. Example: 14p for 14 points
-     */
-
-    readonly text: string;
-    readonly units: WorkUnitEnumEnum;
-    readonly value: number;
   }
 
   /**
    * Attributes for Extension
+   * @category Aha! Model Attributes
    */
   interface ExtensionAttributes {
     readonly enabled: boolean;
@@ -601,37 +632,49 @@ declare namespace Aha {
     readonly extensionLogs: Array<ExtensionLog>;
   }
 
+  type ExtensionQuery = Query<Extension, never>;
+
   /**
    * Extension Aha! model
    *
    *
+   *
+   * Instance type: [[Extension]]
+   *
+   * @category Aha! Model
    */
-  class Extension extends ApplicationModel implements ExtensionAttributes {
-    static typename: 'Extension';
+  interface ExtensionConstructor {
+    typename: 'Extension';
 
-    static select<F extends keyof ExtensionAttributes>(
-      names: F[]
-    ): Query<Extension, never>;
+    select<F extends keyof ExtensionAttributes>(names: F[]): ExtensionQuery;
 
-    static select<F extends keyof ExtensionAttributes>(
-      ...names: F[]
-    ): Query<Extension, never>;
+    select<F extends keyof ExtensionAttributes>(...names: F[]): ExtensionQuery;
 
-    static blank(attrs: ExtensionAttributes): Extension;
+    blank(attrs: ExtensionAttributes): Extension;
 
+    new (attributes: Partial<ExtensionAttributes>): Extension;
+  }
+
+  /**
+   * Extension Aha! model
+   *
+   *
+   *
+   * Constructor: [[ExtensionConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Extension extends ApplicationModel, ExtensionAttributes {
     readonly typename: 'Extension';
 
-    attributes: ExtensionAttributes;
+    readonly query: ExtensionQuery;
 
-    readonly enabled: boolean;
-    readonly id: string;
-    readonly identifier: string;
-    readonly name: string;
-    readonly extensionLogs: Array<ExtensionLog>;
+    attributes: ExtensionAttributes;
   }
 
   /**
    * Attributes for ExtensionContribution
+   * @category Aha! Model Attributes
    */
   interface ExtensionContributionAttributes {
     readonly id: string;
@@ -648,50 +691,64 @@ declare namespace Aha {
     readonly extension: Extension;
   }
 
+  type ExtensionContributionQuery = Query<
+    ExtensionContribution,
+    ExtensionContributionFilters
+  >;
+
   /**
    * ExtensionContribution Aha! model
    *
    * A contribution provided by an extension
+   *
+   * Instance type: [[ExtensionContribution]]
+   *
+   * @category Aha! Model
    */
-  class ExtensionContribution
-    extends ApplicationModel
-    implements ExtensionContributionAttributes {
-    static typename: 'ExtensionContribution';
+  interface ExtensionContributionConstructor {
+    typename: 'ExtensionContribution';
 
-    static select<F extends keyof ExtensionContributionAttributes>(
+    select<F extends keyof ExtensionContributionAttributes>(
       names: F[]
-    ): Query<ExtensionContribution, ExtensionContributionFilters>;
+    ): ExtensionContributionQuery;
 
-    static select<F extends keyof ExtensionContributionAttributes>(
+    select<F extends keyof ExtensionContributionAttributes>(
       ...names: F[]
-    ): Query<ExtensionContribution, ExtensionContributionFilters>;
+    ): ExtensionContributionQuery;
 
-    static where(
+    where(
       filters: Partial<ExtensionContributionFilters>
-    ): Query<ExtensionContribution, ExtensionContributionFilters>;
+    ): ExtensionContributionQuery;
 
-    static blank(attrs: ExtensionContributionAttributes): ExtensionContribution;
+    blank(attrs: ExtensionContributionAttributes): ExtensionContribution;
 
+    new (
+      attributes: Partial<ExtensionContributionAttributes>
+    ): ExtensionContribution;
+  }
+
+  /**
+   * ExtensionContribution Aha! model
+   *
+   * A contribution provided by an extension
+   *
+   * Constructor: [[ExtensionContributionConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface ExtensionContribution
+    extends ApplicationModel,
+      ExtensionContributionAttributes {
     readonly typename: 'ExtensionContribution';
 
+    readonly query: ExtensionContributionQuery;
+
     attributes: ExtensionContributionAttributes;
-
-    readonly id: string;
-    /**
-     * The identifier of the extensin contribution. Example: 'aha-develop.github-import.issues'
-     */
-
-    readonly identifier: string;
-    readonly name: string;
-    /**
-     * The extension providing this contribution
-     */
-
-    readonly extension: Extension;
   }
 
   /**
    * Attributes for ExtensionField
+   * @category Aha! Model Attributes
    */
   interface ExtensionFieldAttributes {
     /**
@@ -712,54 +769,58 @@ declare namespace Aha {
      */
 
     extension: Extension;
+    readonly extensionFieldable: ExtensionFieldableSubjectUnion;
+  }
+
+  type ExtensionFieldQuery = Query<ExtensionField, ExtensionFieldsFilters>;
+
+  /**
+   * ExtensionField Aha! model
+   *
+   * Holds data related to an extension
+   *
+   * Instance type: [[ExtensionField]]
+   *
+   * @category Aha! Model
+   */
+  interface ExtensionFieldConstructor {
+    typename: 'ExtensionField';
+
+    select<F extends keyof ExtensionFieldAttributes>(
+      names: F[]
+    ): ExtensionFieldQuery;
+
+    select<F extends keyof ExtensionFieldAttributes>(
+      ...names: F[]
+    ): ExtensionFieldQuery;
+
+    where(filters: Partial<ExtensionFieldsFilters>): ExtensionFieldQuery;
+
+    blank(attrs: ExtensionFieldAttributes): ExtensionField;
+
+    new (attributes: Partial<ExtensionFieldAttributes>): ExtensionField;
   }
 
   /**
    * ExtensionField Aha! model
    *
    * Holds data related to an extension
+   *
+   * Constructor: [[ExtensionFieldConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class ExtensionField
-    extends ApplicationModel
-    implements ExtensionFieldAttributes {
-    static typename: 'ExtensionField';
-
-    static select<F extends keyof ExtensionFieldAttributes>(
-      names: F[]
-    ): Query<ExtensionField, never>;
-
-    static select<F extends keyof ExtensionFieldAttributes>(
-      ...names: F[]
-    ): Query<ExtensionField, never>;
-
-    static blank(attrs: ExtensionFieldAttributes): ExtensionField;
-
+  interface ExtensionField extends ApplicationModel, ExtensionFieldAttributes {
     readonly typename: 'ExtensionField';
 
+    readonly query: ExtensionFieldQuery;
+
     attributes: ExtensionFieldAttributes;
-
-    /**
-     * The ID of the object the field is attached to
-     */
-
-    extensionFieldableId: string;
-    /**
-     * The type of object the field is attached to
-     */
-
-    extensionFieldableType: string;
-    readonly id: string;
-    name: string;
-    value: any;
-    /**
-     * The extension responsible for this field
-     */
-
-    extension: Extension;
   }
 
   /**
    * Attributes for ExtensionInvocation
+   * @category Aha! Model Attributes
    */
   interface ExtensionInvocationAttributes {
     readonly createdAt: string;
@@ -776,46 +837,57 @@ declare namespace Aha {
     readonly extensionLogs: ExtensionLog;
   }
 
+  type ExtensionInvocationQuery = Query<ExtensionInvocation, never>;
+
   /**
    * ExtensionInvocation Aha! model
    *
    * A single invocation of an extension contribution
+   *
+   * Instance type: [[ExtensionInvocation]]
+   *
+   * @category Aha! Model
    */
-  class ExtensionInvocation
-    extends ApplicationModel
-    implements ExtensionInvocationAttributes {
-    static typename: 'ExtensionInvocation';
+  interface ExtensionInvocationConstructor {
+    typename: 'ExtensionInvocation';
 
-    static select<F extends keyof ExtensionInvocationAttributes>(
+    select<F extends keyof ExtensionInvocationAttributes>(
       names: F[]
-    ): Query<ExtensionInvocation, never>;
+    ): ExtensionInvocationQuery;
 
-    static select<F extends keyof ExtensionInvocationAttributes>(
+    select<F extends keyof ExtensionInvocationAttributes>(
       ...names: F[]
-    ): Query<ExtensionInvocation, never>;
+    ): ExtensionInvocationQuery;
 
-    static blank(attrs: ExtensionInvocationAttributes): ExtensionInvocation;
+    blank(attrs: ExtensionInvocationAttributes): ExtensionInvocation;
 
+    new (
+      attributes: Partial<ExtensionInvocationAttributes>
+    ): ExtensionInvocation;
+  }
+
+  /**
+   * ExtensionInvocation Aha! model
+   *
+   * A single invocation of an extension contribution
+   *
+   * Constructor: [[ExtensionInvocationConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface ExtensionInvocation
+    extends ApplicationModel,
+      ExtensionInvocationAttributes {
     readonly typename: 'ExtensionInvocation';
 
+    readonly query: ExtensionInvocationQuery;
+
     attributes: ExtensionInvocationAttributes;
-
-    readonly createdAt: string;
-    readonly id: string;
-    /**
-     * The contribution that was invoked
-     */
-
-    readonly extensionContribution: ExtensionContribution;
-    /**
-     * Log messages written during this invocation
-     */
-
-    readonly extensionLogs: ExtensionLog;
   }
 
   /**
    * Attributes for ExtensionLog
+   * @category Aha! Model Attributes
    */
   interface ExtensionLogAttributes {
     /**
@@ -837,55 +909,55 @@ declare namespace Aha {
     readonly extensionInvocation: ExtensionInvocation;
   }
 
+  type ExtensionLogQuery = Query<ExtensionLog, ExtensionLogFilters>;
+
   /**
    * ExtensionLog Aha! model
    *
    * Log messages for a single invocation of an extension contribution
+   *
+   * Instance type: [[ExtensionLog]]
+   *
+   * @category Aha! Model
    */
-  class ExtensionLog
-    extends ApplicationModel
-    implements ExtensionLogAttributes {
-    static typename: 'ExtensionLog';
+  interface ExtensionLogConstructor {
+    typename: 'ExtensionLog';
 
-    static select<F extends keyof ExtensionLogAttributes>(
+    select<F extends keyof ExtensionLogAttributes>(
       names: F[]
-    ): Query<ExtensionLog, ExtensionLogFilters>;
+    ): ExtensionLogQuery;
 
-    static select<F extends keyof ExtensionLogAttributes>(
+    select<F extends keyof ExtensionLogAttributes>(
       ...names: F[]
-    ): Query<ExtensionLog, ExtensionLogFilters>;
+    ): ExtensionLogQuery;
 
-    static where(
-      filters: Partial<ExtensionLogFilters>
-    ): Query<ExtensionLog, ExtensionLogFilters>;
+    where(filters: Partial<ExtensionLogFilters>): ExtensionLogQuery;
 
-    static blank(attrs: ExtensionLogAttributes): ExtensionLog;
+    blank(attrs: ExtensionLogAttributes): ExtensionLog;
 
+    new (attributes: Partial<ExtensionLogAttributes>): ExtensionLog;
+  }
+
+  /**
+   * ExtensionLog Aha! model
+   *
+   * Log messages for a single invocation of an extension contribution
+   *
+   * Constructor: [[ExtensionLogConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface ExtensionLog extends ApplicationModel, ExtensionLogAttributes {
     readonly typename: 'ExtensionLog';
 
+    readonly query: ExtensionLogQuery;
+
     attributes: ExtensionLogAttributes;
-
-    /**
-     * Structured log messages
-     */
-
-    readonly content: any;
-    readonly createdAt: string;
-    readonly id: string;
-    /**
-     * The contribution that was invoked
-     */
-
-    readonly extensionContribution: ExtensionContribution;
-    /**
-     * The invocation writing these log messages
-     */
-
-    readonly extensionInvocation: ExtensionInvocation;
   }
 
   /**
    * Attributes for Feature
+   * @category Aha! Model Attributes
    */
   interface FeatureAttributes {
     readonly commentsCount: number;
@@ -897,7 +969,7 @@ declare namespace Aha {
     readonly id: string;
     name: string;
     /**
-     * Path to the feature's details page
+     * Path to the details page
      */
 
     readonly path: string;
@@ -907,7 +979,7 @@ declare namespace Aha {
 
     position: number;
     /**
-     * Reference number of the feature. Example: DEV-123
+     * Reference number of the record. Example: DEV-123
      */
 
     readonly referenceNum: string;
@@ -963,113 +1035,56 @@ declare namespace Aha {
     readonly requirements: Array<Requirement>;
     readonly tags: Array<Tag>;
     readonly tasks: Array<Task>;
+  }
+
+  type FeatureQuery = Query<Feature, FeatureFilters>;
+
+  /**
+   * Feature Aha! model
+   *
+   * A basic record representing work to be done
+   *
+   * Instance type: [[Feature]]
+   *
+   * @category Aha! Model
+   */
+  interface FeatureConstructor {
+    typename: 'Feature';
+
+    select<F extends keyof FeatureAttributes>(names: F[]): FeatureQuery;
+
+    select<F extends keyof FeatureAttributes>(...names: F[]): FeatureQuery;
+
+    where(filters: Partial<FeatureFilters>): FeatureQuery;
+
+    blank(attrs: FeatureAttributes): Feature;
+
+    new (attributes: Partial<FeatureAttributes>): Feature;
   }
 
   /**
    * Feature Aha! model
    *
    * A basic record representing work to be done
+   *
+   * Constructor: [[FeatureConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class Feature extends ApplicationModel implements FeatureAttributes {
-    static typename: 'Feature';
-
-    static select<F extends keyof FeatureAttributes>(
-      names: F[]
-    ): Query<Feature, FeatureFilters>;
-
-    static select<F extends keyof FeatureAttributes>(
-      ...names: F[]
-    ): Query<Feature, FeatureFilters>;
-
-    static where(
-      filters: Partial<FeatureFilters>
-    ): Query<Feature, FeatureFilters>;
-
-    static blank(attrs: FeatureAttributes): Feature;
-
+  interface Feature
+    extends ApplicationModel,
+      FeatureAttributes,
+      HasExtensionFields {
     readonly typename: 'Feature';
 
+    readonly query: FeatureQuery;
+
     attributes: FeatureAttributes;
-
-    readonly commentsCount: number;
-    /**
-     * Long-form description in HTML
-     */
-
-    description: string;
-    readonly id: string;
-    name: string;
-    /**
-     * Path to the feature's details page
-     */
-
-    readonly path: string;
-    /**
-     * Position of the feature when a record_position does not apply
-     */
-
-    position: number;
-    /**
-     * Reference number of the feature. Example: DEV-123
-     */
-
-    readonly referenceNum: string;
-    assignedToUser: User;
-    /**
-     * Epic this feature belongs to, if present
-     */
-
-    epic: Epic;
-    iteration: Iteration;
-    /**
-     * Originally estimated amount of work
-     */
-
-    readonly originalEstimate: Estimate;
-    readonly project: Project;
-    release: Release;
-    /**
-     * Current estimate of work left to do
-     */
-
-    readonly remainingEstimate: Estimate;
-    /**
-     * Team this feature belongs to
-     */
-
-    team: Project;
-    /**
-     * Current team workflow status
-     */
-
-    teamWorkflowStatus: WorkflowStatus;
-    /**
-     * Amount of work done so far
-     */
-
-    readonly workDone: Estimate;
-    /**
-     * Current overall workflow status
-     */
-
-    workflowStatus: WorkflowStatus;
-    /**
-     * Position when this feature is listed in a specific bookmark type
-     */
-
-    readonly bookmarksRecordPositions: Array<BookmarksRecordPosition>;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
-    readonly requirements: Array<Requirement>;
-    readonly tags: Array<Tag>;
-    readonly tasks: Array<Task>;
   }
 
   /**
    * Attributes for Iteration
+   * @category Aha! Model Attributes
    */
   interface IterationAttributes {
     /**
@@ -1080,6 +1095,10 @@ declare namespace Aha {
     readonly id: string;
     name: string;
     startDate: string;
+    /**
+     * The iteration status. PLANNING: 10, ACTIVE: 20, COMPLETE: 30
+     */
+
     status: number;
     /**
      * Capacity of the iteration
@@ -1097,63 +1116,53 @@ declare namespace Aha {
      */
 
     readonly records: Array<RecordUnion>;
+  }
+
+  type IterationQuery = Query<Iteration, IterationFilters>;
+
+  /**
+   * Iteration Aha! model
+   *
+   * A group of records scheduled during a particular time period
+   *
+   * Instance type: [[Iteration]]
+   *
+   * @category Aha! Model
+   */
+  interface IterationConstructor {
+    typename: 'Iteration';
+
+    select<F extends keyof IterationAttributes>(names: F[]): IterationQuery;
+
+    select<F extends keyof IterationAttributes>(...names: F[]): IterationQuery;
+
+    where(filters: Partial<IterationFilters>): IterationQuery;
+
+    blank(attrs: IterationAttributes): Iteration;
+
+    new (attributes: Partial<IterationAttributes>): Iteration;
   }
 
   /**
    * Iteration Aha! model
    *
    * A group of records scheduled during a particular time period
+   *
+   * Constructor: [[IterationConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class Iteration extends ApplicationModel implements IterationAttributes {
-    static typename: 'Iteration';
-
-    static select<F extends keyof IterationAttributes>(
-      names: F[]
-    ): Query<Iteration, IterationFilters>;
-
-    static select<F extends keyof IterationAttributes>(
-      ...names: F[]
-    ): Query<Iteration, IterationFilters>;
-
-    static where(
-      filters: Partial<IterationFilters>
-    ): Query<Iteration, IterationFilters>;
-
-    static blank(attrs: IterationAttributes): Iteration;
-
+  interface Iteration extends ApplicationModel, IterationAttributes {
     readonly typename: 'Iteration';
 
+    readonly query: IterationQuery;
+
     attributes: IterationAttributes;
-
-    /**
-     * Duration of the iteration, in days
-     */
-
-    duration: number;
-    readonly id: string;
-    name: string;
-    startDate: string;
-    status: number;
-    /**
-     * Capacity of the iteration
-     */
-
-    capacity: Estimate;
-    /**
-     * Total amount of work planned when the iteration started
-     */
-
-    readonly originalEstimate: Estimate;
-    project: Project;
-    /**
-     * Records scheduled in this iteration
-     */
-
-    readonly records: Array<RecordUnion>;
   }
 
   /**
    * Attributes for Project
+   * @category Aha! Model Attributes
    */
   interface ProjectAttributes {
     /**
@@ -1191,65 +1200,52 @@ declare namespace Aha {
     readonly users: Array<User>;
   }
 
+  type ProjectQuery = Query<Project, never>;
+
   /**
    * Project Aha! model
    *
    * An Aha! workspace or team
+   *
+   * Instance type: [[Project]]
+   *
+   * @category Aha! Model
    */
-  class Project extends ApplicationModel implements ProjectAttributes {
-    static typename: 'Project';
+  interface ProjectConstructor {
+    typename: 'Project';
 
-    static select<F extends keyof ProjectAttributes>(
-      names: F[]
-    ): Query<Project, never>;
+    select<F extends keyof ProjectAttributes>(names: F[]): ProjectQuery;
 
-    static select<F extends keyof ProjectAttributes>(
-      ...names: F[]
-    ): Query<Project, never>;
+    select<F extends keyof ProjectAttributes>(...names: F[]): ProjectQuery;
 
-    static blank(attrs: ProjectAttributes): Project;
+    blank(attrs: ProjectAttributes): Project;
 
+    new (attributes: Partial<ProjectAttributes>): Project;
+  }
+
+  /**
+   * Project Aha! model
+   *
+   * An Aha! workspace or team
+   *
+   * Constructor: [[ProjectConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Project
+    extends ApplicationModel,
+      ProjectAttributes,
+      HasExtensionFields {
     readonly typename: 'Project';
 
+    readonly query: ProjectQuery;
+
     attributes: ProjectAttributes;
-
-    /**
-     * ID of the BookmarksWorkflowBoard correspanding to this team
-     */
-
-    readonly backlogBookmarkId: string;
-    readonly id: string;
-    /**
-     * True if the project is a team, false if it is a workspace
-     */
-
-    readonly isTeam: boolean;
-    readonly name: string;
-    /**
-     * Release new records are created in, by default
-     */
-
-    readonly defaultRelease: Release;
-    /**
-     * User assigned to records if none is specified
-     */
-
-    readonly defaultUser: User;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
-    readonly releases: Array<Release>;
-    /**
-     * Users belonging to the project or team
-     */
-
-    readonly users: Array<User>;
   }
 
   /**
    * Attributes for Release
+   * @category Aha! Model Attributes
    */
   interface ReleaseAttributes {
     readonly id: string;
@@ -1259,59 +1255,65 @@ declare namespace Aha {
      */
 
     readonly parkingLot: boolean;
+    /**
+     * Path to the details page
+     */
+
+    readonly path: string;
     readonly position: number;
     /**
-     * Reference number of the feature. Example: DEV-R-2
+     * Reference number of the record. Example: DEV-123
      */
 
     readonly referenceNum: string;
     readonly releaseDate: string;
+  }
+
+  type ReleaseQuery = Query<Release, ReleaseFilters>;
+
+  /**
+   * Release Aha! model
+   *
+   * A group of records with a release date or theme
+   *
+   * Instance type: [[Release]]
+   *
+   * @category Aha! Model
+   */
+  interface ReleaseConstructor {
+    typename: 'Release';
+
+    select<F extends keyof ReleaseAttributes>(names: F[]): ReleaseQuery;
+
+    select<F extends keyof ReleaseAttributes>(...names: F[]): ReleaseQuery;
+
+    where(filters: Partial<ReleaseFilters>): ReleaseQuery;
+
+    blank(attrs: ReleaseAttributes): Release;
+
+    new (attributes: Partial<ReleaseAttributes>): Release;
   }
 
   /**
    * Release Aha! model
    *
    * A group of records with a release date or theme
+   *
+   * Constructor: [[ReleaseConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class Release extends ApplicationModel implements ReleaseAttributes {
-    static typename: 'Release';
-
-    static select<F extends keyof ReleaseAttributes>(
-      names: F[]
-    ): Query<Release, ReleaseFilters>;
-
-    static select<F extends keyof ReleaseAttributes>(
-      ...names: F[]
-    ): Query<Release, ReleaseFilters>;
-
-    static where(
-      filters: Partial<ReleaseFilters>
-    ): Query<Release, ReleaseFilters>;
-
-    static blank(attrs: ReleaseAttributes): Release;
-
+  interface Release extends ApplicationModel, ReleaseAttributes {
     readonly typename: 'Release';
 
+    readonly query: ReleaseQuery;
+
     attributes: ReleaseAttributes;
-
-    readonly id: string;
-    readonly name: string;
-    /**
-     * True if the release appears in the parking lot, false if it is a scheduled release
-     */
-
-    readonly parkingLot: boolean;
-    readonly position: number;
-    /**
-     * Reference number of the feature. Example: DEV-R-2
-     */
-
-    readonly referenceNum: string;
-    readonly releaseDate: string;
   }
 
   /**
    * Attributes for Requirement
+   * @category Aha! Model Attributes
    */
   interface RequirementAttributes {
     readonly commentsCount: number;
@@ -1323,7 +1325,7 @@ declare namespace Aha {
     readonly id: string;
     name: string;
     /**
-     * Path to the requirement's details page
+     * Path to the details page
      */
 
     readonly path: string;
@@ -1333,7 +1335,7 @@ declare namespace Aha {
 
     position: number;
     /**
-     * Reference number of the requirement. Example: DEV-123
+     * Reference number of the record. Example: DEV-123
      */
 
     readonly referenceNum: string;
@@ -1391,115 +1393,58 @@ declare namespace Aha {
      */
 
     readonly extensionFields: Array<ExtensionField>;
+  }
+
+  type RequirementQuery = Query<Requirement, RequirementFilters>;
+
+  /**
+   * Requirement Aha! model
+   *
+   * A record representing one part of a larger feature
+   *
+   * Instance type: [[Requirement]]
+   *
+   * @category Aha! Model
+   */
+  interface RequirementConstructor {
+    typename: 'Requirement';
+
+    select<F extends keyof RequirementAttributes>(names: F[]): RequirementQuery;
+
+    select<F extends keyof RequirementAttributes>(
+      ...names: F[]
+    ): RequirementQuery;
+
+    where(filters: Partial<RequirementFilters>): RequirementQuery;
+
+    blank(attrs: RequirementAttributes): Requirement;
+
+    new (attributes: Partial<RequirementAttributes>): Requirement;
   }
 
   /**
    * Requirement Aha! model
    *
    * A record representing one part of a larger feature
+   *
+   * Constructor: [[RequirementConstructor]]
+   *
+   * @category Aha! Model Instance
    */
-  class Requirement extends ApplicationModel implements RequirementAttributes {
-    static typename: 'Requirement';
-
-    static select<F extends keyof RequirementAttributes>(
-      names: F[]
-    ): Query<Requirement, RequirementFilters>;
-
-    static select<F extends keyof RequirementAttributes>(
-      ...names: F[]
-    ): Query<Requirement, RequirementFilters>;
-
-    static where(
-      filters: Partial<RequirementFilters>
-    ): Query<Requirement, RequirementFilters>;
-
-    static blank(attrs: RequirementAttributes): Requirement;
-
+  interface Requirement
+    extends ApplicationModel,
+      RequirementAttributes,
+      HasExtensionFields {
     readonly typename: 'Requirement';
 
+    readonly query: RequirementQuery;
+
     attributes: RequirementAttributes;
-
-    readonly commentsCount: number;
-    /**
-     * Long-form description in HTML
-     */
-
-    description: string;
-    readonly id: string;
-    name: string;
-    /**
-     * Path to the requirement's details page
-     */
-
-    readonly path: string;
-    /**
-     * Position of the requirement when a record_position does not apply
-     */
-
-    position: number;
-    /**
-     * Reference number of the requirement. Example: DEV-123
-     */
-
-    readonly referenceNum: string;
-    assignedToUser: User;
-    /**
-     * Epic this requirement belongs to, if present
-     */
-
-    readonly epic: Epic;
-    /**
-     * Feature this requirement belongs to, if present
-     */
-
-    feature: Feature;
-    iteration: Iteration;
-    /**
-     * Originally estimated amount of work
-     */
-
-    readonly originalEstimate: Estimate;
-    readonly project: Project;
-    readonly release: Release;
-    /**
-     * Current estimate of work left to do
-     */
-
-    readonly remainingEstimate: Estimate;
-    /**
-     * Team this requirement belongs to
-     */
-
-    team: Project;
-    /**
-     * Current team workflow status
-     */
-
-    teamWorkflowStatus: WorkflowStatus;
-    /**
-     * Amount of work done so far
-     */
-
-    readonly workDone: Estimate;
-    /**
-     * Current overall workflow status
-     */
-
-    workflowStatus: WorkflowStatus;
-    /**
-     * Position when this record is listed in a specific bookmark type
-     */
-
-    readonly bookmarksRecordPositions: Array<BookmarksRecordPosition>;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
   }
 
   /**
    * Attributes for Tag
+   * @category Aha! Model Attributes
    */
   interface TagAttributes {
     /**
@@ -1511,41 +1456,51 @@ declare namespace Aha {
     readonly name: string;
   }
 
+  type TagQuery = Query<Tag, TagFilters>;
+
   /**
    * Tag Aha! model
    *
    * A tag on a record
+   *
+   * Instance type: [[Tag]]
+   *
+   * @category Aha! Model
    */
-  class Tag extends ApplicationModel implements TagAttributes {
-    static typename: 'Tag';
+  interface TagConstructor {
+    typename: 'Tag';
 
-    static select<F extends keyof TagAttributes>(
-      names: F[]
-    ): Query<Tag, TagFilters>;
+    select<F extends keyof TagAttributes>(names: F[]): TagQuery;
 
-    static select<F extends keyof TagAttributes>(
-      ...names: F[]
-    ): Query<Tag, TagFilters>;
+    select<F extends keyof TagAttributes>(...names: F[]): TagQuery;
 
-    static where(filters: Partial<TagFilters>): Query<Tag, TagFilters>;
+    where(filters: Partial<TagFilters>): TagQuery;
 
-    static blank(attrs: TagAttributes): Tag;
+    blank(attrs: TagAttributes): Tag;
 
+    new (attributes: Partial<TagAttributes>): Tag;
+  }
+
+  /**
+   * Tag Aha! model
+   *
+   * A tag on a record
+   *
+   * Constructor: [[TagConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Tag extends ApplicationModel, TagAttributes {
     readonly typename: 'Tag';
 
+    readonly query: TagQuery;
+
     attributes: TagAttributes;
-
-    /**
-     * Hex color converted to decimal
-     */
-
-    readonly color: number;
-    readonly id: string;
-    readonly name: string;
   }
 
   /**
    * Attributes for Task
+   * @category Aha! Model Attributes
    */
   interface TaskAttributes {
     body: string;
@@ -1559,41 +1514,49 @@ declare namespace Aha {
     readonly users: Array<User>;
   }
 
+  type TaskQuery = Query<Task, never>;
+
   /**
    * Task Aha! model
    *
    *
+   *
+   * Instance type: [[Task]]
+   *
+   * @category Aha! Model
    */
-  class Task extends ApplicationModel implements TaskAttributes {
-    static typename: 'Task';
+  interface TaskConstructor {
+    typename: 'Task';
 
-    static select<F extends keyof TaskAttributes>(
-      names: F[]
-    ): Query<Task, never>;
+    select<F extends keyof TaskAttributes>(names: F[]): TaskQuery;
 
-    static select<F extends keyof TaskAttributes>(
-      ...names: F[]
-    ): Query<Task, never>;
+    select<F extends keyof TaskAttributes>(...names: F[]): TaskQuery;
 
-    static blank(attrs: TaskAttributes): Task;
+    blank(attrs: TaskAttributes): Task;
 
+    new (attributes: Partial<TaskAttributes>): Task;
+  }
+
+  /**
+   * Task Aha! model
+   *
+   *
+   *
+   * Constructor: [[TaskConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Task extends ApplicationModel, TaskAttributes {
     readonly typename: 'Task';
 
-    attributes: TaskAttributes;
+    readonly query: TaskQuery;
 
-    body: string;
-    readonly dueDate: string;
-    readonly id: string;
-    name: string;
-    position: number;
-    status: TaskStatusEnumEnum;
-    record: TaskableSubjectUnion;
-    readonly taskUsers: Array<TaskUser>;
-    readonly users: Array<User>;
+    attributes: TaskAttributes;
   }
 
   /**
    * Attributes for TaskUser
+   * @category Aha! Model Attributes
    */
   interface TaskUserAttributes {
     readonly completedDate: string;
@@ -1603,37 +1566,49 @@ declare namespace Aha {
     readonly user: User;
   }
 
+  type TaskUserQuery = Query<TaskUser, never>;
+
   /**
    * TaskUser Aha! model
    *
    *
+   *
+   * Instance type: [[TaskUser]]
+   *
+   * @category Aha! Model
    */
-  class TaskUser extends ApplicationModel implements TaskUserAttributes {
-    static typename: 'TaskUser';
+  interface TaskUserConstructor {
+    typename: 'TaskUser';
 
-    static select<F extends keyof TaskUserAttributes>(
-      names: F[]
-    ): Query<TaskUser, never>;
+    select<F extends keyof TaskUserAttributes>(names: F[]): TaskUserQuery;
 
-    static select<F extends keyof TaskUserAttributes>(
-      ...names: F[]
-    ): Query<TaskUser, never>;
+    select<F extends keyof TaskUserAttributes>(...names: F[]): TaskUserQuery;
 
-    static blank(attrs: TaskUserAttributes): TaskUser;
+    blank(attrs: TaskUserAttributes): TaskUser;
 
+    new (attributes: Partial<TaskUserAttributes>): TaskUser;
+  }
+
+  /**
+   * TaskUser Aha! model
+   *
+   *
+   *
+   * Constructor: [[TaskUserConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface TaskUser extends ApplicationModel, TaskUserAttributes {
     readonly typename: 'TaskUser';
 
-    attributes: TaskUserAttributes;
+    readonly query: TaskUserQuery;
 
-    readonly completedDate: string;
-    readonly id: string;
-    readonly status: TaskStatusEnumEnum;
-    readonly task: Task;
-    readonly user: User;
+    attributes: TaskUserAttributes;
   }
 
   /**
    * Attributes for User
+   * @category Aha! Model Attributes
    */
   interface UserAttributes {
     readonly avatarUrl: string;
@@ -1647,43 +1622,51 @@ declare namespace Aha {
     readonly taskUsers: Array<TaskUser>;
   }
 
+  type UserQuery = Query<User, UserFilters>;
+
   /**
    * User Aha! model
    *
    *
+   *
+   * Instance type: [[User]]
+   *
+   * @category Aha! Model
    */
-  class User extends ApplicationModel implements UserAttributes {
-    static typename: 'User';
+  interface UserConstructor {
+    typename: 'User';
 
-    static select<F extends keyof UserAttributes>(
-      names: F[]
-    ): Query<User, UserFilters>;
+    select<F extends keyof UserAttributes>(names: F[]): UserQuery;
 
-    static select<F extends keyof UserAttributes>(
-      ...names: F[]
-    ): Query<User, UserFilters>;
+    select<F extends keyof UserAttributes>(...names: F[]): UserQuery;
 
-    static where(filters: Partial<UserFilters>): Query<User, UserFilters>;
+    where(filters: Partial<UserFilters>): UserQuery;
 
-    static blank(attrs: UserAttributes): User;
+    blank(attrs: UserAttributes): User;
 
+    new (attributes: Partial<UserAttributes>): User;
+  }
+
+  /**
+   * User Aha! model
+   *
+   *
+   *
+   * Constructor: [[UserConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface User extends ApplicationModel, UserAttributes, HasExtensionFields {
     readonly typename: 'User';
 
+    readonly query: UserQuery;
+
     attributes: UserAttributes;
-
-    readonly avatarUrl: string;
-    readonly id: string;
-    readonly name: string;
-    /**
-     * Additional data stored by extensions
-     */
-
-    readonly extensionFields: Array<ExtensionField>;
-    readonly taskUsers: Array<TaskUser>;
   }
 
   /**
    * Attributes for Workflow
+   * @category Aha! Model Attributes
    */
   interface WorkflowAttributes {
     /**
@@ -1696,40 +1679,49 @@ declare namespace Aha {
     readonly workflowStatuses: Array<WorkflowStatus>;
   }
 
+  type WorkflowQuery = Query<Workflow, never>;
+
   /**
    * Workflow Aha! model
    *
    * A record workflow
+   *
+   * Instance type: [[Workflow]]
+   *
+   * @category Aha! Model
    */
-  class Workflow extends ApplicationModel implements WorkflowAttributes {
-    static typename: 'Workflow';
+  interface WorkflowConstructor {
+    typename: 'Workflow';
 
-    static select<F extends keyof WorkflowAttributes>(
-      names: F[]
-    ): Query<Workflow, never>;
+    select<F extends keyof WorkflowAttributes>(names: F[]): WorkflowQuery;
 
-    static select<F extends keyof WorkflowAttributes>(
-      ...names: F[]
-    ): Query<Workflow, never>;
+    select<F extends keyof WorkflowAttributes>(...names: F[]): WorkflowQuery;
 
-    static blank(attrs: WorkflowAttributes): Workflow;
+    blank(attrs: WorkflowAttributes): Workflow;
 
+    new (attributes: Partial<WorkflowAttributes>): Workflow;
+  }
+
+  /**
+   * Workflow Aha! model
+   *
+   * A record workflow
+   *
+   * Constructor: [[WorkflowConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface Workflow extends ApplicationModel, WorkflowAttributes {
     readonly typename: 'Workflow';
 
+    readonly query: WorkflowQuery;
+
     attributes: WorkflowAttributes;
-
-    /**
-     * If true, this is a global status that cannot be edited
-     */
-
-    readonly builtIn: boolean;
-    readonly id: string;
-    readonly name: string;
-    readonly workflowStatuses: Array<WorkflowStatus>;
   }
 
   /**
    * Attributes for WorkflowStatus
+   * @category Aha! Model Attributes
    */
   interface WorkflowStatusAttributes {
     /**
@@ -1753,74 +1745,73 @@ declare namespace Aha {
     workflow: Workflow;
   }
 
+  type WorkflowStatusQuery = Query<WorkflowStatus, never>;
+
   /**
    * WorkflowStatus Aha! model
    *
    * A single status within a workflow
+   *
+   * Instance type: [[WorkflowStatus]]
+   *
+   * @category Aha! Model
    */
-  class WorkflowStatus
-    extends ApplicationModel
-    implements WorkflowStatusAttributes {
-    static typename: 'WorkflowStatus';
+  interface WorkflowStatusConstructor {
+    typename: 'WorkflowStatus';
 
-    static select<F extends keyof WorkflowStatusAttributes>(
+    select<F extends keyof WorkflowStatusAttributes>(
       names: F[]
-    ): Query<WorkflowStatus, never>;
+    ): WorkflowStatusQuery;
 
-    static select<F extends keyof WorkflowStatusAttributes>(
+    select<F extends keyof WorkflowStatusAttributes>(
       ...names: F[]
-    ): Query<WorkflowStatus, never>;
+    ): WorkflowStatusQuery;
 
-    static blank(attrs: WorkflowStatusAttributes): WorkflowStatus;
+    blank(attrs: WorkflowStatusAttributes): WorkflowStatus;
 
+    new (attributes: Partial<WorkflowStatusAttributes>): WorkflowStatus;
+  }
+
+  /**
+   * WorkflowStatus Aha! model
+   *
+   * A single status within a workflow
+   *
+   * Constructor: [[WorkflowStatusConstructor]]
+   *
+   * @category Aha! Model Instance
+   */
+  interface WorkflowStatus extends ApplicationModel, WorkflowStatusAttributes {
     readonly typename: 'WorkflowStatus';
 
+    readonly query: WorkflowStatusQuery;
+
     attributes: WorkflowStatusAttributes;
-
-    /**
-     * If true, this is a global status that cannot be edited
-     */
-
-    readonly builtIn: boolean;
-    /**
-     * Hex color converted to decimal
-     */
-
-    color: number;
-    readonly id: string;
-    readonly internalMeaning: InternalMeaningEnum;
-    name: string;
-    position: number;
-    /**
-     * Workflow containing this status
-     */
-
-    workflow: Workflow;
   }
 
   interface Models {
-    Account: typeof Account;
-    BookmarksRecordPosition: typeof BookmarksRecordPosition;
-    BookmarksTeamBacklog: typeof BookmarksTeamBacklog;
-    BookmarksWorkflowBoard: typeof BookmarksWorkflowBoard;
-    Epic: typeof Epic;
-    Estimate: typeof Estimate;
-    Extension: typeof Extension;
-    ExtensionContribution: typeof ExtensionContribution;
-    ExtensionField: typeof ExtensionField;
-    ExtensionInvocation: typeof ExtensionInvocation;
-    ExtensionLog: typeof ExtensionLog;
-    Feature: typeof Feature;
-    Iteration: typeof Iteration;
-    Project: typeof Project;
-    Release: typeof Release;
-    Requirement: typeof Requirement;
-    Tag: typeof Tag;
-    Task: typeof Task;
-    TaskUser: typeof TaskUser;
-    User: typeof User;
-    Workflow: typeof Workflow;
-    WorkflowStatus: typeof WorkflowStatus;
+    Account: AccountConstructor;
+    BookmarksRecordPosition: BookmarksRecordPositionConstructor;
+    BookmarksTeamBacklog: BookmarksTeamBacklogConstructor;
+    BookmarksWorkflowBoard: BookmarksWorkflowBoardConstructor;
+    Epic: EpicConstructor;
+    Estimate: EstimateConstructor;
+    Extension: ExtensionConstructor;
+    ExtensionContribution: ExtensionContributionConstructor;
+    ExtensionField: ExtensionFieldConstructor;
+    ExtensionInvocation: ExtensionInvocationConstructor;
+    ExtensionLog: ExtensionLogConstructor;
+    Feature: FeatureConstructor;
+    Iteration: IterationConstructor;
+    Project: ProjectConstructor;
+    Release: ReleaseConstructor;
+    Requirement: RequirementConstructor;
+    Tag: TagConstructor;
+    Task: TaskConstructor;
+    TaskUser: TaskUserConstructor;
+    User: UserConstructor;
+    Workflow: WorkflowConstructor;
+    WorkflowStatus: WorkflowStatusConstructor;
   }
 }
 
@@ -1847,6 +1838,11 @@ declare namespace Aha {
   };
   type Relations<T extends ApplicationModel> = BelongsTos<T> & HasManys<T>;
 
+  type NonRelations<T extends ApplicationModel> = Omit<
+    T['attributes'],
+    keyof Relations<T>
+  >;
+
   type Subquery<
     T extends ApplicationModel,
     K extends Relations<T> = Relations<T>
@@ -1864,7 +1860,7 @@ declare namespace Aha {
      */
     union(query: Query<T>): this;
     merge(subqueries: Subquery<T>): this;
-    where(filters: Filters): this;
+    where(filters: Partial<Filters>): this;
     order(criteria: { [field: string]: string }): this;
     reorder(criteria: { [field: string]: string }): this;
     first(): SingleQuery<T, Filters>;
@@ -1877,7 +1873,38 @@ declare namespace Aha {
     all(): Promise<T>;
   }
 
-  class ApplicationModel {
+  /**
+   * Functions for getting and setting extension data for a particular model
+   */
+  interface HasExtensionFields {
+    getExtensionFields(identifier: string): Promise<any>;
+
+    /**
+     * Get the value of an extension field on this record. This will return
+     * null if the value has never been set
+     *
+     * @param identifier the extension identifier
+     * @param fieldName the name of the field
+     */
+    getExtensionField<T>(
+      identifier: string,
+      fieldName: string
+    ): Promise<T | null>;
+
+    /**
+     * Set the value of an extension field for this record
+     *
+     * @param identifier the extension identifier
+     * @param fieldName the name of the field
+     */
+    setExtensionField(
+      identifier: string,
+      fieldName: string,
+      value: any
+    ): Promise<void>;
+  }
+
+  interface ApplicationModel {
     readonly typename: string;
     /**
      * `true` if the object is an existing record, `false` otherwise.
@@ -1890,18 +1917,13 @@ declare namespace Aha {
 
     attributes: {};
 
-    getExtensionFields(identifier: string): Promise<any>;
-
-    getExtensionField<T>(
-      identifier: string,
-      fieldName: string
-    ): Promise<T | null>;
-
-    setExtensionField(
-      identifier: string,
-      fieldName: string,
-      value: any
-    ): Promise<void>;
+    /**
+     * Clear the value from an extension field for this record
+     *
+     * @param identifier the extension identifier
+     * @param fieldName the name of the field
+     */
+    clearExtensionField(identifier: string, fieldName: string): Promise<void>;
 
     /**
      * `true` if the object's attributes have been modified, `false` otherwise.
@@ -1923,7 +1945,23 @@ declare namespace Aha {
      * @returns `true` if the mutation ran without errors, `false` otherwise.
      */
     save(options?: Partial<{ args: any; query: any }>): Promise<boolean>;
+
     reload<T extends this>(options?: { query?: Query<T> }): Promise<void>;
+
+    /**
+     * Load additional attributes from the API:
+     *
+     * ```
+     * const record = await Feature.select('referenceNum').find('REF-123');
+     * record.name => null
+     * await record.loadAttributes('name');
+     * record.name => 'Record 123'
+     * ```
+     */
+    loadAttributes<F extends keyof NonRelations<this>>(
+      ...attributes: F[]
+    ): Promise<void>;
+
     /**
      * Destroys this record.
      *
@@ -1982,19 +2020,35 @@ declare namespace Aha {
     type: string;
   }
 
+  /**
+   * Access the current settings for an extension
+   *
+   * @category Extensions
+   */
   interface Settings {
     get(name: string): Settings | unknown;
   }
 
+  /**
+   * The context for an extension callback
+   *
+   * @category Extensions
+   */
   interface Context {
     settings: Settings;
     identifier: string;
   }
 
+  /**
+   * @category Extensions
+   */
   interface UpdateCallback {
     (newState: any): Promise<void>;
   }
 
+  /**
+   * @category Extensions
+   */
   interface RenderExtensionProps {
     isUpdate: boolean;
     onUnmounted: (callback: () => void) => void;
@@ -2004,46 +2058,77 @@ declare namespace Aha {
     state?: any;
   }
 
+  /**
+   * @category Extensions
+   */
   interface RenderExtension {
     (props: RenderExtensionProps, context: Context): void | React.ReactNode;
   }
 
+  /**
+   * @category Extensions
+   */
   interface CommandExtension<Param> {
     (param: Param, context: Context): void;
   }
 
+  /**
+   * @category Extensions
+   */
   interface CommandPromptOptions {
     placeholder?: string;
     default?: string;
   }
 
+  /**
+   * @category Extensions
+   */
   interface AuthOptions {
     reAuth?: boolean;
     useCachedRetry?: boolean;
     parameters?: unknown;
   }
 
+  /**
+   * @category Extensions
+   */
   interface AuthData {
     token: string;
   }
+
+  /**
+   * @category Extensions
+   */
   interface AuthCallback {
     (authData: AuthData): void;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListFiltersEvent {
     action: 'listFilters';
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListFilter {
     title: string;
     required: boolean;
     type: 'autocomplete' | 'text' | 'select';
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListFilters {
     [filterName: string]: ListFilter;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListFiltersCallback {
     /**
      * Return a list of available filters
@@ -2051,6 +2136,9 @@ declare namespace Aha {
     (): ListFilters | Promise<ListFilters>;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface FilterValuesEvent {
     action: 'filterValues';
   }
@@ -2060,48 +2148,77 @@ declare namespace Aha {
    * example, when filtering to an assigned user, you may want to fetch the
    * list of users from the system you are importing from. filterValues
    * returns the list of possible values for a filter field.
+   *
+   * @category Extensions Importer
    */
   type FilterValuesCallback = (props: {
     filterName: string;
     filters: { [index: string]: any };
   }) => Promise<FilterValue[]>;
 
+  /**
+   * @category Extensions Importer
+   */
   interface FilterValue {
     text?: string;
     value: any;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListCandidatesEvent {
     action: 'listCandidates';
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListCandidatesCallback<T extends ImportRecord> {
     (props: { filters: { [index: string]: any }; nextPage?: any }): Promise<
       ListCandidate<T>
     >;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ListCandidate<T extends ImportRecord> {
     records: T[];
     nextPage?: any;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface RenderRecordEvent {
     action: 'renderRecord';
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface RenderRecordCallback<T extends ImportRecord> {
     (props: { record: T; onUnmounted: () => any }): void;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ImportRecordEvent {
     action: 'importRecord';
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ImportRecordCallback<T extends ImportRecord> {
     (props: { importRecord: T; ahaRecord: RecordStub }): Promise<void>;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface ImportRecord {
     uniqueId: string;
     name: string;
@@ -2109,6 +2226,9 @@ declare namespace Aha {
     url?: string;
   }
 
+  /**
+   * @category Extensions Importer
+   */
   interface Importer<T extends ImportRecord> {
     on(event: ListFiltersEvent, callback: ListFiltersCallback): void;
     on(event: FilterValuesEvent, callback: FilterValuesCallback): void;
@@ -2116,13 +2236,28 @@ declare namespace Aha {
     on(event: RenderRecordEvent, callback: RenderRecordCallback<T>): void;
     on(event: ImportRecordEvent, callback: ImportRecordCallback<T>): void;
   }
+
+  interface Drawer {
+    showRecord(record: ReferenceInterface): Promise<void>;
+    showExtension(
+      identifier: string,
+      contribution: string,
+      props: object
+    ): Promise<void>;
+    hide(): void;
+  }
 }
 
-class Aha {
+declare class Aha {
   /**
    * The current account
    */
-  account: Aha.Account;
+  readonly account: Aha.Account;
+
+  /**
+   * Access the drawer
+   */
+  readonly drawer: Aha.Drawer;
 
   /**
    * Register an extension function
@@ -2170,7 +2305,7 @@ class Aha {
   ): void;
   getEndpoints(identifier: string): Function[];
   render(
-    elements: import('react').ReactNode,
+    elements: React.ReactNode,
     node: HTMLElement,
     onUnmounted?: (callback: Function) => void
   ): void;
