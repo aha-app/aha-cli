@@ -39,7 +39,7 @@ export default {
   viewsTemplate(
     contributionName: string,
     contribution: { [k: string]: any },
-    identifier: string
+    _identifier: string
   ) {
     if (contribution.host === 'attribute') {
       return `import React from "react";
@@ -97,7 +97,7 @@ aha.on("${contributionName}", ({ ${
   commandsTemplate(
     contributionName: string,
     _contribution: { [k: string]: any },
-    identifier: string
+    _identifier: string
   ) {
     return `aha.on("${contributionName}", ({ record }, { identifier, settings }) => {
   if (record) {
@@ -162,7 +162,7 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
   eventHandlersTemplate(
     contributionName: string,
     contribution: { [k: string]: any },
-    identifier: string
+    _identifier: string
   ) {
     let returnTemplate = '';
     contribution.handles.forEach((event: string) => {
