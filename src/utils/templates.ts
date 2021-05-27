@@ -27,7 +27,8 @@ export default {
             `${directory}/${contribution.entryPoint}`,
             exports.default[`${contributionType}Template`](
               contributionName,
-              contribution
+              contribution,
+              name
             )
           );
         }
@@ -35,7 +36,11 @@ export default {
     }
   },
 
-  viewsTemplate(contributionName: string, contribution: { [k: string]: any }) {
+  viewsTemplate(
+    contributionName: string,
+    contribution: { [k: string]: any },
+    _identifier: string
+  ) {
     if (contribution.host === 'attribute') {
       return `import React from "react";
 
@@ -91,7 +96,8 @@ aha.on("${contributionName}", ({ ${
 
   commandsTemplate(
     contributionName: string,
-    _contribution: { [k: string]: any }
+    _contribution: { [k: string]: any },
+    _identifier: string
   ) {
     return `aha.on("${contributionName}", ({ record }, { identifier, settings }) => {
   if (record) {
@@ -112,9 +118,10 @@ aha.on("${contributionName}", ({ ${
 
   importersTemplate(
     contributionName: string,
-    contribution: { [k: string]: any }
+    contribution: { [k: string]: any },
+    identifier: string
   ) {
-    return `const importer = aha.getImporter("${contribution.name}.${contributionName}");
+    return `const importer = aha.getImporter("${identifier}.${contributionName}");
 
 importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identifier, settings}) => {
   return { records: [], nextPage: 2 };
@@ -154,7 +161,8 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
 
   eventHandlersTemplate(
     contributionName: string,
-    contribution: { [k: string]: any }
+    contribution: { [k: string]: any },
+    _identifier: string
   ) {
     let returnTemplate = '';
     contribution.handles.forEach((event: string) => {
