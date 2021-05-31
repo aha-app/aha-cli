@@ -128,6 +128,18 @@
         }
       ]
     },
+    "viewPanelContribution": {
+      "allOf": [
+        { "$ref": "#/definitions/codeContribution" },
+        {
+          "type": "object",
+          "required": ["host"],
+          "properties": {
+            "host": { "type": "string", "enum": ["panel"] }
+          }
+        }
+      ]
+    },
     "viewDrawerContribution": {
       "allOf": [
         { "$ref": "#/definitions/codeContribution" },
@@ -165,6 +177,7 @@
     "viewContribution": {
       "anyOf": [
         { "$ref": "#/definitions/viewPageContribution" },
+        { "$ref": "#/definitions/viewPanelContribution" },
         { "$ref": "#/definitions/viewDrawerContribution" },
         { "$ref": "#/definitions/viewOtherContribution" }
       ]
