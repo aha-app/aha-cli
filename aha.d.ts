@@ -1,75 +1,226 @@
 declare namespace Aha {
+  type AvatarSizeEnum_SIZE_16 = 'SIZE_16';
+  type AvatarSizeEnum_SIZE_24 = 'SIZE_24';
+  type AvatarSizeEnum_SIZE_32 = 'SIZE_32';
+  type AvatarSizeEnum_SIZE_40 = 'SIZE_40';
+  type AvatarSizeEnum_SIZE_160 = 'SIZE_160';
+  interface AvatarSizeEnumEnum {
+    values:
+      | AvatarSizeEnum_SIZE_16
+      | AvatarSizeEnum_SIZE_24
+      | AvatarSizeEnum_SIZE_32
+      | AvatarSizeEnum_SIZE_40
+      | AvatarSizeEnum_SIZE_160;
+
+    SIZE_16: EnumValue<'AvatarSizeEnum', AvatarSizeEnum_SIZE_16>;
+
+    SIZE_24: EnumValue<'AvatarSizeEnum', AvatarSizeEnum_SIZE_24>;
+
+    SIZE_32: EnumValue<'AvatarSizeEnum', AvatarSizeEnum_SIZE_32>;
+
+    SIZE_40: EnumValue<'AvatarSizeEnum', AvatarSizeEnum_SIZE_40>;
+
+    SIZE_160: EnumValue<'AvatarSizeEnum', AvatarSizeEnum_SIZE_160>;
+  }
+
   type EpicOrder_workflowBoardPosition = 'workflowBoardPosition';
   type EpicOrder_createdAt = 'createdAt';
   type EpicOrder_position = 'position';
-  type EpicOrderEnum =
-    | EpicOrder_workflowBoardPosition
-    | EpicOrder_createdAt
-    | EpicOrder_position;
+  interface EpicOrderEnum {
+    values:
+      | EpicOrder_workflowBoardPosition
+      | EpicOrder_createdAt
+      | EpicOrder_position;
+
+    workflowBoardPosition: EnumValue<
+      'EpicOrder',
+      EpicOrder_workflowBoardPosition
+    >;
+
+    createdAt: EnumValue<'EpicOrder', EpicOrder_createdAt>;
+
+    position: EnumValue<'EpicOrder', EpicOrder_position>;
+  }
+
   type ExtensionFieldableTypeEnum_EPIC = 'EPIC';
   type ExtensionFieldableTypeEnum_FEATURE = 'FEATURE';
   type ExtensionFieldableTypeEnum_REQUIREMENT = 'REQUIREMENT';
-  type ExtensionFieldableTypeEnumEnum =
-    | ExtensionFieldableTypeEnum_EPIC
-    | ExtensionFieldableTypeEnum_FEATURE
-    | ExtensionFieldableTypeEnum_REQUIREMENT;
+  interface ExtensionFieldableTypeEnumEnum {
+    values:
+      | ExtensionFieldableTypeEnum_EPIC
+      | ExtensionFieldableTypeEnum_FEATURE
+      | ExtensionFieldableTypeEnum_REQUIREMENT;
+
+    EPIC: EnumValue<
+      'ExtensionFieldableTypeEnum',
+      ExtensionFieldableTypeEnum_EPIC
+    >;
+
+    FEATURE: EnumValue<
+      'ExtensionFieldableTypeEnum',
+      ExtensionFieldableTypeEnum_FEATURE
+    >;
+
+    REQUIREMENT: EnumValue<
+      'ExtensionFieldableTypeEnum',
+      ExtensionFieldableTypeEnum_REQUIREMENT
+    >;
+  }
+
   type FeatureOrder_workflowBoardPosition = 'workflowBoardPosition';
   type FeatureOrder_createdAt = 'createdAt';
   type FeatureOrder_position = 'position';
   type FeatureOrder_featureBoardPosition = 'featureBoardPosition';
-  type FeatureOrderEnum =
-    | FeatureOrder_workflowBoardPosition
-    | FeatureOrder_createdAt
-    | FeatureOrder_position
-    | FeatureOrder_featureBoardPosition;
+  interface FeatureOrderEnum {
+    values:
+      | FeatureOrder_workflowBoardPosition
+      | FeatureOrder_createdAt
+      | FeatureOrder_position
+      | FeatureOrder_featureBoardPosition;
+
+    workflowBoardPosition: EnumValue<
+      'FeatureOrder',
+      FeatureOrder_workflowBoardPosition
+    >;
+
+    createdAt: EnumValue<'FeatureOrder', FeatureOrder_createdAt>;
+
+    position: EnumValue<'FeatureOrder', FeatureOrder_position>;
+
+    featureBoardPosition: EnumValue<
+      'FeatureOrder',
+      FeatureOrder_featureBoardPosition
+    >;
+  }
+
   type InternalMeaning_NOT_STARTED = 'NOT_STARTED';
   type InternalMeaning_IN_PROGRESS = 'IN_PROGRESS';
   type InternalMeaning_DONE = 'DONE';
   type InternalMeaning_SHIPPED = 'SHIPPED';
   type InternalMeaning_WONT_DO = 'WONT_DO';
   type InternalMeaning_ALREADY_EXISTS = 'ALREADY_EXISTS';
-  type InternalMeaningEnum =
-    | InternalMeaning_NOT_STARTED
-    | InternalMeaning_IN_PROGRESS
-    | InternalMeaning_DONE
-    | InternalMeaning_SHIPPED
-    | InternalMeaning_WONT_DO
-    | InternalMeaning_ALREADY_EXISTS;
+  interface InternalMeaningEnum {
+    values:
+      | InternalMeaning_NOT_STARTED
+      | InternalMeaning_IN_PROGRESS
+      | InternalMeaning_DONE
+      | InternalMeaning_SHIPPED
+      | InternalMeaning_WONT_DO
+      | InternalMeaning_ALREADY_EXISTS;
+
+    NOT_STARTED: EnumValue<'InternalMeaning', InternalMeaning_NOT_STARTED>;
+
+    IN_PROGRESS: EnumValue<'InternalMeaning', InternalMeaning_IN_PROGRESS>;
+
+    DONE: EnumValue<'InternalMeaning', InternalMeaning_DONE>;
+
+    SHIPPED: EnumValue<'InternalMeaning', InternalMeaning_SHIPPED>;
+
+    WONT_DO: EnumValue<'InternalMeaning', InternalMeaning_WONT_DO>;
+
+    ALREADY_EXISTS: EnumValue<
+      'InternalMeaning',
+      InternalMeaning_ALREADY_EXISTS
+    >;
+  }
+
   type IterationOrder_startDate = 'startDate';
-  type IterationOrderEnum = IterationOrder_startDate;
+  interface IterationOrderEnum {
+    values: IterationOrder_startDate;
+
+    startDate: EnumValue<'IterationOrder', IterationOrder_startDate>;
+  }
+
   type OrderDirection_ASC = 'ASC';
   type OrderDirection_DESC = 'DESC';
-  type OrderDirectionEnum = OrderDirection_ASC | OrderDirection_DESC;
+  interface OrderDirectionEnum {
+    values: OrderDirection_ASC | OrderDirection_DESC;
+
+    ASC: EnumValue<'OrderDirection', OrderDirection_ASC>;
+
+    DESC: EnumValue<'OrderDirection', OrderDirection_DESC>;
+  }
+
   type RecordPlacementEnum_TOP = 'TOP';
   type RecordPlacementEnum_BOTTOM = 'BOTTOM';
-  type RecordPlacementEnumEnum =
-    | RecordPlacementEnum_TOP
-    | RecordPlacementEnum_BOTTOM;
+  interface RecordPlacementEnumEnum {
+    values: RecordPlacementEnum_TOP | RecordPlacementEnum_BOTTOM;
+
+    TOP: EnumValue<'RecordPlacementEnum', RecordPlacementEnum_TOP>;
+
+    BOTTOM: EnumValue<'RecordPlacementEnum', RecordPlacementEnum_BOTTOM>;
+  }
+
   type ReleaseOrder_featuresBoardOrder = 'featuresBoardOrder';
-  type ReleaseOrderEnum = ReleaseOrder_featuresBoardOrder;
+  interface ReleaseOrderEnum {
+    values: ReleaseOrder_featuresBoardOrder;
+
+    featuresBoardOrder: EnumValue<
+      'ReleaseOrder',
+      ReleaseOrder_featuresBoardOrder
+    >;
+  }
+
   type RequirementOrder_workflowBoardPosition = 'workflowBoardPosition';
   type RequirementOrder_createdAt = 'createdAt';
   type RequirementOrder_position = 'position';
-  type RequirementOrderEnum =
-    | RequirementOrder_workflowBoardPosition
-    | RequirementOrder_createdAt
-    | RequirementOrder_position;
+  interface RequirementOrderEnum {
+    values:
+      | RequirementOrder_workflowBoardPosition
+      | RequirementOrder_createdAt
+      | RequirementOrder_position;
+
+    workflowBoardPosition: EnumValue<
+      'RequirementOrder',
+      RequirementOrder_workflowBoardPosition
+    >;
+
+    createdAt: EnumValue<'RequirementOrder', RequirementOrder_createdAt>;
+
+    position: EnumValue<'RequirementOrder', RequirementOrder_position>;
+  }
+
   type TaskStatusEnum_PENDING = 'PENDING';
   type TaskStatusEnum_COMPLETE = 'COMPLETE';
   type TaskStatusEnum_APPROVED = 'APPROVED';
   type TaskStatusEnum_APPROVED_CONDITIONALLY = 'APPROVED_CONDITIONALLY';
   type TaskStatusEnum_REJECTED = 'REJECTED';
   type TaskStatusEnum_SKIPPED = 'SKIPPED';
-  type TaskStatusEnumEnum =
-    | TaskStatusEnum_PENDING
-    | TaskStatusEnum_COMPLETE
-    | TaskStatusEnum_APPROVED
-    | TaskStatusEnum_APPROVED_CONDITIONALLY
-    | TaskStatusEnum_REJECTED
-    | TaskStatusEnum_SKIPPED;
+  interface TaskStatusEnumEnum {
+    values:
+      | TaskStatusEnum_PENDING
+      | TaskStatusEnum_COMPLETE
+      | TaskStatusEnum_APPROVED
+      | TaskStatusEnum_APPROVED_CONDITIONALLY
+      | TaskStatusEnum_REJECTED
+      | TaskStatusEnum_SKIPPED;
+
+    PENDING: EnumValue<'TaskStatusEnum', TaskStatusEnum_PENDING>;
+
+    COMPLETE: EnumValue<'TaskStatusEnum', TaskStatusEnum_COMPLETE>;
+
+    APPROVED: EnumValue<'TaskStatusEnum', TaskStatusEnum_APPROVED>;
+
+    APPROVED_CONDITIONALLY: EnumValue<
+      'TaskStatusEnum',
+      TaskStatusEnum_APPROVED_CONDITIONALLY
+    >;
+
+    REJECTED: EnumValue<'TaskStatusEnum', TaskStatusEnum_REJECTED>;
+
+    SKIPPED: EnumValue<'TaskStatusEnum', TaskStatusEnum_SKIPPED>;
+  }
+
   type WorkUnitEnum_MINUTES = 'MINUTES';
   type WorkUnitEnum_POINTS = 'POINTS';
-  type WorkUnitEnumEnum = WorkUnitEnum_MINUTES | WorkUnitEnum_POINTS;
+  interface WorkUnitEnumEnum {
+    values: WorkUnitEnum_MINUTES | WorkUnitEnum_POINTS;
+
+    MINUTES: EnumValue<'WorkUnitEnum', WorkUnitEnum_MINUTES>;
+
+    POINTS: EnumValue<'WorkUnitEnum', WorkUnitEnum_POINTS>;
+  }
+
   type ExtensionFieldableSubjectUnion =
     | Account
     | Epic
@@ -78,7 +229,7 @@ declare namespace Aha {
     | Requirement
     | User;
   type RecordUnion = Epic | Feature | Requirement;
-  type TaskableSubjectUnion = Feature;
+  type TaskableSubjectUnion = Epic | Feature | Iteration | Requirement;
   type CapacityEstimateInterface = Epic | Feature | Requirement;
   type ExtensionFieldsInterface =
     | Account
@@ -88,7 +239,25 @@ declare namespace Aha {
     | Requirement
     | User;
   type ReferenceInterface = Epic | Feature | Release | Requirement;
-  type TaskableInterface = Feature;
+  type TaskableInterface = Epic | Feature | Iteration | Release | Requirement;
+  type TimestampsInterface =
+    | Account
+    | Epic
+    | Extension
+    | ExtensionContribution
+    | ExtensionField
+    | ExtensionInvocation
+    | ExtensionLog
+    | Feature
+    | Iteration
+    | Project
+    | Release
+    | Requirement
+    | Task
+    | TaskUser
+    | User
+    | Workflow
+    | WorkflowStatus;
   type UserAssignableInterface = Epic | Feature | Requirement;
   type EpicFilters = {
     /**
@@ -117,7 +286,7 @@ declare namespace Aha {
     /**
      * The record type that the extension field belongs to.
      */
-    extensionFieldableType: ExtensionFieldableTypeEnumEnum;
+    extensionFieldableType: ExtensionFieldableTypeEnumEnum['values'];
     /**
      * Finds fields for the extension with the specified ID
      */
@@ -185,7 +354,9 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface AccountAttributes {
+    readonly createdAt: string;
     readonly id: string;
+    readonly updatedAt: string;
     /**
      * Additional data stored by extensions
      */
@@ -213,7 +384,7 @@ declare namespace Aha {
 
     blank(attrs: AccountAttributes): Account;
 
-    new (attributes: Partial<AccountAttributes>): Account;
+    new (attributes?: Partial<AccountAttributes>): Account;
   }
 
   /**
@@ -245,15 +416,15 @@ declare namespace Aha {
      * The type of bookmark this position applies to. For example: 'Iteration', 'Bookmarks::WorkflowBoard'
      */
 
-    readonly bookmarkType: string;
+    bookmarkType: string;
     readonly id: string;
     /**
      * The position of the record. Smaller / more negative is higher.
      */
 
     readonly position: number;
-    readonly recordId: string;
-    readonly recordType: string;
+    recordId: string;
+    recordType: string;
   }
 
   type BookmarksRecordPositionQuery = Query<BookmarksRecordPosition, never>;
@@ -281,7 +452,7 @@ declare namespace Aha {
     blank(attrs: BookmarksRecordPositionAttributes): BookmarksRecordPosition;
 
     new (
-      attributes: Partial<BookmarksRecordPositionAttributes>
+      attributes?: Partial<BookmarksRecordPositionAttributes>
     ): BookmarksRecordPosition;
   }
 
@@ -343,7 +514,7 @@ declare namespace Aha {
     blank(attrs: BookmarksTeamBacklogAttributes): BookmarksTeamBacklog;
 
     new (
-      attributes: Partial<BookmarksTeamBacklogAttributes>
+      attributes?: Partial<BookmarksTeamBacklogAttributes>
     ): BookmarksTeamBacklog;
   }
 
@@ -375,7 +546,7 @@ declare namespace Aha {
      * Currently active filters on the board
      */
 
-    readonly filters: any;
+    filters: any;
     readonly id: string;
     /**
      * The project or team whose records appear on this board
@@ -386,7 +557,7 @@ declare namespace Aha {
      * How to view the board: 'my_work', 'team_work', or 'none'
      */
 
-    readonly view: string;
+    view: string;
     /**
      * The ID of the workflow of the records on this board
      */
@@ -425,7 +596,7 @@ declare namespace Aha {
     blank(attrs: BookmarksWorkflowBoardAttributes): BookmarksWorkflowBoard;
 
     new (
-      attributes: Partial<BookmarksWorkflowBoardAttributes>
+      attributes?: Partial<BookmarksWorkflowBoardAttributes>
     ): BookmarksWorkflowBoard;
   }
 
@@ -454,6 +625,7 @@ declare namespace Aha {
    */
   interface EpicAttributes {
     readonly commentsCount: number;
+    readonly createdAt: string;
     /**
      * Long-form description in HTML
      */
@@ -476,6 +648,7 @@ declare namespace Aha {
      */
 
     readonly referenceNum: string;
+    readonly updatedAt: string;
     assignedToUser: User;
     iteration: Iteration;
     /**
@@ -522,6 +695,7 @@ declare namespace Aha {
     readonly extensionFields: Array<ExtensionField>;
     readonly features: Array<Feature>;
     readonly tags: Array<Tag>;
+    readonly tasks: Array<Task>;
   }
 
   type EpicQuery = Query<Epic, EpicFilters>;
@@ -546,7 +720,7 @@ declare namespace Aha {
 
     blank(attrs: EpicAttributes): Epic;
 
-    new (attributes: Partial<EpicAttributes>): Epic;
+    new (attributes?: Partial<EpicAttributes>): Epic;
   }
 
   /**
@@ -564,6 +738,8 @@ declare namespace Aha {
     readonly query: EpicQuery;
 
     attributes: EpicAttributes;
+
+    order: EpicOrderEnum['values'];
   }
 
   /**
@@ -576,7 +752,7 @@ declare namespace Aha {
      */
 
     readonly text: string;
-    readonly units: WorkUnitEnumEnum;
+    readonly units: WorkUnitEnumEnum['values'];
     readonly value: number;
   }
 
@@ -600,7 +776,7 @@ declare namespace Aha {
 
     blank(attrs: EstimateAttributes): Estimate;
 
-    new (attributes: Partial<EstimateAttributes>): Estimate;
+    new (attributes?: Partial<EstimateAttributes>): Estimate;
   }
 
   /**
@@ -625,10 +801,12 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface ExtensionAttributes {
+    readonly createdAt: string;
     readonly enabled: boolean;
     readonly id: string;
     readonly identifier: string;
     readonly name: string;
+    readonly updatedAt: string;
     readonly extensionLogs: Array<ExtensionLog>;
   }
 
@@ -652,7 +830,7 @@ declare namespace Aha {
 
     blank(attrs: ExtensionAttributes): Extension;
 
-    new (attributes: Partial<ExtensionAttributes>): Extension;
+    new (attributes?: Partial<ExtensionAttributes>): Extension;
   }
 
   /**
@@ -677,6 +855,7 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface ExtensionContributionAttributes {
+    readonly createdAt: string;
     readonly id: string;
     /**
      * The identifier of the extensin contribution. Example: 'aha-develop.github-import.issues'
@@ -684,6 +863,7 @@ declare namespace Aha {
 
     readonly identifier: string;
     readonly name: string;
+    readonly updatedAt: string;
     /**
      * The extension providing this contribution
      */
@@ -723,7 +903,7 @@ declare namespace Aha {
     blank(attrs: ExtensionContributionAttributes): ExtensionContribution;
 
     new (
-      attributes: Partial<ExtensionContributionAttributes>
+      attributes?: Partial<ExtensionContributionAttributes>
     ): ExtensionContribution;
   }
 
@@ -751,6 +931,7 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface ExtensionFieldAttributes {
+    readonly createdAt: string;
     /**
      * The ID of the object the field is attached to
      */
@@ -763,6 +944,7 @@ declare namespace Aha {
     extensionFieldableType: string;
     readonly id: string;
     name: string;
+    readonly updatedAt: string;
     value: any;
     /**
      * The extension responsible for this field
@@ -798,7 +980,7 @@ declare namespace Aha {
 
     blank(attrs: ExtensionFieldAttributes): ExtensionField;
 
-    new (attributes: Partial<ExtensionFieldAttributes>): ExtensionField;
+    new (attributes?: Partial<ExtensionFieldAttributes>): ExtensionField;
   }
 
   /**
@@ -825,6 +1007,7 @@ declare namespace Aha {
   interface ExtensionInvocationAttributes {
     readonly createdAt: string;
     readonly id: string;
+    readonly updatedAt: string;
     /**
      * The contribution that was invoked
      */
@@ -862,7 +1045,7 @@ declare namespace Aha {
     blank(attrs: ExtensionInvocationAttributes): ExtensionInvocation;
 
     new (
-      attributes: Partial<ExtensionInvocationAttributes>
+      attributes?: Partial<ExtensionInvocationAttributes>
     ): ExtensionInvocation;
   }
 
@@ -897,6 +1080,7 @@ declare namespace Aha {
     readonly content: any;
     readonly createdAt: string;
     readonly id: string;
+    readonly updatedAt: string;
     /**
      * The contribution that was invoked
      */
@@ -935,7 +1119,7 @@ declare namespace Aha {
 
     blank(attrs: ExtensionLogAttributes): ExtensionLog;
 
-    new (attributes: Partial<ExtensionLogAttributes>): ExtensionLog;
+    new (attributes?: Partial<ExtensionLogAttributes>): ExtensionLog;
   }
 
   /**
@@ -961,6 +1145,7 @@ declare namespace Aha {
    */
   interface FeatureAttributes {
     readonly commentsCount: number;
+    readonly createdAt: string;
     /**
      * Long-form description in HTML
      */
@@ -983,6 +1168,7 @@ declare namespace Aha {
      */
 
     readonly referenceNum: string;
+    readonly updatedAt: string;
     assignedToUser: User;
     /**
      * Epic this feature belongs to, if present
@@ -1059,7 +1245,7 @@ declare namespace Aha {
 
     blank(attrs: FeatureAttributes): Feature;
 
-    new (attributes: Partial<FeatureAttributes>): Feature;
+    new (attributes?: Partial<FeatureAttributes>): Feature;
   }
 
   /**
@@ -1080,6 +1266,8 @@ declare namespace Aha {
     readonly query: FeatureQuery;
 
     attributes: FeatureAttributes;
+
+    order: FeatureOrderEnum['values'];
   }
 
   /**
@@ -1087,6 +1275,7 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface IterationAttributes {
+    readonly createdAt: string;
     /**
      * Duration of the iteration, in days
      */
@@ -1100,6 +1289,7 @@ declare namespace Aha {
      */
 
     status: number;
+    readonly updatedAt: string;
     /**
      * Capacity of the iteration
      */
@@ -1116,6 +1306,7 @@ declare namespace Aha {
      */
 
     readonly records: Array<RecordUnion>;
+    readonly tasks: Array<Task>;
   }
 
   type IterationQuery = Query<Iteration, IterationFilters>;
@@ -1140,7 +1331,7 @@ declare namespace Aha {
 
     blank(attrs: IterationAttributes): Iteration;
 
-    new (attributes: Partial<IterationAttributes>): Iteration;
+    new (attributes?: Partial<IterationAttributes>): Iteration;
   }
 
   /**
@@ -1158,6 +1349,8 @@ declare namespace Aha {
     readonly query: IterationQuery;
 
     attributes: IterationAttributes;
+
+    order: IterationOrderEnum['values'];
   }
 
   /**
@@ -1170,6 +1363,7 @@ declare namespace Aha {
      */
 
     readonly backlogBookmarkId: string;
+    readonly createdAt: string;
     readonly id: string;
     /**
      * True if the project is a team, false if it is a workspace
@@ -1177,6 +1371,7 @@ declare namespace Aha {
 
     readonly isTeam: boolean;
     readonly name: string;
+    readonly updatedAt: string;
     /**
      * Release new records are created in, by default
      */
@@ -1220,7 +1415,7 @@ declare namespace Aha {
 
     blank(attrs: ProjectAttributes): Project;
 
-    new (attributes: Partial<ProjectAttributes>): Project;
+    new (attributes?: Partial<ProjectAttributes>): Project;
   }
 
   /**
@@ -1248,6 +1443,7 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface ReleaseAttributes {
+    readonly createdAt: string;
     readonly id: string;
     readonly name: string;
     /**
@@ -1267,6 +1463,8 @@ declare namespace Aha {
 
     readonly referenceNum: string;
     readonly releaseDate: string;
+    readonly updatedAt: string;
+    readonly tasks: Array<Task>;
   }
 
   type ReleaseQuery = Query<Release, ReleaseFilters>;
@@ -1291,7 +1489,7 @@ declare namespace Aha {
 
     blank(attrs: ReleaseAttributes): Release;
 
-    new (attributes: Partial<ReleaseAttributes>): Release;
+    new (attributes?: Partial<ReleaseAttributes>): Release;
   }
 
   /**
@@ -1309,6 +1507,8 @@ declare namespace Aha {
     readonly query: ReleaseQuery;
 
     attributes: ReleaseAttributes;
+
+    order: ReleaseOrderEnum['values'];
   }
 
   /**
@@ -1317,6 +1517,7 @@ declare namespace Aha {
    */
   interface RequirementAttributes {
     readonly commentsCount: number;
+    readonly createdAt: string;
     /**
      * Long-form description in HTML
      */
@@ -1339,6 +1540,7 @@ declare namespace Aha {
      */
 
     readonly referenceNum: string;
+    readonly updatedAt: string;
     assignedToUser: User;
     /**
      * Epic this requirement belongs to, if present
@@ -1393,6 +1595,7 @@ declare namespace Aha {
      */
 
     readonly extensionFields: Array<ExtensionField>;
+    readonly tasks: Array<Task>;
   }
 
   type RequirementQuery = Query<Requirement, RequirementFilters>;
@@ -1419,7 +1622,7 @@ declare namespace Aha {
 
     blank(attrs: RequirementAttributes): Requirement;
 
-    new (attributes: Partial<RequirementAttributes>): Requirement;
+    new (attributes?: Partial<RequirementAttributes>): Requirement;
   }
 
   /**
@@ -1440,6 +1643,8 @@ declare namespace Aha {
     readonly query: RequirementQuery;
 
     attributes: RequirementAttributes;
+
+    order: RequirementOrderEnum['values'];
   }
 
   /**
@@ -1478,7 +1683,7 @@ declare namespace Aha {
 
     blank(attrs: TagAttributes): Tag;
 
-    new (attributes: Partial<TagAttributes>): Tag;
+    new (attributes?: Partial<TagAttributes>): Tag;
   }
 
   /**
@@ -1504,11 +1709,13 @@ declare namespace Aha {
    */
   interface TaskAttributes {
     body: string;
+    readonly createdAt: string;
     readonly dueDate: string;
     readonly id: string;
     name: string;
     position: number;
-    status: TaskStatusEnumEnum;
+    status: TaskStatusEnumEnum['values'];
+    readonly updatedAt: string;
     record: TaskableSubjectUnion;
     readonly taskUsers: Array<TaskUser>;
     readonly users: Array<User>;
@@ -1534,7 +1741,7 @@ declare namespace Aha {
 
     blank(attrs: TaskAttributes): Task;
 
-    new (attributes: Partial<TaskAttributes>): Task;
+    new (attributes?: Partial<TaskAttributes>): Task;
   }
 
   /**
@@ -1560,8 +1767,10 @@ declare namespace Aha {
    */
   interface TaskUserAttributes {
     readonly completedDate: string;
+    readonly createdAt: string;
     readonly id: string;
-    readonly status: TaskStatusEnumEnum;
+    readonly status: TaskStatusEnumEnum['values'];
+    readonly updatedAt: string;
     readonly task: Task;
     readonly user: User;
   }
@@ -1586,7 +1795,7 @@ declare namespace Aha {
 
     blank(attrs: TaskUserAttributes): TaskUser;
 
-    new (attributes: Partial<TaskUserAttributes>): TaskUser;
+    new (attributes?: Partial<TaskUserAttributes>): TaskUser;
   }
 
   /**
@@ -1611,14 +1820,30 @@ declare namespace Aha {
    * @category Aha! Model Attributes
    */
   interface UserAttributes {
+    /**
+     * URL to the user's avatar. Defaults to 32px
+     */
+
     readonly avatarUrl: string;
+    readonly createdAt: string;
     readonly id: string;
     readonly name: string;
+    /**
+     * User's selected time zone as IANA time zone database name
+     */
+
+    readonly timezone: string;
+    readonly updatedAt: string;
     /**
      * Additional data stored by extensions
      */
 
     readonly extensionFields: Array<ExtensionField>;
+    /**
+     * Projects this user belongs to
+     */
+
+    readonly projects: Array<Project>;
     readonly taskUsers: Array<TaskUser>;
   }
 
@@ -1644,7 +1869,7 @@ declare namespace Aha {
 
     blank(attrs: UserAttributes): User;
 
-    new (attributes: Partial<UserAttributes>): User;
+    new (attributes?: Partial<UserAttributes>): User;
   }
 
   /**
@@ -1674,8 +1899,10 @@ declare namespace Aha {
      */
 
     readonly builtIn: boolean;
+    readonly createdAt: string;
     readonly id: string;
     readonly name: string;
+    readonly updatedAt: string;
     readonly workflowStatuses: Array<WorkflowStatus>;
   }
 
@@ -1699,7 +1926,7 @@ declare namespace Aha {
 
     blank(attrs: WorkflowAttributes): Workflow;
 
-    new (attributes: Partial<WorkflowAttributes>): Workflow;
+    new (attributes?: Partial<WorkflowAttributes>): Workflow;
   }
 
   /**
@@ -1734,10 +1961,12 @@ declare namespace Aha {
      */
 
     color: number;
+    readonly createdAt: string;
     readonly id: string;
-    readonly internalMeaning: InternalMeaningEnum;
+    readonly internalMeaning: InternalMeaningEnum['values'];
     name: string;
     position: number;
+    readonly updatedAt: string;
     /**
      * Workflow containing this status
      */
@@ -1769,7 +1998,7 @@ declare namespace Aha {
 
     blank(attrs: WorkflowStatusAttributes): WorkflowStatus;
 
-    new (attributes: Partial<WorkflowStatusAttributes>): WorkflowStatus;
+    new (attributes?: Partial<WorkflowStatusAttributes>): WorkflowStatus;
   }
 
   /**
@@ -1813,10 +2042,27 @@ declare namespace Aha {
     Workflow: WorkflowConstructor;
     WorkflowStatus: WorkflowStatusConstructor;
   }
+  interface EnumMap {
+    AvatarSizeEnum: AvatarSizeEnumEnum;
+    EpicOrder: EpicOrderEnum;
+    ExtensionFieldableTypeEnum: ExtensionFieldableTypeEnumEnum;
+    FeatureOrder: FeatureOrderEnum;
+    InternalMeaning: InternalMeaningEnum;
+    IterationOrder: IterationOrderEnum;
+    OrderDirection: OrderDirectionEnum;
+    RecordPlacementEnum: RecordPlacementEnumEnum;
+    ReleaseOrder: ReleaseOrderEnum;
+    RequirementOrder: RequirementOrderEnum;
+    TaskStatusEnum: TaskStatusEnumEnum;
+    WorkUnitEnum: WorkUnitEnumEnum;
+  }
+
+  type Model = keyof Models;
 }
 
 interface Aha {
   models: Aha.Models;
+  enums: Aha.EnumMap;
 }
 
 declare namespace Aha {
@@ -1850,7 +2096,7 @@ declare namespace Aha {
     [P in keyof K]?: Query<K[P]> | Array<keyof K[P]['attributes']>;
   };
 
-  interface Query<T extends ApplicationModel, Filters = never> {
+  interface Query<M extends ApplicationModel, Filters = never> {
     /**
      * Unions this query with another query, using GraphQL union
      * types. Should only be used in subqueries.
@@ -1858,14 +2104,136 @@ declare namespace Aha {
      * Example: Epic.select(['id', 'name'])
      *            .union(Feature.select(['id', 'name']));
      */
-    union(query: Query<T>): this;
-    merge(subqueries: Subquery<T>): this;
+    union(query: Query<M>): this;
+    /**
+     * Adds a subquery to select deeply nested records.
+     *
+     * Example: Workflow.select(['id']).merge({
+     *   workflowStatuses: WorkflowStatus.select([
+     *     'id',
+     *     'name',
+     *     'color',
+     *     'position',
+     *   ]),
+     * });
+     *
+     * @param subqueries The subqueries to merge into this query, where the key is an attribute name and the value is a Query object.
+     */
+    merge(subqueries: Subquery<M>): this;
+    /**
+     * Adds filters to the query
+     *
+     * Example: query.where({projectId: 15})
+     */
     where(filters: Partial<Filters>): this;
-    order(criteria: { [field: string]: string }): this;
-    reorder(criteria: { [field: string]: string }): this;
-    first(): SingleQuery<T, Filters>;
-    find(id: string): Promise<T>;
-    all(): Promise<T[]>;
+    /**
+     * Resets the filters on the query
+     *
+     * Example: query.rewhere({projectId: 15})
+     */
+    rewhere(filters: Partial<Filters>): this;
+    /**
+     * Adds a criteria for ordering. Will be added to the end of the order list.
+     *
+     * Example: query.order({createdAt: 'ASC'});
+     */
+    order<F extends M['order']>(
+      criteria: Record<F, Aha.OrderDirectionEnum['values']>
+    ): this;
+    /**
+     * Resets all criteria for ordering.
+     *
+     * Example: query.reorder({createdAt: 'ASC'});
+     *
+     * @param criteria A one-key object where the key is an order attribute name and the value is a direction
+     */
+    reorder<F extends M['order']>(
+      criteria: Record<F, Aha.OrderDirectionEnum['values']>
+    ): this;
+    /**
+     * Adds `attrs` to the attributes selected by the query.
+     *
+     * Example: query.select(['id', 'name']);
+     *
+     * @param arguments
+     * @returns A Query object selecting `attrs`
+     */
+    select<F extends keyof M['attributes']>(names: F[]): this;
+    select<F extends keyof M['attributes']>(...names: F[]): this;
+    /**
+     * When paginating, adds `stats` to the page attributes selected by
+     * the query.
+     *
+     * Example: query.stats(['isLastPage']);
+     */
+    stats(attrs: string[]): this;
+    /**
+     * When paginating, selects page `pageNumber`
+     *
+     * Example: query.page(2)
+     */
+    page(pageNumber: number): this;
+    /**
+     * When paginating, sets the number of results per page
+     *
+     * Example: query.per(50)
+     */
+    per(perPage: number): this;
+    /**
+     * Adds bare, top-level arguments to the query
+     *
+     * Example: query.argument({timeout: 1000})
+     */
+    argument(args: Record<string, any>): this;
+    /**
+     * When called, the query will select a single object instead of multiple.
+     *
+     * Example: query.first();
+     */
+    first(): SingleQuery<M, Filters>;
+
+    /**
+     * Executes this query, finding a single record by ID.
+     */
+    find(id: string): Promise<M>;
+    /**
+     * Executes this query.
+     *
+     * @returns The requested models, or undefined if it couldn't be found.
+     */
+    all(): Promise<M[]>;
+    /**
+     * Fetch *all* records from multiple pages. `pageCallback` will be
+     * called for each page as it arrives. If no callback is specified,
+     * will return all of the records found. If a callback is specified,
+     * it is assumed that the caller will handle the records, and the
+     * return value will be empty.
+     *
+     * @param [pageCallback] a callback called with a list of records for every page as it arrives
+     * @returns An array of the requested records, if no callback is given
+     */
+    findInBatches(pageCallback?: Function): Promise<M[]>;
+
+    readonly model: M;
+    /**
+     * Returns the name for the query based on the model used to construct it.
+     */
+    readonly queryName: string;
+    /**
+     * Returns the plain string version of the GraphQL query corresponding to this object.
+     */
+    readonly queryString: string;
+    /**
+     * Returns the variables to send with the graphql query
+     */
+    readonly queryVariables: Record<string, any>;
+    readonly subqueries: Record<string, Query<any>>;
+    readonly attrs: Set<string>;
+    readonly arguments: Record<string, any>;
+    readonly filters: Record<string, any>;
+    readonly sort: Record<string, 'ASC' | 'DESC'>;
+    readonly single: boolean;
+    readonly unions: Record<string, Query<any>>;
   }
 
   interface SingleQuery<T extends ApplicationModel, Filters = never>
@@ -1916,6 +2284,7 @@ declare namespace Aha {
     readonly uniqueId: string;
 
     attributes: {};
+    order: string;
 
     /**
      * Clear the value from an extension field for this record
@@ -1983,8 +2352,8 @@ declare namespace Aha {
     /**
      * Sends a GraphQL mutation request, updating the current object from the response.
      *
-     * @param {string} mutationName The name of the mutation to call
-     * @param {object} options All data passed along to generate the mutation query.
+     * @param mutationName The name of the mutation to call
+     * @param options All data passed along to generate the mutation query.
      *
      * `options`:
      *   - args: The arguments passed to the mutation
@@ -2018,6 +2387,11 @@ declare namespace Aha {
     id: string;
     referenceNum: string;
     type: string;
+  }
+
+  interface EnumValue<T extends string = string, V extends string = string> {
+    type: T;
+    value: V;
   }
 
   /**
@@ -2213,7 +2587,7 @@ declare namespace Aha {
    * @category Extensions Importer
    */
   interface ImportRecordCallback<T extends ImportRecord> {
-    (props: { importRecord: T; ahaRecord: RecordStub }): Promise<void>;
+    (props: { importRecord: T; ahaRecord: Feature }): Promise<void>;
   }
 
   /**
@@ -2238,12 +2612,25 @@ declare namespace Aha {
   }
 
   interface Drawer {
+    /**
+     * Get the props for the currently open drawer
+     */
+    getProps(): unknown;
+    /**
+     * Show an Aha! record in the drawer
+     */
     showRecord(record: ReferenceInterface): Promise<void>;
+    /**
+     * Show an extension contribution in the drawer
+     */
     showExtension(
       identifier: string,
       contribution: string,
       props: object
     ): Promise<void>;
+    /**
+     * Hide the drawer
+     */
     hide(): void;
   }
 }
@@ -2309,6 +2696,17 @@ declare class Aha {
     node: HTMLElement,
     onUnmounted?: (callback: Function) => void
   ): void;
+
+  /**
+   * Sanitize a url. This will remove any embedded javascript and only allow
+   * certain data types. Any link that comes from outside of Aha! or from user
+   * input should be sanitized:
+   *
+   * ```
+   * return <a href={aha.sanitizeUrl(linkHref)}>Link to record</a>;
+   * ```
+   */
+  sanitizeUrl(url: string | undefined): string;
 }
 
 declare const aha: Aha;
