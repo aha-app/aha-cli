@@ -4,7 +4,7 @@ import * as chokidar from 'chokidar';
 import { installExtension } from '../../utils/extension-utils';
 
 const WAIT_TIMEOUT = 250;
-export default class Create extends BaseCommand {
+export default class Watch extends BaseCommand {
   static needsAuth = true;
 
   static description =
@@ -24,6 +24,7 @@ export default class Create extends BaseCommand {
   performingInstall = false;
 
   async run() {
+    await this.performInstall();
     this.log('Watching for changes in the current directory ...');
 
     chokidar
