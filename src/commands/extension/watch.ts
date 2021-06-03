@@ -1,7 +1,10 @@
 import BaseCommand from '../../base';
 import { flags } from '@oclif/command';
 import * as chokidar from 'chokidar';
-import { installExtension } from '../../utils/extension-utils';
+import {
+  fetchRemoteTypes,
+  installExtension,
+} from '../../utils/extension-utils';
 
 const WAIT_TIMEOUT = 250;
 export default class Watch extends BaseCommand {
@@ -26,6 +29,8 @@ export default class Watch extends BaseCommand {
   async run() {
     await this.performInstall();
     this.log('Watching for changes in the current directory ...');
+
+    await fetchRemoteTypes();
 
     chokidar
       .watch('.', { ignoreInitial: true, ignored: '.git' })

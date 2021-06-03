@@ -3,11 +3,15 @@ import ux from 'cli-ux';
 import * as esbuild from 'esbuild';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
+import * as path from 'path';
+import HTTP from 'http-call';
 import { Readable } from 'stream';
 import { createGzip } from 'zlib';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
+
+const debug = require('debug')('extension-utils');
 
 const REACT_JSX = 'React.createElement';
 const EXTERNALS = ['react', 'react-dom'];
@@ -22,6 +26,29 @@ export function readConfiguration() {
 
 export function identifierFromConfiguration(configuration: any) {
   return configuration.name.replace('@', '').replace('/', '.');
+}
+
+export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
+  ux.action.start('Downloading JSON schemas and TypeScript types from Aha!');
+
+  // prettier-ignore
+  // TODO make this request actual files
+  const typings = {
+    './types/aha-components.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-components.d.ts',
+    './types/aha-models.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-models.d.ts',
+    './schema/schema.json': 'https://cdn.aha.io/assets/extensions/schema/schema.json',
+    './schema/package-schema.json': 'https://cdn.aha.io/assets/extensions/schema/package-schema.json',
+  };
+
+  const modulePath = path.join(extensionRoot, 'node_modules', 'aha-cli');
+
+  const promises = Object.entries(typings).map(async ([filePath, url]) => {
+    const response = await HTTP.get(url);
+    fs.writeFileSync(path.join(modulePath, filePath), response.body);
+  });
+
+  await Promise.all(promises);
+  ux.action.stop();
 }
 
 function fileNameFromConfiguration(configuration: any) {
