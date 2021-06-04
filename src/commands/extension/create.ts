@@ -1,10 +1,8 @@
 import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
-import * as path from 'path';
 import BaseCommand from '../../base';
 import { fetchRemoteTypes } from '../../utils/extension-utils';
-import { packageRoot } from '../../utils/package-info';
 import questions from '../../utils/questions';
 import templates from '../../utils/templates';
 

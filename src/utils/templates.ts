@@ -1,5 +1,3 @@
-import { packageInfo } from './package-info';
-
 export default {
   writeContributionTemplates(
     fs: any,
