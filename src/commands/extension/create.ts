@@ -89,20 +89,6 @@ export default class Create extends BaseCommand {
       templates.readmeTemplate(extensionAnswers.name)
     );
 
-    const modulePath = path.join(directoryName, 'node_modules', 'aha-cli');
-    fs.mkdirSync(path.join(modulePath, 'schema'), { recursive: true });
-    fs.copyFileSync(
-      path.join(packageRoot(), 'aha.d.ts'),
-      path.join(modulePath, 'aha.d.ts')
-    );
-    fs.copyFileSync(
-      path.join(packageRoot(), 'schema', 'schema.json'),
-      path.join(modulePath, 'schema', 'schema.json')
-    );
-    fs.copyFileSync(
-      path.join(packageRoot(), 'schema', 'package-schema.json'),
-      path.join(modulePath, 'schema', 'package-schema.json')
-    );
     fs.writeFileSync(
       `${directoryName}/tsconfig.json`,
       templates.tsconfigTemplate()
