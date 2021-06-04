@@ -277,7 +277,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
     "moduleResolution": "node",
     "target": "ES6"
   },
-  "include": [".aha-cache/*.d.ts", "src/**/*.ts*"]
+  "include": [".aha-cache/types/*.d.ts", "src/**/*.ts*"]
 }`;
   },
 
