@@ -37,7 +37,7 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
     './schema/package-schema.json': 'https://cdn.aha.io/assets/extensions/schema/package-schema.json',
   };
 
-  const modulePath = path.join(extensionRoot, 'node_modules', 'aha-cli');
+  const modulePath = path.join(extensionRoot, '.aha-cache');
 
   const promises = Object.entries(typings).map(async ([filePath, url]) => {
     const response = await HTTP.get(url);

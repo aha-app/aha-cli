@@ -181,7 +181,6 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
     author: string,
     ahaExtensionsSchema: { [k: string]: any }
   ) {
-    const version = packageInfo().version;
     const packageJson: { [k: string]: any } = {
       name: identifier,
       description: name,
@@ -192,9 +191,6 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
         url: 'TODO: Add the GitHub URL to your extension in package.json',
       },
       license: 'MIT',
-      devDependencies: {
-        'aha-cli': version,
-      },
       ahaExtension: ahaExtensionsSchema,
     };
     return JSON.stringify(
@@ -281,7 +277,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
     "moduleResolution": "node",
     "target": "ES6"
   },
-  "include": ["node_modules/aha-cli/*.d.ts", "src/**/*.ts*"]
+  "include": [".aha-cache/*.d.ts", "src/**/*.ts*"]
 }`;
   },
 
@@ -290,7 +286,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
   "json.schemas": [
     {
       "fileMatch": ["package.json"],
-      "url": "./node_modules/aha-cli/schema/package-schema.json"
+      "url": "./aha-cache/schema/package-schema.json"
     }
   ]
 }`;
