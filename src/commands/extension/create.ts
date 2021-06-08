@@ -56,7 +56,7 @@ export default class Create extends BaseCommand {
             entryPoint: 'src/views/samplePage.js',
             host: 'page',
             location: {
-              home: 'Work',
+              menu: 'Work',
             },
           },
         },
