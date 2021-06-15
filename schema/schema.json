@@ -167,7 +167,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["Feature", "Epic", "Requirement"]
+                "enum": ["Feature", "Epic", "Requirement", "Ideas::Idea"]
               }
             }
           }
