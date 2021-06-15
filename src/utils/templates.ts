@@ -159,7 +159,7 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
 `;
   },
 
-  eventHandlersTemplate(
+  eventsTemplate(
     contributionName: string,
     contribution: { [k: string]: any },
     _identifier: string
@@ -168,7 +168,7 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
     contribution.handles.forEach((event: string) => {
       returnTemplate += `
 aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
-  //Event handler code for ${event}
+  // Event handler code for ${event}
 });
 `;
     });

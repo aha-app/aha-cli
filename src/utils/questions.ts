@@ -113,7 +113,7 @@ const questions = {
         { name: 'view', value: 'views' },
         { name: 'command', value: 'commands' },
         { name: 'endpoint', value: 'endpoints' },
-        { name: 'event handler', value: 'eventHandlers' },
+        { name: 'event handler', value: 'events' },
         { name: 'importer', value: 'importers' },
         { name: 'setting', value: 'settings' },
       ],
@@ -247,7 +247,7 @@ const questions = {
         return cleanInput.split(',');
       },
       when: (answers: { [k: string]: string }) => {
-        return answers.contributionType === 'eventHandlers';
+        return answers.contributionType === 'events';
       },
     },
   ],
