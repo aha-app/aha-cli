@@ -21,7 +21,7 @@ export default class Install extends BaseCommand {
   };
 
   async run() {
-    await fetchRemoteTypes();
     await installExtension(this, this.flags.dumpCode, this.flags.noCache);
+    await fetchRemoteTypes();
   }
 }

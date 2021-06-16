@@ -41,7 +41,17 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
 
   const promises = Object.entries(typings).map(async ([filePath, url]) => {
     const response = await HTTP.get(url);
-    fs.writeFileSync(path.join(modulePath, filePath), response.body);
+    const absoluteFilePath = path.join(modulePath, filePath);
+
+    fs.mkdirSync(path.dirname(absoluteFilePath), { recursive: true });
+
+    // http-call unfortunately doesn't allow you to opt out of parsing JSON
+    const responseText =
+      typeof response.body === 'string'
+        ? response.body
+        : JSON.stringify(response.body, null, 2);
+
+    fs.writeFileSync(absoluteFilePath, responseText);
   });
 
   await Promise.all(promises);

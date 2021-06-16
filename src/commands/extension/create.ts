@@ -101,14 +101,14 @@ export default class Create extends BaseCommand {
       templates.gitignoreTemplate()
     );
 
-    await fetchRemoteTypes();
-
     templates.writeContributionTemplates(
       fs,
       directoryName,
       extensionAnswers.identifier,
       ahaExtensionSchema.contributes
     );
+
+    await fetchRemoteTypes(directoryName);
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }
