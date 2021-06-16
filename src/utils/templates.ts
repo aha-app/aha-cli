@@ -189,6 +189,9 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
         url: 'TODO: Add the GitHub URL to your extension in package.json',
       },
       license: 'MIT',
+      devDependencies: {
+        '@types/react': '^16.8.0',
+      },
       ahaExtension: ahaExtensionsSchema,
     };
     return JSON.stringify(
@@ -275,7 +278,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
     "moduleResolution": "node",
     "target": "ES6"
   },
-  "include": [".aha-cache/types/*.d.ts", "src/**/*.ts*"]
+  "include": [".aha-cache/types/*.d.ts", "src/**/*"]
 }`;
   },
 
