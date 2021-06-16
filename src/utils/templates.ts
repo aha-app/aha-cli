@@ -284,7 +284,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
   "json.schemas": [
     {
       "fileMatch": ["package.json"],
-      "url": "./aha-cache/schema/package-schema.json"
+      "url": "./.aha-cache/schema/package-schema.json"
     }
   ]
 }`;
