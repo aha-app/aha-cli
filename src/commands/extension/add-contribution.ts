@@ -5,7 +5,7 @@ import * as inquirer from 'inquirer';
 import templates from '../../utils/templates';
 import questions from '../../utils/questions';
 
-export default class Create extends BaseCommand {
+export default class AddContribution extends BaseCommand {
   static description = 'Add a contribution to an extension';
 
   static flags = {

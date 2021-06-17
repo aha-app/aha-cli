@@ -19,7 +19,7 @@ interface TokenInfo {
   email: string;
 }
 
-class LoginCommand extends BaseCommand {
+class Login extends BaseCommand {
   static description = `Login to Aha! and save credentials for other commands
 Credentials are saved in ~/.netrc`;
 
@@ -97,4 +97,4 @@ Credentials are saved in ~/.netrc`;
   }
 }
 
-export default LoginCommand;
+export default Login;
