@@ -40,18 +40,12 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   const modulePath = path.join(extensionRoot, '.aha-cache');
 
   const promises = Object.entries(typings).map(async ([filePath, url]) => {
-    const response = await HTTP.get(url);
     const absoluteFilePath = path.join(modulePath, filePath);
-
     fs.mkdirSync(path.dirname(absoluteFilePath), { recursive: true });
+    const fileStream = fs.createWriteStream(absoluteFilePath);
 
-    // http-call unfortunately doesn't allow you to opt out of parsing JSON
-    const responseText =
-      typeof response.body === 'string'
-        ? response.body
-        : JSON.stringify(response.body, null, 2);
-
-    fs.writeFileSync(absoluteFilePath, responseText);
+    const result = await HTTP.get(url, { raw: true });
+    result.response.pipe(fileStream);
   });
 
   await Promise.all(promises);
