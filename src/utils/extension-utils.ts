@@ -46,7 +46,7 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
 
     const result = await HTTP.get(url, { raw: true });
     result.response.pipe(fileStream);
-    return new Promise(resolve => fileStream.on('end', resolve));
+    return new Promise(resolve => fileStream.on('close', resolve));
   });
 
   await Promise.all(promises);
