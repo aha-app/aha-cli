@@ -3,7 +3,7 @@ import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import templates from '../../utils/templates';
-import questions from '../../utils/questions';
+import * as questions from '../../utils/questions';
 
 export default class AddContribution extends BaseCommand {
   static description = 'Add a contribution to an extension';
