@@ -1,9 +1,8 @@
 import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
-import * as path from 'path';
 import BaseCommand from '../../base';
-import { packageRoot } from '../../utils/package-info';
+import { fetchRemoteTypes } from '../../utils/extension-utils';
 import questions from '../../utils/questions';
 import templates from '../../utils/templates';
 
@@ -88,20 +87,6 @@ export default class Create extends BaseCommand {
       templates.readmeTemplate(extensionAnswers.name)
     );
 
-    const modulePath = path.join(directoryName, 'node_modules', 'aha-cli');
-    fs.mkdirSync(path.join(modulePath, 'schema'), { recursive: true });
-    fs.copyFileSync(
-      path.join(packageRoot(), 'aha.d.ts'),
-      path.join(modulePath, 'aha.d.ts')
-    );
-    fs.copyFileSync(
-      path.join(packageRoot(), 'schema', 'schema.json'),
-      path.join(modulePath, 'schema', 'schema.json')
-    );
-    fs.copyFileSync(
-      path.join(packageRoot(), 'schema', 'package-schema.json'),
-      path.join(modulePath, 'schema', 'package-schema.json')
-    );
     fs.writeFileSync(
       `${directoryName}/tsconfig.json`,
       templates.tsconfigTemplate()
@@ -122,6 +107,8 @@ export default class Create extends BaseCommand {
       extensionAnswers.identifier,
       ahaExtensionSchema.contributes
     );
+
+    await fetchRemoteTypes(directoryName);
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }

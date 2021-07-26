@@ -1,5 +1,3 @@
-import { packageInfo } from './package-info';
-
 export default {
   writeContributionTemplates(
     fs: any,
@@ -181,7 +179,6 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
     author: string,
     ahaExtensionsSchema: { [k: string]: any }
   ) {
-    const version = packageInfo().version;
     const packageJson: { [k: string]: any } = {
       name: identifier,
       description: name,
@@ -193,7 +190,7 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
       },
       license: 'MIT',
       devDependencies: {
-        'aha-cli': version,
+        '@types/react': '^16.8.0',
       },
       ahaExtension: ahaExtensionsSchema,
     };
@@ -281,7 +278,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
     "moduleResolution": "node",
     "target": "ES6"
   },
-  "include": ["node_modules/aha-cli/aha.d.ts", "src/**/*.ts*"]
+  "include": [".aha-cache/types", "src"]
 }`;
   },
 
@@ -290,7 +287,7 @@ To learn more about developing Aha! Develop extensions, including the API refere
   "json.schemas": [
     {
       "fileMatch": ["package.json"],
-      "url": "./node_modules/aha-cli/schema/package-schema.json"
+      "url": "./.aha-cache/schema/package-schema.json"
     }
   ]
 }`;
