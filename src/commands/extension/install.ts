@@ -1,6 +1,9 @@
 import BaseCommand from '../../base';
 import { flags } from '@oclif/command';
-import { installExtension } from '../../utils/extension-utils';
+import {
+  fetchRemoteTypes,
+  installExtension,
+} from '../../utils/extension-utils';
 
 export default class Install extends BaseCommand {
   static needsAuth = true;
@@ -19,5 +22,6 @@ export default class Install extends BaseCommand {
 
   async run() {
     await installExtension(this, this.flags.dumpCode, this.flags.noCache);
+    await fetchRemoteTypes();
   }
 }
