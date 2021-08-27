@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import BaseCommand from '../../base';
 import { fetchRemoteTypes } from '../../utils/extension-utils';
-import questions from '../../utils/questions';
+import * as questions from '../../utils/questions';
 import templates from '../../utils/templates';
 
 export default class Create extends BaseCommand {
