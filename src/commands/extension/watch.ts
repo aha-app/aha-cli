@@ -1,10 +1,8 @@
 import BaseCommand from '../../base';
 import { flags } from '@oclif/command';
 import * as chokidar from 'chokidar';
-import {
-  fetchRemoteTypes,
-  installExtension,
-} from '../../utils/extension-utils';
+import { installExtension } from '../../utils/extension-utils';
+import { fetchRemoteTypes } from '../../utils/extension/fetch-remote-types';
 
 const WAIT_TIMEOUT = 250;
 export default class Watch extends BaseCommand {

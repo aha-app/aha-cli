@@ -1,9 +1,7 @@
 import BaseCommand from '../../base';
 import { flags } from '@oclif/command';
-import {
-  fetchRemoteTypes,
-  installExtension,
-} from '../../utils/extension-utils';
+import { installExtension } from '../../utils/extension-utils';
+import { fetchRemoteTypes } from '../../utils/extension/fetch-remote-types';
 
 export default class Install extends BaseCommand {
   static needsAuth = true;

@@ -1,9 +1,7 @@
 import BaseCommand from '../../base';
 import ux from 'cli-ux';
-import {
-  readConfiguration,
-  identifierFromConfiguration,
-} from '../../utils/extension-utils';
+import { identifierFromConfiguration } from '../../utils/extension-utils';
+import { readConfiguration } from '../../utils/extension/configuration';
 
 export default class Uninstall extends BaseCommand {
   static needsAuth = true;

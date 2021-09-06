@@ -2,7 +2,7 @@ import ux from 'cli-ux';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import BaseCommand from '../../base';
-import { fetchRemoteTypes } from '../../utils/extension-utils';
+import { fetchRemoteTypes } from '../../utils/extension/fetch-remote-types';
 import * as questions from '../../utils/questions';
 import templates from '../../utils/templates';
 
