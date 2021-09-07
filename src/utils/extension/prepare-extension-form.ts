@@ -4,21 +4,46 @@ import BaseCommand from '../../base';
 import { REACT_JSX } from '../extension-utils';
 import { SimpleCache } from '../simple-cache';
 import {
-  identifierFromConfiguration,
-  readConfiguration,
   contributionsFromConfiguration,
+  identifierFromConfiguration,
 } from './configuration';
+import {
+  ExtensionPackageJson,
+  AhaExtensionConfiguration,
+} from './package-json';
 import { prepareScript } from './prepare-script';
 
+function replaceContributionsFiles(
+  ahaExtension: AhaExtensionConfiguration,
+  fileMap: Record<string, string>
+) {
+  if (!ahaExtension.contributes) return ahaExtension;
+  const { contributes } = ahaExtension;
+
+  Object.keys(contributes).forEach(type => {
+    Object.keys(contributes[type]).forEach(name => {
+      Object.keys(contributes[type][name]).forEach(key => {
+        const file = contributes[type][name][key];
+        if (fileMap[file]) {
+          contributes[type][name][key] = fileMap[file];
+        }
+      });
+    });
+  });
+
+  return ahaExtension;
+}
+
 export async function prepareExtensionForm(
+  configuration: ExtensionPackageJson,
   command: BaseCommand,
+  fileMap: Record<string, string>,
   dumpCode: boolean,
   skipCache: boolean
 ) {
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
-  const configuration = readConfiguration();
 
   if (!configuration.ahaExtension) {
     throw new Error('No ahaExtension configuration found in package.json');
@@ -56,6 +81,7 @@ export async function prepareExtensionForm(
       // then wait for them all in parallel below.
       return prepareScript(
         command,
+        fileMap,
         form,
         contribution.name,
         contribution.entryPoint,
@@ -84,9 +110,15 @@ export async function prepareExtensionForm(
     'extension[repository]',
     configuration.repository?.url || configuration.repository
   );
+  if (configuration.icon) {
+    form.append(
+      'extension[icon_url]',
+      fileMap[configuration.icon] || configuration.icon
+    );
+  }
   form.append(
     'extension[configuration]',
-    JSON.stringify(configuration.ahaExtension)
+    JSON.stringify(replaceContributionsFiles(ahaExtension, fileMap))
   );
 
   return form;

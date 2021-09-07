@@ -5,12 +5,36 @@ import * as FormData from 'form-data';
 import * as fs from 'fs';
 import BaseCommand from '../../base';
 import { httpPlugin } from '../esbuild-http';
+import { uploadedPlugin } from '../esbuild-uploaded';
 import { SimpleCache } from '../simple-cache';
-import { EXTERNALS, skyUrlToPath, pathToExternal } from '../extension-utils';
+
+const EXTERNALS = ['react', 'react-dom'];
+
+/**
+ * Converts a skypack url like /-/react@17.0.1?blah to just react
+ */
+function skyUrlToPath(path: string) {
+  const matches = path.match(/-\/(.+?)@/);
+  if (matches) return matches[1];
+}
+
+/**
+ * Get the aha import code for externals import. i.e. when an extension says
+ *
+ *   import React from 'react';
+ *
+ * This will be translated by esbuild into something like
+ *
+ *   const React = aha.import('react');
+ */
+function pathToExternal(path: string): string {
+  return `aha.import('${path}')`;
+}
 
 // Load script and resolve imports using esbuild.
 export async function prepareScript(
   command: BaseCommand,
+  fileMap: Record<string, string>,
   form: FormData,
   name: string,
   path: string,
@@ -41,6 +65,7 @@ export async function prepareScript(
       bundle: true,
       outfile: 'bundle.js',
       plugins: [
+        uploadedPlugin(fileMap),
         globalExternalsWithRegExp({
           modulePathFilter: new RegExp(externalsFilter),
           getModuleInfo: path => {

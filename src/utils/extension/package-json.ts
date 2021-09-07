@@ -5,6 +5,7 @@ export interface ExtensionPackageJson {
   author: string;
   repository: Repository;
   license: string;
+  icon?: string;
   ahaExtension?: AhaExtensionConfiguration;
 }
 

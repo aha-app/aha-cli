@@ -1,5 +1,6 @@
 import * as fs from 'fs';
-import { ExtensionPackageJson, Contributes } from './package-json';
+import * as globby from 'globby';
+import { Contributes, ExtensionPackageJson } from './package-json';
 
 export function readConfiguration(): ExtensionPackageJson {
   try {
@@ -42,4 +43,10 @@ export function contributionsFromConfiguration(contributes: Contributes) {
       };
     })
   );
+}
+
+export async function filesFromConfiguration(
+  configuration: ExtensionPackageJson
+) {
+  return globby(configuration?.ahaExtension?.files || []);
 }

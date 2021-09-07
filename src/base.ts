@@ -2,7 +2,7 @@ import Command, { flags } from '@oclif/command';
 import { Input } from '@oclif/parser';
 import netrc from 'netrc-parser';
 import { prompt } from 'inquirer';
-import AhaAPI from './api';
+import AhaAPI from './api/api';
 
 interface ApiAuth {
   token: string;

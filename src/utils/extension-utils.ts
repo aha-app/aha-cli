@@ -2,36 +2,82 @@ import ux from 'cli-ux';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import { createGzip } from 'zlib';
+import { handleHttpError } from '../api/http-error';
 import BaseCommand from '../base';
 import {
-  readConfiguration,
   fileNameFromConfiguration,
+  filesFromConfiguration,
+  identifierFromConfiguration,
+  readConfiguration,
 } from './extension/configuration';
 import { prepareExtensionForm } from './extension/prepare-extension-form';
-import { HTTPError } from 'http-call';
+import { ExtensionPackageJson } from './extension/package-json';
+import * as FormData from 'form-data';
+import * as url from 'url';
 
 export const REACT_JSX = 'React.createElement';
-export const EXTERNALS = ['react', 'react-dom'];
 
-/**
- * Converts a skypack url like /-/react@17.0.1?blah to just react
- */
-export function skyUrlToPath(path: string) {
-  const matches = path.match(/-\/(.+?)@/);
-  if (matches) return matches[1];
+async function tryCatch<T>(
+  callback: () => T | Promise<T>,
+  catcher?: (error: unknown) => void
+): Promise<T> {
+  try {
+    const result = await callback();
+    return result;
+  } catch (error) {
+    if (catcher) {
+      catcher(error);
+    } else {
+      ux.action.stop('error');
+    }
+    throw error;
+  }
 }
 
-/**
- * Get the aha import code for externals import. i.e. when an extension says
- *
- *   import React from 'react';
- *
- * This will be translated by esbuild into something like
- *
- *   const React = aha.import('react');
- */
-export function pathToExternal(path: string): string {
-  return `aha.import('${path}')`;
+async function uploadFile(
+  command: BaseCommand,
+  configuration: ExtensionPackageJson,
+  file: string
+) {
+  const form = new FormData();
+  form.append('attachment[data]', fs.createReadStream(file));
+
+  const params = url.parse(
+    `${
+      command.api.config.baseURL
+    }/api/v1/extensions/${identifierFromConfiguration(
+      configuration
+    )}/attachments`
+  );
+
+  const data = (await new Promise((resolve, reject) => {
+    form.submit(
+      {
+        host: params.hostname,
+        path: params.pathname,
+        protocol: params.protocol as any,
+        port: params.port,
+        method: 'post',
+        headers: { ...command.api.defaults.headers },
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+        if (res.statusCode !== 200) {
+          return reject(new Error(res.statusMessage));
+        }
+
+        let body = '';
+        res.on('data', chunk => {
+          body += chunk;
+        });
+        res.on('end', () => resolve(JSON.parse(body)));
+      }
+    );
+  })) as any;
+
+  return data.attachment.download_url;
 }
 
 // Compile and upload an extension.
@@ -40,24 +86,32 @@ export async function installExtension(
   dumpCode: boolean,
   skipCache = false
 ) {
-  let form: any = null;
-
-  try {
+  const configuration = await tryCatch(() => {
     const configuration = readConfiguration();
     process.stdout.write(
       `Installing extension '${configuration.name}' to '${command.api.config.baseURL}'\n`
     );
-    form = await prepareExtensionForm(command, dumpCode, skipCache);
-  } catch (error) {
-    ux.action.stop('error');
-    throw error;
+    return configuration;
+  });
+
+  const files = await filesFromConfiguration(configuration);
+  const fileMap: Record<string, string> = {};
+
+  ux.action.start('Uploading extension');
+  for (const file of files) {
+    fileMap[file] = await tryCatch(() =>
+      uploadFile(command, configuration, file)
+    );
   }
+
+  const form = await tryCatch(() =>
+    prepareExtensionForm(configuration, command, fileMap, dumpCode, skipCache)
+  );
 
   // Upload all of the scripts and configuration in one go. This requires the
   // use of form encoding, but it turns out to be much faster to just have one
   // server round-trip with more data, than multiple round trips. It also allows
   // us to treat extension updates atomically - which prevents mismatched code.
-  ux.action.start('Uploading');
   try {
     await command.api.post('/api/v1/extensions', {
       body: new Readable({
@@ -74,25 +128,7 @@ export async function installExtension(
     ux.action.stop('done');
   } catch (error) {
     ux.action.stop('error');
-
-    const http = (error as HTTPError).http;
-
-    if (http && http.body && http.body.errors) {
-      const errorTree = ux.tree();
-      const errors: { [index: string]: string[] } = http.body.errors;
-      Object.keys(errors).forEach(identifier => {
-        errorTree.insert(identifier);
-        errors[identifier].forEach(error =>
-          errorTree.nodes[identifier].insert(error)
-        );
-      });
-
-      errorTree.display();
-    } else if (http && http.body) {
-      throw new Error(http.body.error);
-    } else {
-      throw error;
-    }
+    handleHttpError(error);
   }
 }
 
@@ -104,7 +140,14 @@ export async function buildExtension(command: BaseCommand, skipCache = false) {
   process.stdout.write(
     `Building extension '${configuration.name}' to '${fileName}'\n`
   );
-  const form = await prepareExtensionForm(command, false, skipCache);
+  const fileMap = {};
+  const form = await prepareExtensionForm(
+    configuration,
+    command,
+    fileMap,
+    false,
+    skipCache
+  );
 
   ux.action.start('Saving');
   const gzip = createGzip();
