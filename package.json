@@ -45,6 +45,9 @@
     "ts-node": "8.10.2",
     "typescript": "3.9.5"
   },
+  "resolutions": {
+    "lodash": "4.17.21"
+  },
   "engines": {
     "node": ">=11.0.0"
   },
