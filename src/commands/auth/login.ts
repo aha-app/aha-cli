@@ -40,13 +40,17 @@ Credentials are saved in ~/.netrc`;
     process.stderr.write(
       'Opening browser to login to Aha! and authorize the CLI\n'
     );
-    const cp = await open(
-      `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`,
-      {
-        app: this.flags.browser,
-        wait: false,
-      }
-    );
+
+    let url = `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`;
+
+    if (this.flags.subdomain) {
+      url += `&requested_domain=${this.flags.subdomain}`;
+    }
+
+    const cp = await open(url, {
+      app: this.flags.browser,
+      wait: false,
+    });
     cp.on('error', err => {
       ux.warn(err);
       ux.warn('Cannot open browser');
