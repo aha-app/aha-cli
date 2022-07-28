@@ -26,15 +26,21 @@ export function identifierFromConfiguration(configuration: any) {
   return configuration.name.replace('@', '').replace('/', '.');
 }
 
-export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
+export async function fetchRemoteTypes({
+  cdn = 'https://cdn.aha.io',
+  extensionRoot = process.cwd(),
+}: {
+  cdn?: string;
+  extensionRoot?: string;
+}) {
   ux.action.start('Downloading JSON schemas and TypeScript types from Aha!');
 
   // prettier-ignore
   const typings = {
-    './types/aha-components.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-components.d.ts',
-    './types/aha-models.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-models.d.ts',
-    './schema/schema.json': 'https://cdn.aha.io/assets/extensions/schema/schema.json',
-    './schema/package-schema.json': 'https://cdn.aha.io/assets/extensions/schema/package-schema.json',
+    './types/aha-components.d.ts': `${cdn}/assets/extensions/types/aha-components.d.ts`,
+    './types/aha-models.d.ts': `${cdn}/assets/extensions/types/aha-models.d.ts`,
+    './schema/schema.json': `${cdn}/assets/extensions/schema/schema.json`,
+    './schema/package-schema.json': `${cdn}/assets/extensions/schema/package-schema.json`,
   };
 
   const modulePath = path.join(extensionRoot, '.aha-cache');
@@ -44,9 +50,13 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
     fs.mkdirSync(path.dirname(absoluteFilePath), { recursive: true });
     const fileStream = fs.createWriteStream(absoluteFilePath);
 
-    const result = await HTTP.get(url, { raw: true });
-    result.response.pipe(fileStream);
-    return new Promise(resolve => fileStream.on('close', resolve));
+    try {
+      const result = await HTTP.get(url, { raw: true });
+      result.response.pipe(fileStream);
+      return new Promise(resolve => fileStream.on('close', resolve));
+    } catch (error) {
+      fileStream.close();
+    }
   });
 
   await Promise.all(promises);

@@ -17,6 +17,10 @@ abstract class BaseCommand extends Command {
       char: 's',
       description: 'Aha! subdomain to use for authentication',
     }),
+    cdn: flags.string({
+      hidden: true,
+      default: 'https://cdn.aha.io',
+    }),
   };
 
   flags?: any;

@@ -108,7 +108,10 @@ export default class Create extends BaseCommand {
       ahaExtensionSchema.contributes
     );
 
-    await fetchRemoteTypes(directoryName);
+    await fetchRemoteTypes({
+      cdn: this.flags?.cdn,
+      extensionRoot: directoryName,
+    });
 
     ux.action.stop(`Extension created in directory '${directoryName}'`);
   }

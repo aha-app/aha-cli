@@ -30,7 +30,7 @@ export default class Watch extends BaseCommand {
     await this.performInstall();
     this.log('Watching for changes in the current directory ...');
 
-    await fetchRemoteTypes();
+    await fetchRemoteTypes({ cdn: this.flags?.cdn });
 
     chokidar
       .watch('.', { ignoreInitial: true, ignored: '.git' })
