@@ -12,7 +12,12 @@ import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
 
 const REACT_JSX = 'React.createElement';
-const EXTERNALS = ['react', 'react-dom'];
+const EXTERNALS = [
+  'react',
+  'react-dom',
+  '@aha-app/mvc',
+  '@aha-app/react-easy-state',
+];
 
 export function readConfiguration() {
   try {
