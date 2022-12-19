@@ -12,7 +12,7 @@ import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
 
 const REACT_JSX = 'React.createElement';
-const EXTERNALS = ['react', 'react-dom'];
+const EXTERNALS = ['react', 'react-dom', 'javascripts/async_modules'];
 
 export function readConfiguration() {
   try {
