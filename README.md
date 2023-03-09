@@ -30,7 +30,7 @@ Install the extension into your Aha! account...
 * [`aha extension:tail`](#aha-extensiontail)
 * [`aha extension:uninstall`](#aha-extensionuninstall)
 * [`aha extension:watch`](#aha-extensionwatch)
-* [`aha help [COMMAND]`](#aha-help-command)
+* [`aha help [COMMANDS]`](#aha-help-commands)
 
 ## `aha auth:check`
 
@@ -38,10 +38,13 @@ Check if the stored credentials work
 
 ```
 USAGE
-  $ aha auth:check
+  $ aha auth:check [-s <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+
+DESCRIPTION
+  Check if the stored credentials work
 ```
 
 _See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/auth/check.ts)_
@@ -52,14 +55,15 @@ Login to Aha! and save credentials for other commands
 
 ```
 USAGE
-  $ aha auth:login
+  $ aha auth:login [-s <value>] [--authServer <value>] [--browser <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
-  --authServer=authServer    [default: https://secure.aha.io] server to use for authentication
-  --browser=browser          browser to use for login, e.g. 'safari' or 'firefox'
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+  --authServer=<value>     [default: https://secure.aha.io] server to use for authentication
+  --browser=<value>        browser to use for login, e.g. 'safari' or 'firefox'
 
 DESCRIPTION
+  Login to Aha! and save credentials for other commands
   Credentials are saved in ~/.netrc
 ```
 
@@ -71,10 +75,13 @@ Add a contribution to an extension
 
 ```
 USAGE
-  $ aha extension:add-contribution
+  $ aha extension:add-contribution [-s <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+
+DESCRIPTION
+  Add a contribution to an extension
 ```
 
 _See code: [src/commands/extension/add-contribution.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/add-contribution.ts)_
@@ -85,11 +92,14 @@ Build an extension into a zip file for ease of distribution
 
 ```
 USAGE
-  $ aha extension:build
+  $ aha extension:build [-s <value>] [--noCache]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
-  --noCache                  skip cached http imports
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+  --noCache                skip cached http imports
+
+DESCRIPTION
+  Build an extension into a zip file for ease of distribution
 ```
 
 _See code: [src/commands/extension/build.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/build.ts)_
@@ -100,10 +110,13 @@ Create an example extension
 
 ```
 USAGE
-  $ aha extension:create
+  $ aha extension:create [-s <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+
+DESCRIPTION
+  Create an example extension
 ```
 
 _See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/create.ts)_
@@ -114,12 +127,15 @@ Install the extension from the current directory
 
 ```
 USAGE
-  $ aha extension:install
+  $ aha extension:install [-s <value>] [--dumpCode] [--noCache]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
-  --dumpCode                 dump all code as it is uploaded
-  --noCache                  skip cached http imports
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+  --dumpCode               dump all code as it is uploaded
+  --noCache                skip cached http imports
+
+DESCRIPTION
+  Install the extension from the current directory
 ```
 
 _See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/install.ts)_
@@ -130,10 +146,13 @@ Live tail extension logs
 
 ```
 USAGE
-  $ aha extension:tail
+  $ aha extension:tail [-s <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+
+DESCRIPTION
+  Live tail extension logs
 ```
 
 _See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/tail.ts)_
@@ -144,10 +163,13 @@ Uninstall the extension in the current directory
 
 ```
 USAGE
-  $ aha extension:uninstall
+  $ aha extension:uninstall [-s <value>]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+
+DESCRIPTION
+  Uninstall the extension in the current directory
 ```
 
 _See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/uninstall.ts)_
@@ -158,29 +180,35 @@ Watch the current directory for changes and install the extension each time a fi
 
 ```
 USAGE
-  $ aha extension:watch
+  $ aha extension:watch [-s <value>] [--noCache]
 
-OPTIONS
-  -s, --subdomain=subdomain  Aha! subdomain to use for authentication
-  --noCache                  skip cached http imports
+FLAGS
+  -s, --subdomain=<value>  Aha! subdomain to use for authentication
+  --noCache                skip cached http imports
+
+DESCRIPTION
+  Watch the current directory for changes and install the extension each time a file changes
 ```
 
 _See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.13.1/src/commands/extension/watch.ts)_
 
-## `aha help [COMMAND]`
+## `aha help [COMMANDS]`
 
-display help for aha
+Display help for aha.
 
 ```
 USAGE
-  $ aha help [COMMAND]
+  $ aha help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  command to show help for
+  COMMANDS  Command to show help for.
 
-OPTIONS
-  --all  see all commands in CLI
+FLAGS
+  -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for aha.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.7/src/commands/help.ts)_
 <!-- commandsstop -->
