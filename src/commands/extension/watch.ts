@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import * as chokidar from 'chokidar';
 import {
   fetchRemoteTypes,
@@ -15,7 +15,7 @@ export default class Watch extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    noCache: flags.boolean({
+    noCache: Flags.boolean({
       description: 'skip cached http imports',
     }),
   };

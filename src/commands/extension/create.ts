@@ -1,4 +1,4 @@
-import ux from 'cli-ux';
+import { ux } from '@oclif/core';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import BaseCommand from '../../base';

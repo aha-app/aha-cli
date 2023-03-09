@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import { buildExtension } from '../../utils/extension-utils';
 
 export default class Build extends BaseCommand {
@@ -8,7 +8,7 @@ export default class Build extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    noCache: flags.boolean({
+    noCache: Flags.boolean({
       description: 'skip cached http imports',
     }),
   };

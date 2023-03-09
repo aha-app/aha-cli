@@ -1,4 +1,4 @@
-import Command, { flags } from '@oclif/command';
+import { Command, Flags } from '@oclif/core';
 import { Input } from '@oclif/parser';
 import netrc from 'netrc-parser';
 import { prompt } from 'inquirer';
@@ -13,7 +13,7 @@ abstract class BaseCommand extends Command {
   static needsAuth = false;
 
   static flags = {
-    subdomain: flags.string({
+    subdomain: Flags.string({
       char: 's',
       description: 'Aha! subdomain to use for authentication',
     }),

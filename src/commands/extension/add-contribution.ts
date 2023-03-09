@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import ux from 'cli-ux';
+import { ux } from '@oclif/core';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import templates from '../../utils/templates';
