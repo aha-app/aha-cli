@@ -1,5 +1,4 @@
 import { Command, Flags } from '@oclif/core';
-import { Input } from '@oclif/parser';
 import netrc from 'netrc-parser';
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
@@ -27,7 +26,7 @@ abstract class BaseCommand extends Command {
 
   async init() {
     // do some initialization
-    const { flags } = this.parse(this.constructor as Input<any>);
+    const { flags } = await this.parse(this.constructor as any);
     this.flags = flags;
 
     const { needsAuth } = this.constructor as typeof BaseCommand;
