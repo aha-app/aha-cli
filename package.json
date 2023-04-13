@@ -1,7 +1,7 @@
 {
   "name": "aha-cli",
   "description": "Command line interface for Aha! (www.aha.io)",
-  "version": "1.13.1",
+  "version": "1.14.0",
   "author": "Aha! (support@aha.io)",
   "bin": {
     "aha": "./bin/run"
