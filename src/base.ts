@@ -1,5 +1,4 @@
-import Command, { flags } from '@oclif/command';
-import { Input } from '@oclif/parser';
+import { Command, Flags } from '@oclif/core';
 import netrc from 'netrc-parser';
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
@@ -13,7 +12,7 @@ abstract class BaseCommand extends Command {
   static needsAuth = false;
 
   static flags = {
-    subdomain: flags.string({
+    subdomain: Flags.string({
       char: 's',
       description: 'Aha! subdomain to use for authentication',
     }),
@@ -27,7 +26,7 @@ abstract class BaseCommand extends Command {
 
   async init() {
     // do some initialization
-    const { flags } = this.parse(this.constructor as Input<any>);
+    const { flags } = await this.parse(this.constructor as any);
     this.flags = flags;
 
     const { needsAuth } = this.constructor as typeof BaseCommand;

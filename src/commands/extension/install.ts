@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import {
   fetchRemoteTypes,
   installExtension,
@@ -12,10 +12,10 @@ export default class Install extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    dumpCode: flags.boolean({
+    dumpCode: Flags.boolean({
       description: 'dump all code as it is uploaded',
     }),
-    noCache: flags.boolean({
+    noCache: Flags.boolean({
       description: 'skip cached http imports',
     }),
   };

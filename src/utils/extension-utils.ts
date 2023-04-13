@@ -1,5 +1,5 @@
 import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
-import ux from 'cli-ux';
+import { ux } from '@oclif/core';
 import * as esbuild from 'esbuild';
 import * as FormData from 'form-data';
 import * as fs from 'fs';

@@ -1,6 +1,5 @@
 import BaseCommand from '../../base';
-import { flags } from '@oclif/command';
-import ux from 'cli-ux';
+import { Flags, ux } from '@oclif/core';
 import netrc from 'netrc-parser';
 import * as open from 'open';
 import * as crypto from 'crypto';
@@ -25,11 +24,11 @@ Credentials are saved in ~/.netrc`;
 
   static flags = {
     ...BaseCommand.flags,
-    authServer: flags.string({
+    authServer: Flags.string({
       description: 'server to use for authentication',
       default: 'https://secure.aha.io',
     }),
-    browser: flags.string({
+    browser: Flags.string({
       description: "browser to use for login, e.g. 'safari' or 'firefox'",
     }),
   };
