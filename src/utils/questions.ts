@@ -15,7 +15,7 @@ export async function getContributionFromQuestions() {
       recordTypes: answers.recordTypes,
       handles: answers.handles,
       description: answers.description,
-      default: (answers.type === 'secret' ? null : answers.default),
+      default: answers.type === 'secret' ? null : answers.default,
       type: answers.type,
       scope: answers.scope,
     },
@@ -209,7 +209,8 @@ export const contributionQuestions = [
           return '42';
       }
     },
-    when: (answers: StringAnswers) => answers.contributionType === 'settings' && answers.type !== 'secret',
+    when: (answers: StringAnswers) =>
+      answers.contributionType === 'settings' && answers.type !== 'secret',
   },
   {
     type: 'checkbox',
