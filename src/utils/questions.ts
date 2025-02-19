@@ -15,7 +15,7 @@ export async function getContributionFromQuestions() {
       recordTypes: answers.recordTypes,
       handles: answers.handles,
       description: answers.description,
-      default: answers.default,
+      default: answers.type === 'secret' ? null : answers.default,
       type: answers.type,
       scope: answers.scope,
     },
@@ -169,7 +169,7 @@ export const contributionQuestions = [
     type: 'list',
     name: 'type',
     message: 'Enter the type for your setting:',
-    choices: ['boolean', 'color', 'string', 'number'],
+    choices: ['boolean', 'color', 'string', 'number', 'secret'],
     default: 'color',
     when: (answers: StringAnswers) => answers.contributionType === 'settings',
   },
@@ -187,6 +187,8 @@ export const contributionQuestions = [
           return 'Description';
         case 'number':
           return 'Choose a number';
+        case 'secret':
+          return 'Authentication token';
       }
     },
     when: (answers: StringAnswers) => answers.contributionType === 'settings',
@@ -207,7 +209,8 @@ export const contributionQuestions = [
           return '42';
       }
     },
-    when: (answers: StringAnswers) => answers.contributionType === 'settings',
+    when: (answers: StringAnswers) =>
+      answers.contributionType === 'settings' && answers.type !== 'secret',
   },
   {
     type: 'checkbox',
