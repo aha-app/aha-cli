@@ -47,7 +47,7 @@ DESCRIPTION
   Check if the stored credentials work
 ```
 
-_See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/auth/check.ts)_
+_See code: [src/commands/auth/check.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/auth/check.ts)_
 
 ## `aha auth:login`
 
@@ -67,7 +67,7 @@ DESCRIPTION
   Credentials are saved in ~/.netrc
 ```
 
-_See code: [src/commands/auth/login.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/auth/login.ts)_
+_See code: [src/commands/auth/login.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/auth/login.ts)_
 
 ## `aha extension:add-contribution`
 
@@ -84,7 +84,7 @@ DESCRIPTION
   Add a contribution to an extension
 ```
 
-_See code: [src/commands/extension/add-contribution.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/add-contribution.ts)_
+_See code: [src/commands/extension/add-contribution.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/add-contribution.ts)_
 
 ## `aha extension:build`
 
@@ -102,7 +102,7 @@ DESCRIPTION
   Build an extension into a zip file for ease of distribution
 ```
 
-_See code: [src/commands/extension/build.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/build.ts)_
+_See code: [src/commands/extension/build.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/build.ts)_
 
 ## `aha extension:create`
 
@@ -119,7 +119,7 @@ DESCRIPTION
   Create an example extension
 ```
 
-_See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/create.ts)_
+_See code: [src/commands/extension/create.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/create.ts)_
 
 ## `aha extension:install`
 
@@ -138,7 +138,7 @@ DESCRIPTION
   Install the extension from the current directory
 ```
 
-_See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/install.ts)_
+_See code: [src/commands/extension/install.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/install.ts)_
 
 ## `aha extension:tail`
 
@@ -155,7 +155,7 @@ DESCRIPTION
   Live tail extension logs
 ```
 
-_See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/tail.ts)_
+_See code: [src/commands/extension/tail.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/tail.ts)_
 
 ## `aha extension:uninstall`
 
@@ -172,7 +172,7 @@ DESCRIPTION
   Uninstall the extension in the current directory
 ```
 
-_See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/uninstall.ts)_
+_See code: [src/commands/extension/uninstall.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/uninstall.ts)_
 
 ## `aha extension:watch`
 
@@ -190,7 +190,7 @@ DESCRIPTION
   Watch the current directory for changes and install the extension each time a file changes
 ```
 
-_See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.15.0/src/commands/extension/watch.ts)_
+_See code: [src/commands/extension/watch.ts](https://github.com/aha-app/aha-cli/blob/v1.17.0/src/commands/extension/watch.ts)_
 
 ## `aha help [COMMANDS]`
 
