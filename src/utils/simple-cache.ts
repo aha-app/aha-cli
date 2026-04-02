@@ -8,9 +8,10 @@ import { promises as fs } from 'fs';
  * ```
  * const cache = await SimpleCache.create('path/to/cache/dir');
  * await cache.has('abc123'); // false
- * await cache.set('abc123', Buffer.concat('hello'));
+ * await cache.set('abc123', Buffer.from('hello'));
  * await cache.has('abc123'); // true
  * await cache.get('abc123'); // Buffer('hello')
+ * ```
  */
 export class SimpleCache {
   private location: string;
@@ -47,7 +48,7 @@ export class SimpleCache {
    */
   async set(url: string, data: Buffer) {
     const filePath = path.join(this.location, this.hash(url));
-    return fs.writeFile(filePath, data);
+    return fs.writeFile(filePath, new Uint8Array(data));
   }
 
   /**
