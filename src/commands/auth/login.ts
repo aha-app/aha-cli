@@ -18,6 +18,12 @@ interface TokenInfo {
   email: string;
 }
 
+interface HttpStatusError {
+  http?: {
+    statusCode?: number;
+  };
+}
+
 class Login extends BaseCommand {
   static description = `Login to Aha! and save credentials for other commands
 Credentials are saved in ~/.netrc`;
@@ -70,7 +76,8 @@ Credentials are saved in ~/.netrc`;
 
         break;
       } catch (error) {
-        if (!error.http || error.http.statusCode !== 408) throw error;
+        const httpError = error as HttpStatusError;
+        if (!httpError.http || httpError.http.statusCode !== 408) throw error;
 
         // Sleep a little before polling again
         await new Promise(r => setTimeout(r, 1000));

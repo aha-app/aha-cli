@@ -61,15 +61,15 @@ const httpPlugin = (options: HttpPluginOptions): Plugin => {
       // handle the example import from unpkg.com but in reality this
       // would probably need to be more complex.
       build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => {
-        let contents: Buffer;
+        let contents: Uint8Array;
 
         if (cache && (await cache.has(args.path))) {
-          contents = await cache.get(args.path);
+          contents = new Uint8Array(await cache.get(args.path));
         } else {
-          contents = await fetch(args.path);
+          contents = new Uint8Array(await fetch(args.path));
 
           if (cache) {
-            await cache.set(args.path, contents);
+            await cache.set(args.path, Buffer.from(contents));
           }
         }
 

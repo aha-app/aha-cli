@@ -14,11 +14,23 @@ import { SimpleCache } from './simple-cache';
 const REACT_JSX = 'React.createElement';
 const EXTERNALS = ['react', 'react-dom', 'lodash'];
 
+interface ApiErrorResponse {
+  errors?: { [index: string]: string[] };
+  error?: string;
+}
+
+interface HttpBodyError {
+  http?: {
+    body?: ApiErrorResponse;
+  };
+}
+
 export function readConfiguration() {
   try {
-    return JSON.parse(fs.readFileSync('package.json', { encoding: 'UTF-8' }));
+    return JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }));
   } catch (error) {
-    throw new Error(`Error loading package.json: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Error loading package.json: ${message}`);
   }
 }
 
@@ -121,9 +133,12 @@ export async function installExtension(
   } catch (error) {
     ux.action.stop('error');
 
-    if (error.http.body.errors) {
+    const httpError = error as HttpBodyError;
+    const body = httpError.http?.body;
+
+    if (body?.errors) {
       const errorTree = ux.tree();
-      const errors: { [index: string]: string[] } = error.http.body.errors;
+      const errors: { [index: string]: string[] } = body.errors;
       Object.keys(errors).forEach(identifier => {
         errorTree.insert(identifier);
         errors[identifier].forEach(error =>
@@ -133,7 +148,7 @@ export async function installExtension(
 
       errorTree.display();
     } else {
-      throw new Error(error.http.body.error);
+      throw new Error(body?.error || 'Extension upload failed');
     }
   }
 }

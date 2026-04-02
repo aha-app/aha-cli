@@ -1,6 +1,6 @@
 import BaseCommand from '../../base';
 import { Flags } from '@oclif/core';
-import * as chokidar from 'chokidar';
+import chokidar from 'chokidar';
 import {
   fetchRemoteTypes,
   installExtension,
@@ -33,8 +33,8 @@ export default class Watch extends BaseCommand {
     await fetchRemoteTypes();
 
     chokidar
-      .watch('.', { ignoreInitial: true, ignored: '.git' })
-      .on('all', async (event, changedPath) => {
+      .watch('.', { ignoreInitial: true, ignored: ['.git', 'node_modules'] })
+      .on('all', async (_event, changedPath) => {
         if (this.timeoutHandle) {
           (this.changedPaths || []).push(changedPath);
           clearTimeout(this.timeoutHandle);
@@ -76,7 +76,8 @@ export default class Watch extends BaseCommand {
       await installExtension(this, false, this.flags.noCache);
     } catch (error) {
       // Do nothing if the compile fails
-      this.error(error.message, { exit: false });
+      const message = error instanceof Error ? error.message : String(error);
+      this.error(message, { exit: false });
     } finally {
       this.performingInstall = false;
     }
