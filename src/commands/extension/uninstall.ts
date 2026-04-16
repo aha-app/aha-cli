@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { ux } from '@oclif/core';
+import { ux } from '../../lib/ux';
 import {
   readConfiguration,
   identifierFromConfiguration,
@@ -19,9 +19,7 @@ export default class Uninstall extends BaseCommand {
     const identifier = identifierFromConfiguration(configuration);
 
     ux.action.start('Uninstalling');
-    await this.api.delete(`/api/v1/extensions/${identifier}`, {
-      'content-type': 'application/json',
-    });
+    await this.api.delete(`/api/v1/extensions/${identifier}`);
     ux.action.stop('done');
   }
 }

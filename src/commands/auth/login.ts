@@ -1,9 +1,11 @@
 import BaseCommand from '../../base';
-import { Flags, ux } from '@oclif/core';
-import netrc from 'netrc-parser';
+import { Flags } from '../../lib/flags';
+import { ux } from '../../lib/ux';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const netrcModule = require('netrc-parser');
+const netrc = netrcModule.default || new netrcModule.Netrc();
 import * as open from 'open';
 import * as crypto from 'crypto';
-import { HTTP } from 'http-call';
 
 interface NetrcEntry {
   token: string;
@@ -16,12 +18,6 @@ interface TokenInfo {
   token: string;
   domain: string;
   email: string;
-}
-
-interface HttpStatusError {
-  http?: {
-    statusCode?: number;
-  };
 }
 
 class Login extends BaseCommand {
@@ -52,11 +48,11 @@ Credentials are saved in ~/.netrc`;
       url += `&requested_domain=${this.flags.subdomain}`;
     }
 
-    const cp = await open(url, {
-      app: this.flags.browser,
-      wait: false,
-    });
-    cp.on('error', err => {
+    const cp = await (open as any).default
+      ? (open as any).default(url, { app: this.flags.browser, wait: false })
+      : (open as any)(url, { app: this.flags.browser, wait: false });
+
+    cp.on('error', (err: Error) => {
       ux.warn(err);
       ux.warn('Cannot open browser');
     });
@@ -65,22 +61,32 @@ Credentials are saved in ~/.netrc`;
     let subdomain;
     while (true) {
       try {
-        const { body }: { body: TokenInfo } = await HTTP.get(
+        const response = await fetch(
           `${this.flags.authServer}/external/cli/poll?cli_token=${cliToken}`
         );
 
+        if (!response.ok) {
+          if (response.status === 408) {
+            await new Promise(r => setTimeout(r, 1000));
+            continue;
+          }
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const body: TokenInfo = await response.json() as TokenInfo;
         const { url, token, domain, email } = body;
 
         this.saveToken(domain, { token, url, email });
         subdomain = domain;
 
         break;
-      } catch (error) {
-        const httpError = error as HttpStatusError;
-        if (!httpError.http || httpError.http.statusCode !== 408) throw error;
-
-        // Sleep a little before polling again
-        await new Promise(r => setTimeout(r, 1000));
+      } catch (error: any) {
+        // Check if it's an HTTP 408 timeout
+        if (error?.http?.statusCode === 408 || error?.message?.includes('408')) {
+          await new Promise(r => setTimeout(r, 1000));
+          continue;
+        }
+        throw error;
       }
     }
     ux.action.stop('complete.');

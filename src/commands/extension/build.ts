@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { Flags } from '@oclif/core';
+import { Flags } from '../../lib/flags';
 import { buildExtension } from '../../utils/extension-utils';
 
 export default class Build extends BaseCommand {

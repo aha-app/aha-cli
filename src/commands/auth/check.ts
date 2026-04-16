@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { ux } from '@oclif/core';
+import { ux } from '../../lib/ux';
 
 export default class Check extends BaseCommand {
   static needsAuth = true;

@@ -1,12 +1,9 @@
 import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
-import { ux } from '@oclif/core';
+import { ux } from '../lib/ux';
 import * as esbuild from 'esbuild';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
 import * as path from 'path';
-import HTTP from 'http-call';
-import { Readable } from 'stream';
-import { createGzip } from 'zlib';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
@@ -42,7 +39,7 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   ux.action.start('Downloading JSON schemas and TypeScript types from Aha!');
 
   // prettier-ignore
-  const typings = {
+  const typings: Record<string, string> = {
     './types/aha-components.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-components.d.ts',
     './types/aha-models.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-models.d.ts',
     './schema/schema.json': 'https://cdn.aha.io/assets/extensions/schema/schema.json',
@@ -54,11 +51,10 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   const promises = Object.entries(typings).map(async ([filePath, url]) => {
     const absoluteFilePath = path.join(modulePath, filePath);
     fs.mkdirSync(path.dirname(absoluteFilePath), { recursive: true });
-    const fileStream = fs.createWriteStream(absoluteFilePath);
 
-    const result = await HTTP.get(url, { raw: true });
-    result.response.pipe(fileStream);
-    return new Promise(resolve => fileStream.on('close', resolve));
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    fs.writeFileSync(absoluteFilePath, new Uint8Array(arrayBuffer));
   });
 
   await Promise.all(promises);
@@ -111,19 +107,11 @@ export async function installExtension(
     throw error;
   }
 
-  // Upload all of the scripts and configuration in one go. This requires the
-  // use of form encoding, but it turns out to be much faster to just have one
-  // server round-trip with more data, than multiple round trips. It also allows
-  // us to treat extension updates atomically - which prevents mismatched code.
+  // Upload all of the scripts and configuration in one go.
   ux.action.start('Uploading');
   try {
     await command.api.post('/api/v1/extensions', {
-      body: new Readable({
-        read() {
-          this.push(form.getBuffer());
-          this.push(null);
-        },
-      }),
+      body: form.getBuffer(),
       headers: {
         'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
       },
@@ -164,6 +152,7 @@ export async function buildExtension(command: BaseCommand, skipCache = false) {
   const form = await prepareExtensionForm(command, false, skipCache);
 
   ux.action.start('Saving');
+  const { createGzip } = await import('zlib');
   const gzip = createGzip();
   const output = fs.createWriteStream(fileName);
   gzip.pipe(output);

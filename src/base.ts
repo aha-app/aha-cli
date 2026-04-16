@@ -1,32 +1,48 @@
-import { Command, Flags } from '@oclif/core';
-import netrc from 'netrc-parser';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const netrcModule = require('netrc-parser');
+const netrc = netrcModule.default || new netrcModule.Netrc();
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
+import { FlagDefinition, Flags } from './lib/flags';
+import { parseArgs } from './lib/parse';
 
 interface ApiAuth {
   token: string;
   url: string;
 }
 
-abstract class BaseCommand extends Command {
+abstract class BaseCommand {
+  static description = '';
   static needsAuth = false;
 
-  static flags = {
+  static flags: Record<string, FlagDefinition> = {
     subdomain: Flags.string({
       char: 's',
       description: 'Aha! subdomain to use for authentication',
     }),
   };
 
-  flags?: any;
+  argv: string[];
+  flags: any = {};
 
   _auth?: ApiAuth;
-
   _api?: AhaAPI;
 
+  constructor(argv: string[]) {
+    this.argv = argv;
+  }
+
+  async execute() {
+    await this.init();
+    try {
+      await this.run();
+    } catch (error: any) {
+      await this.catch(error);
+    }
+  }
+
   async init() {
-    // do some initialization
-    const { flags } = await this.parse(this.constructor as any);
+    const { flags } = this.parse(this.constructor as any);
     this.flags = flags;
 
     const { needsAuth } = this.constructor as typeof BaseCommand;
@@ -35,11 +51,18 @@ abstract class BaseCommand extends Command {
     }
   }
 
+  parse(cmdClass?: any): { flags: Record<string, any>; args: Record<string, any>; argv: string[] } {
+    const klass = cmdClass || this.constructor;
+    const flagDefs = klass.flags || {};
+    return parseArgs(this.argv, flagDefs);
+  }
+
+  abstract run(): Promise<void>;
+
   get api(): AhaAPI {
     if (this._api) {
       return this._api;
     }
-
     throw new Error(
       'API not initialized. Set static needsAuth = true in your command.'
     );
@@ -71,11 +94,10 @@ abstract class BaseCommand extends Command {
     netrc.loadSync();
     const { machines } = netrc;
     if (subdomain) {
-      // User specified the domain on the command line.
       machine = machines[subdomain];
       if (!machine) {
         throw new Error(
-          `No credentials found for ${subdomain}, use "aha auth:login -s ${subdomain}" to login first`
+          `No credentials found for ${subdomain}, use "aha auth login -s ${subdomain}" to login first`
         );
       }
     } else {
@@ -100,14 +122,25 @@ abstract class BaseCommand extends Command {
 
     if (!machine || !machine.token || !machine.url)
       throw new Error(
-        `No credentials found, use "aha auth:login" to login first`
+        `No credentials found, use "aha auth login" to login first`
       );
 
     this._auth = { url: machine.url, token: machine.token };
     return this._auth;
   }
 
-  // Catch all unhandled errors and display to the user in a reasonable way.
+  log(message = '', ...args: any[]) {
+    console.log(message, ...args);
+  }
+
+  error(input: string | Error, options: { exit?: number | false } = {}): any {
+    const msg = input instanceof Error ? input.message : input;
+    console.error(`Error: ${msg}`);
+    if (options.exit !== false) {
+      process.exit(typeof options.exit === 'number' ? options.exit : 1);
+    }
+  }
+
   async catch(error: Error) {
     this.error(error.message, { exit: 1 });
   }
