@@ -41,6 +41,9 @@ Credentials are saved in ~/.netrc`;
     process.stderr.write(
       'Opening browser to login to Aha! and authorize the CLI\n'
     );
+    process.stderr.write(
+      'If the browser does not open, visit this URL:\n'
+    );
 
     let url = `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`;
 
@@ -48,14 +51,14 @@ Credentials are saved in ~/.netrc`;
       url += `&requested_domain=${this.flags.subdomain}`;
     }
 
-    const cp = await (open as any).default
-      ? (open as any).default(url, { app: this.flags.browser, wait: false })
-      : (open as any)(url, { app: this.flags.browser, wait: false });
+    process.stderr.write(`${url}\n`);
 
-    cp.on('error', (err: Error) => {
-      ux.warn(err);
-      ux.warn('Cannot open browser');
-    });
+    try {
+      const openFn = (open as any).default || open;
+      await openFn(url, { app: this.flags.browser, wait: false });
+    } catch {
+      // Browser open failed — user can use the URL above
+    }
     ux.action.start('Waiting for login');
 
     let subdomain;
