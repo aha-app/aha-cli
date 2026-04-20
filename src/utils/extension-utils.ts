@@ -186,6 +186,7 @@ async function prepareExtensionForm(
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
   const contributions = configuration.ahaExtension.contributes;
+  const peerDeps = Object.keys(configuration.peerDependencies || {});
   const scriptPaths: string[] = [];
   const cache = skipCache ? undefined : await SimpleCache.create('.aha-cache');
 
@@ -222,7 +223,8 @@ async function prepareExtensionForm(
           dumpCode,
           jsxFactory,
           jsxFragment,
-          cache
+          cache,
+          peerDeps
         );
       });
     })
@@ -262,7 +264,8 @@ async function prepareScript(
   dumpCode: boolean,
   jsxFactory: string,
   jsxFragment: string,
-  cache?: SimpleCache
+  cache?: SimpleCache,
+  peerDeps: string[] = []
 ) {
   // If no path is provided then this contribution has no script
   if (!path) {
@@ -275,9 +278,10 @@ async function prepareScript(
   }
 
   try {
-    const externalsFilter = EXTERNALS.map(
-      extern => `(^${extern}$)|(-/${extern}@)`
-    ).join('|');
+    const allExternals = [...new Set([...EXTERNALS, ...peerDeps])];
+    const externalsFilter = allExternals
+      .map(extern => `(^${extern}$)|(-/${extern}@)`)
+      .join('|');
 
     const bundle = await esbuild.build({
       jsxFactory,
