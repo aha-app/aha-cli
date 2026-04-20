@@ -12,7 +12,14 @@ import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
 
 const REACT_JSX = 'React.createElement';
-const EXTERNALS = ['react', 'react-dom', 'lodash'];
+const EXTERNALS = [
+  'react',
+  'react-dom',
+  'lodash',
+  'zod',
+  'zod/mini',
+  '@aha-app/react-easy-state',
+];
 
 interface ApiErrorResponse {
   errors?: { [index: string]: string[] };
