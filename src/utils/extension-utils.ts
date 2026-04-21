@@ -18,7 +18,8 @@ const EXTERNALS = [
   'lodash',
   'zod',
   'zod/mini',
-  '@aha-app/react-easy-state',
+  '@aha-app/mvc',
+  'moment',
 ];
 
 interface ApiErrorResponse {
