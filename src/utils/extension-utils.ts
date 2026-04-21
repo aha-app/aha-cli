@@ -19,6 +19,7 @@ const EXTERNALS = [
   'zod',
   'zod/mini',
   '@aha-app/mvc',
+  '@aha-app/react-easy-state',
   'moment',
 ];
 
