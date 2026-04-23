@@ -1,15 +1,24 @@
 import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
 import { ux } from '../lib/ux';
-import * as esbuild from 'esbuild';
-import * as FormData from 'form-data';
-import * as fs from 'fs';
-import * as path from 'path';
+import esbuild from 'esbuild';
+import FormData from 'form-data';
+import fs from 'fs';
+import path from 'path';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
 
 const REACT_JSX = 'React.createElement';
-const EXTERNALS = ['react', 'react-dom', 'lodash'];
+const EXTERNALS = [
+  'react',
+  'react-dom',
+  'lodash',
+  'zod',
+  'zod/mini',
+  '@aha-app/mvc',
+  '@aha-app/react-easy-state',
+  'moment',
+];
 
 interface ApiErrorResponse {
   errors?: { [index: string]: string[] };

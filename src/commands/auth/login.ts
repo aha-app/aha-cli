@@ -1,11 +1,10 @@
 import BaseCommand from '../../base';
 import { Flags } from '../../lib/flags';
 import { ux } from '../../lib/ux';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const netrcModule = require('netrc-parser');
-const netrc = netrcModule.default || new netrcModule.Netrc();
-import * as open from 'open';
-import * as crypto from 'crypto';
+import { Netrc } from 'netrc-parser';
+const netrc = new Netrc();
+import open from 'open';
+import crypto from 'crypto';
 
 interface NetrcEntry {
   token: string;
@@ -54,8 +53,7 @@ Credentials are saved in ~/.netrc`;
     process.stderr.write(`${url}\n`);
 
     try {
-      const openFn = (open as any).default || open;
-      await openFn(url, { app: this.flags.browser, wait: false });
+      await open(url, { app: this.flags.browser, wait: false });
     } catch {
       // Browser open failed — user can use the URL above
     }

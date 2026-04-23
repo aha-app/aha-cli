@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const netrcModule = require('netrc-parser');
-const netrc = netrcModule.default || new netrcModule.Netrc();
+import { Netrc } from 'netrc-parser';
+const netrc = new Netrc();
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
 import { FlagDefinition, Flags } from './lib/flags';

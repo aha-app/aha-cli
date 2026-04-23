@@ -1,5 +1,5 @@
-import * as crypto from 'crypto';
-import * as path from 'path';
+import crypto from 'crypto';
+import path from 'path';
 import { promises as fs } from 'fs';
 
 /**

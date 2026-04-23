@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as inquirer from 'inquirer';
+import fs from 'fs';
+import inquirer from 'inquirer';
 import BaseCommand from '../../base';
 import { ux } from '../../lib/ux';
 import { fetchRemoteTypes } from '../../utils/extension-utils';

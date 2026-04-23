@@ -1,4 +1,4 @@
-export default {
+const templates: { [k: string]: any } = {
   writeContributionTemplates(
     fs: any,
     directory: string,
@@ -23,7 +23,7 @@ export default {
           });
           fs.writeFileSync(
             `${directory}/${contribution.entryPoint}`,
-            exports.default[`${contributionType}Template`](
+            templates[`${contributionType}Template`](
               contributionName,
               contribution,
               name
@@ -299,3 +299,5 @@ To learn more about developing Aha! Develop extensions, including the API refere
 `;
   },
 };
+
+export default templates;

@@ -1,7 +1,7 @@
 import BaseCommand from '../../base';
 import { ux } from '../../lib/ux';
-import * as fs from 'fs';
-import * as inquirer from 'inquirer';
+import fs from 'fs';
+import inquirer from 'inquirer';
 import templates from '../../utils/templates';
 import * as questions from '../../utils/questions';
 
