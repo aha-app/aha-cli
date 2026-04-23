@@ -22,6 +22,11 @@
   },
   "devDependencies": {
     "@types/node": "20.14.0",
+    "@typescript-eslint/eslint-plugin": "8",
+    "@typescript-eslint/parser": "8",
+    "eslint": "8",
+    "eslint-config-prettier": "9",
+    "eslint-plugin-prettier": "5",
     "prettier": "2.2.1",
     "typescript": "5.9.3"
   },
@@ -47,6 +52,7 @@
   "scripts": {
     "build": "rm -rf lib && tsc -b",
     "build:bun": "bun build --compile src/cli.ts --outfile dist/aha",
+    "posttest": "eslint . --ext .ts --config .eslintrc",
     "start": "node lib/cli.js"
   },
   "types": "./aha.d.ts",

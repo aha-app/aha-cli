@@ -123,7 +123,9 @@ function printCommandHelp(commandId: string, CommandClass: CommandClass) {
       const defaultPart =
         def.default !== undefined ? ` (default: ${def.default})` : '';
       console.log(
-        `  ${charPart}--${kebab}${valuePart}${' '.repeat(Math.max(1, 20 - kebab.length - valuePart.length))}${def.description || ''}${defaultPart}`
+        `  ${charPart}--${kebab}${valuePart}${' '.repeat(
+          Math.max(1, 20 - kebab.length - valuePart.length)
+        )}${def.description || ''}${defaultPart}`
       );
     }
   }
@@ -161,7 +163,12 @@ async function main() {
       argv[1] === 'help')
   ) {
     // If it's just the topic name with no default, show topic help
-    if (!TOPICS[argv[0]].default || argv[1] === '--help' || argv[1] === '-h' || argv[1] === 'help') {
+    if (
+      !TOPICS[argv[0]].default ||
+      argv[1] === '--help' ||
+      argv[1] === '-h' ||
+      argv[1] === 'help'
+    ) {
       printTopicHelp(argv[0]);
       return;
     }

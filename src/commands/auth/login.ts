@@ -40,9 +40,7 @@ Credentials are saved in ~/.netrc`;
     process.stderr.write(
       'Opening browser to login to Aha! and authorize the CLI\n'
     );
-    process.stderr.write(
-      'If the browser does not open, visit this URL:\n'
-    );
+    process.stderr.write('If the browser does not open, visit this URL:\n');
 
     let url = `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`;
 
@@ -74,7 +72,7 @@ Credentials are saved in ~/.netrc`;
           throw new Error(`HTTP ${response.status}`);
         }
 
-        const body: TokenInfo = await response.json() as TokenInfo;
+        const body: TokenInfo = (await response.json()) as TokenInfo;
         const { url, token, domain, email } = body;
 
         this.saveToken(domain, { token, url, email });
@@ -83,7 +81,10 @@ Credentials are saved in ~/.netrc`;
         break;
       } catch (error: any) {
         // Check if it's an HTTP 408 timeout
-        if (error?.http?.statusCode === 408 || error?.message?.includes('408')) {
+        if (
+          error?.http?.statusCode === 408 ||
+          error?.message?.includes('408')
+        ) {
           await new Promise(r => setTimeout(r, 1000));
           continue;
         }

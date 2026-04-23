@@ -50,7 +50,9 @@ abstract class BaseCommand {
     }
   }
 
-  parse(cmdClass?: any): { flags: Record<string, any>; args: Record<string, any>; argv: string[] } {
+  parse(
+    cmdClass?: any
+  ): { flags: Record<string, any>; args: Record<string, any>; argv: string[] } {
     const klass = cmdClass || this.constructor;
     const flagDefs = klass.flags || {};
     return parseArgs(this.argv, flagDefs);

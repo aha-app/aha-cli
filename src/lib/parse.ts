@@ -10,7 +10,8 @@ export function parseArgs(
   // Set defaults
   for (const [name, def] of Object.entries(flagDefs)) {
     if (def.default !== undefined) flags[name] = def.default;
-    if (def.type === 'boolean' && def.default === undefined) flags[name] = false;
+    if (def.type === 'boolean' && def.default === undefined)
+      flags[name] = false;
   }
 
   // Build char -> name map
@@ -41,7 +42,7 @@ export function parseArgs(
       const eqValue = eqIdx >= 0 ? arg.slice(eqIdx + 1) : undefined;
 
       // Resolve flag name: try exact match, then kebab-to-camel
-      const flagName = flagDefs[rawKey] ? rawKey : (kebabMap[rawKey] || rawKey);
+      const flagName = flagDefs[rawKey] ? rawKey : kebabMap[rawKey] || rawKey;
       const def = flagDefs[flagName];
 
       if (!def) {

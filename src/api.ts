@@ -54,7 +54,11 @@ class AhaAPI {
           // Read stream into buffer for fetch compatibility
           const chunks: Uint8Array[] = [];
           for await (const chunk of options.body) {
-            chunks.push(new Uint8Array(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+            chunks.push(
+              new Uint8Array(
+                Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+              )
+            );
           }
           body = Buffer.concat(chunks);
         } else if (typeof options.body === 'object') {
@@ -75,7 +79,9 @@ class AhaAPI {
       let parsedBody: any;
       try {
         parsedBody = JSON.parse(errorText);
-      } catch {}
+      } catch {
+        // ignore JSON parse errors
+      }
       const error: any = new Error(
         `HTTP ${response.status}: ${errorText.slice(0, 200)}`
       );

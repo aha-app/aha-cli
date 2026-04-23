@@ -31,7 +31,7 @@ export class SimpleCache {
           `Cache location ${location} exists but is not a directory`
         );
       }
-    } catch (error) {
+    } catch (_error) {
       await fs.mkdir(resolved);
     }
 
@@ -68,7 +68,7 @@ export class SimpleCache {
     try {
       const stat = await fs.stat(path.join(this.location, this.hash(url)));
       return stat.isFile();
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

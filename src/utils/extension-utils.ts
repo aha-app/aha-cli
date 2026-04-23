@@ -325,7 +325,7 @@ async function prepareScript(
     form.append('extension[scripts][][name]', name);
     form.append('extension[scripts[][script_text]', code, 'script.txt');
     form.append('extension[scripts[][source_map]', map, 'source_map.txt');
-  } catch (error) {
+  } catch (_error) {
     ux.action.stop('failed');
     command.error('Compilation error', { exit: 1 });
   }

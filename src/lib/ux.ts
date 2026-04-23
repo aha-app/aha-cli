@@ -16,10 +16,7 @@ class TreeNode {
       } else {
         const isLast = i === keys.length - 1;
         console.log(`${prefix}${isLast ? '└── ' : '├── '}${key}`);
-        this.nodes[key].display(
-          prefix + (isLast ? '    ' : '│   '),
-          false
-        );
+        this.nodes[key].display(prefix + (isLast ? '    ' : '│   '), false);
       }
     });
   }

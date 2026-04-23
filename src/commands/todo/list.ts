@@ -50,12 +50,10 @@ export default class TodoList extends BaseCommand {
       return dateB.localeCompare(dateA);
     });
 
-    allTasks.forEach((task) => {
+    allTasks.forEach(task => {
       const status = (task.status || 'pending').toUpperCase();
       const due = task.due_date || '';
-      this.log(
-        `${task.id}\t${task.name}\t${status}\t${due}`
-      );
+      this.log(`${task.id}\t${task.name}\t${status}\t${due}`);
     });
   }
 }

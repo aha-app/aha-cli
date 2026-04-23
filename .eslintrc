@@ -1,17 +1,20 @@
 {
-  "extends": ["oclif", "oclif-typescript", "plugin:prettier/recommended"],
-  "plugins": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": "error",
     "semi": ["error", "always"],
     "object-curly-spacing": ["error", "always"],
-    "max-params": "off",
-    "no-warning-comments": "off",
-    "guard-for-in": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/interface-name-prefix": "off",
-    "no-await-in-loop": "off",
-    "no-constant-condition": "off",
-    "valid-jsdoc": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
+    "no-constant-condition": "off"
   }
 }
