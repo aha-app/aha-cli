@@ -1,6 +1,6 @@
 import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
 import { ux } from '../lib/ux';
-import esbuild from 'esbuild';
+import { build, Plugin } from 'esbuild';
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
@@ -291,7 +291,7 @@ async function prepareScript(
       extern => `(^${extern}$)|(-/${extern}@)`
     ).join('|');
 
-    const bundle = await esbuild.build({
+    const bundle = await build({
       jsxFactory,
       jsxFragment,
       entryPoints: [path],
@@ -307,7 +307,7 @@ async function prepareScript(
               type: 'cjs',
             };
           },
-        }) as esbuild.Plugin,
+        }) as Plugin,
         httpPlugin({ cache }),
       ],
       target: 'es2020',
