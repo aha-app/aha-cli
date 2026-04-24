@@ -52,6 +52,7 @@
   "scripts": {
     "build": "rm -rf lib && tsc -b",
     "build:bun": "bun build --compile src/cli.ts --outfile dist/aha",
+    "prepack": "rm -rf lib && tsc -b",
     "posttest": "eslint . --ext .ts --config .eslintrc",
     "start": "node lib/cli.js"
   },
