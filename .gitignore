@@ -10,3 +10,4 @@ tsconfig.tsbuildinfo
 .claude/settings.local.json
 .claude/local-instructions.md
 /dist
+*.tgz
