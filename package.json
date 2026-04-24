@@ -45,7 +45,11 @@
     "/aha.d.ts"
   ],
   "homepage": "https://github.com/aha-app/aha-cli",
-  "keywords": [],
+  "keywords": [
+    "cli",
+    "aha",
+    "extensions"
+  ],
   "license": "MIT",
   "main": "lib/index.js",
   "repository": "aha-app/aha-cli",
