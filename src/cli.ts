@@ -8,11 +8,6 @@ import Tail from './commands/extension/tail';
 import Uninstall from './commands/extension/uninstall';
 import Watch from './commands/extension/watch';
 import AddContribution from './commands/extension/add-contribution';
-import TodoList from './commands/todo/list';
-import TodoAdd from './commands/todo/add';
-import TodoDone from './commands/todo/done';
-import TodoReopen from './commands/todo/reopen';
-import TodoDelete from './commands/todo/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -34,17 +29,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'extension:uninstall': Uninstall,
   'extension:watch': Watch,
   'extension:add-contribution': AddContribution,
-  'todo:list': TodoList,
-  'todo:add': TodoAdd,
-  'todo:done': TodoDone,
-  'todo:reopen': TodoReopen,
-  'todo:delete': TodoDelete,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
-  todo: { description: 'Manage to-dos', default: 'todo:list' },
 };
 
 function resolveCommand(
@@ -66,7 +55,7 @@ function resolveCommand(
     if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(2) };
   }
 
-  // Try topic default (e.g. "todo" -> "todo:list")
+  // Try topic default command
   const topic = TOPICS[argv[0]];
   if (topic?.default) {
     const cmd = COMMANDS[topic.default];
