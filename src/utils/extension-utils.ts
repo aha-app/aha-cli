@@ -7,6 +7,7 @@ import path from 'path';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
+import { ContributionConfig, PackageConfiguration } from './extension-types';
 
 const REACT_JSX = 'React.createElement';
 const EXTERNALS = [
@@ -31,16 +32,20 @@ interface HttpBodyError {
   };
 }
 
-export function readConfiguration() {
+export function readConfiguration(): PackageConfiguration {
   try {
-    return JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }));
+    return JSON.parse(
+      fs.readFileSync('package.json', { encoding: 'utf-8' })
+    ) as PackageConfiguration;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Error loading package.json: ${message}`);
   }
 }
 
-export function identifierFromConfiguration(configuration: any) {
+export function identifierFromConfiguration(
+  configuration: PackageConfiguration
+) {
   return configuration.name.replace('@', '').replace('/', '.');
 }
 
@@ -70,7 +75,7 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   ux.action.stop();
 }
 
-function fileNameFromConfiguration(configuration: any) {
+function fileNameFromConfiguration(configuration: PackageConfiguration) {
   return `${identifierFromConfiguration(configuration)}-v${
     configuration.version
   }`;
@@ -103,7 +108,7 @@ export async function installExtension(
   dumpCode: boolean,
   skipCache = false
 ) {
-  let form: any = null;
+  let form: FormData | null = null;
 
   try {
     const configuration = readConfiguration();
@@ -179,7 +184,7 @@ async function prepareExtensionForm(
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
-  const contributionScripts: any = {};
+  const contributionScripts: Record<string, true> = {};
   const configuration = readConfiguration();
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
@@ -198,17 +203,24 @@ async function prepareExtensionForm(
           );
         }
 
-        const contribution = typeContributions[contributionName];
+        const contribution = typeContributions[
+          contributionName
+        ] as ContributionConfig;
+        const entryPoint = contribution.entryPoint;
 
         process.stdout.write(
           `   contributes ${contributionType}: '${contributionName}'\n`
         );
 
-        // Only compile each entrypoint once.
-        if (scriptPaths.includes(contribution.entryPoint)) {
+        if (!entryPoint) {
           return null;
         }
-        scriptPaths.push(contribution.entryPoint);
+
+        // Only compile each entrypoint once.
+        if (scriptPaths.includes(entryPoint)) {
+          return null;
+        }
+        scriptPaths.push(entryPoint);
 
         // Compile and upload script. We just generate a promise here and
         // then wait for them all in parallel below.
@@ -216,7 +228,7 @@ async function prepareExtensionForm(
           command,
           form,
           contributionName,
-          contribution.entryPoint,
+          entryPoint,
           dumpCode,
           jsxFactory,
           jsxFragment,
@@ -239,10 +251,12 @@ async function prepareExtensionForm(
   form.append('extension[name]', configuration.description);
   form.append('extension[version]', configuration.version);
   form.append('extension[author]', configuration.author);
-  form.append(
-    'extension[repository]',
-    configuration.repository?.url || configuration.repository
-  );
+  const repository =
+    typeof configuration.repository === 'string'
+      ? configuration.repository
+      : configuration.repository?.url;
+
+  form.append('extension[repository]', repository ?? '');
   form.append(
     'extension[configuration]',
     JSON.stringify(configuration.ahaExtension)
@@ -293,7 +307,7 @@ async function prepareScript(
               type: 'cjs',
             };
           },
-        }) as any,
+        }) as esbuild.Plugin,
         httpPlugin({ cache }),
       ],
       target: 'es2020',

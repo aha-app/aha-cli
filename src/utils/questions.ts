@@ -2,8 +2,26 @@ import inquirer from 'inquirer';
 
 type StringAnswers = Record<string, string>;
 
+interface ContributionAnswers {
+  contributionType: string;
+  name: string;
+  title?: string;
+  entryPoint?: string;
+  host?: string;
+  location?: unknown;
+  recordTypes?: unknown;
+  handles?: string[];
+  description?: string;
+  default?: string;
+  type?: string;
+  scope?: unknown;
+}
+
 export async function getContributionFromQuestions() {
-  const answers = await inquirer.prompt(contributionQuestions);
+  const answers = ((await inquirer.prompt(
+    contributionQuestions
+  )) as unknown) as ContributionAnswers;
+
   return {
     type: answers.contributionType,
     name: answers.name,

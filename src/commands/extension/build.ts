@@ -14,6 +14,7 @@ export default class Build extends BaseCommand {
   };
 
   async run() {
-    await buildExtension(this, this.flags.noCache);
+    const noCache = this.flags.noCache === true;
+    await buildExtension(this, noCache);
   }
 }

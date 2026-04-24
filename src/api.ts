@@ -5,8 +5,15 @@ interface IConfig {
 }
 
 interface RequestOptions {
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
+}
+
+interface HttpError extends Error {
+  http: {
+    statusCode: number;
+    body?: unknown;
+  };
 }
 
 class AhaAPI {
@@ -34,14 +41,14 @@ class AhaAPI {
     return this.request('DELETE', url, options);
   }
 
-  private async request(method: string, url: string, options?: any) {
+  private async request(method: string, url: string, options?: RequestOptions) {
     const fullURL = `${this.config.baseURL}${url}`;
     const headers: Record<string, string> = {
       accept: 'application/json',
       ...this.defaults.headers,
     };
 
-    let body: any;
+    let body: string | Uint8Array | undefined;
 
     if (options) {
       if (options.headers) {
@@ -49,7 +56,7 @@ class AhaAPI {
       }
       if (options.body !== undefined) {
         if (Buffer.isBuffer(options.body)) {
-          body = options.body;
+          body = new Uint8Array(options.body);
         } else if (options.body instanceof Readable) {
           // Read stream into buffer for fetch compatibility
           const chunks: Uint8Array[] = [];
@@ -60,14 +67,14 @@ class AhaAPI {
               )
             );
           }
-          body = Buffer.concat(chunks);
+          body = new Uint8Array(Buffer.concat(chunks));
         } else if (typeof options.body === 'object') {
           if (!headers['content-type']) {
             headers['content-type'] = 'application/json';
           }
           body = JSON.stringify(options.body);
         } else {
-          body = options.body;
+          body = String(options.body);
         }
       }
     }
@@ -76,15 +83,15 @@ class AhaAPI {
 
     if (!response.ok) {
       const errorText = await response.text();
-      let parsedBody: any;
+      let parsedBody: unknown;
       try {
         parsedBody = JSON.parse(errorText);
       } catch {
         // ignore JSON parse errors
       }
-      const error: any = new Error(
+      const error = new Error(
         `HTTP ${response.status}: ${errorText.slice(0, 200)}`
-      );
+      ) as HttpError;
       error.http = { statusCode: response.status, body: parsedBody };
       throw error;
     }

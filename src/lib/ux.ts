@@ -31,7 +31,7 @@ export const ux = {
       process.stderr.write(`${msg}\n`);
     },
   },
-  warn(input: any) {
+  warn(input: unknown) {
     const msg = input instanceof Error ? input.message : String(input);
     console.warn(`Warning: ${msg}`);
   },

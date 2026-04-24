@@ -17,7 +17,7 @@ export default class TodoDone extends BaseCommand {
   };
 
   async run() {
-    const { argv } = this.parse(this.constructor as any);
+    const { argv } = this.parse(this.constructor as typeof BaseCommand);
     const id = argv[0];
 
     if (!id) {

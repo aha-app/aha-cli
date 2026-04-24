@@ -36,32 +36,42 @@ Credentials are saved in ~/.netrc`;
 
   async run() {
     const cliToken = crypto.randomBytes(36).toString('hex');
+    const authServer =
+      typeof this.flags.authServer === 'string'
+        ? this.flags.authServer
+        : 'https://secure.aha.io';
+    const browser =
+      typeof this.flags.browser === 'string' ? this.flags.browser : undefined;
+    const requestedSubdomain =
+      typeof this.flags.subdomain === 'string'
+        ? this.flags.subdomain
+        : undefined;
 
     process.stderr.write(
       'Opening browser to login to Aha! and authorize the CLI\n'
     );
     process.stderr.write('If the browser does not open, visit this URL:\n');
 
-    let url = `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`;
+    let url = `${authServer}/external/cli/start?cli_token=${cliToken}`;
 
-    if (this.flags.subdomain) {
-      url += `&requested_domain=${this.flags.subdomain}`;
+    if (requestedSubdomain) {
+      url += `&requested_domain=${requestedSubdomain}`;
     }
 
     process.stderr.write(`${url}\n`);
 
     try {
-      await open(url, { app: this.flags.browser, wait: false });
+      await open(url, { app: browser, wait: false });
     } catch {
       // Browser open failed — user can use the URL above
     }
     ux.action.start('Waiting for login');
 
-    let subdomain;
+    let authenticatedSubdomain: string | undefined;
     while (true) {
       try {
         const response = await fetch(
-          `${this.flags.authServer}/external/cli/poll?cli_token=${cliToken}`
+          `${authServer}/external/cli/poll?cli_token=${cliToken}`
         );
 
         if (!response.ok) {
@@ -76,15 +86,18 @@ Credentials are saved in ~/.netrc`;
         const { url, token, domain, email } = body;
 
         this.saveToken(domain, { token, url, email });
-        subdomain = domain;
+        authenticatedSubdomain = domain;
 
         break;
-      } catch (error: any) {
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const statusCode =
+          typeof error === 'object' && error !== null && 'http' in error
+            ? (error as { http?: { statusCode?: number } }).http?.statusCode
+            : undefined;
+
         // Check if it's an HTTP 408 timeout
-        if (
-          error?.http?.statusCode === 408 ||
-          error?.message?.includes('408')
-        ) {
+        if (statusCode === 408 || message.includes('408')) {
           await new Promise(r => setTimeout(r, 1000));
           continue;
         }
@@ -95,7 +108,7 @@ Credentials are saved in ~/.netrc`;
 
     // Try to use the token.
     ux.action.start('Testing login');
-    this.flags.subdomain = subdomain;
+    this.flags.subdomain = authenticatedSubdomain ?? '';
     this.resetAPI();
     await this.initAPI();
     await this.api.get('/api/v1/me');

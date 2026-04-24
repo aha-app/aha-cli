@@ -14,26 +14,31 @@ import TodoDone from './commands/todo/done';
 import TodoReopen from './commands/todo/reopen';
 import TodoDelete from './commands/todo/delete';
 import BaseCommand from './base';
+import { FlagDefinition } from './lib/flags';
 
 const VERSION = '3.0.0';
 
-type CommandClass = typeof BaseCommand & { new (argv: string[]): BaseCommand };
+interface CommandClass {
+  new (argv: string[]): BaseCommand;
+  description: string;
+  flags: Record<string, FlagDefinition>;
+}
 
 const COMMANDS: Record<string, CommandClass> = {
-  'auth:login': Login as any,
-  'auth:check': Check as any,
-  'extension:build': Build as any,
-  'extension:create': Create as any,
-  'extension:install': Install as any,
-  'extension:tail': Tail as any,
-  'extension:uninstall': Uninstall as any,
-  'extension:watch': Watch as any,
-  'extension:add-contribution': AddContribution as any,
-  'todo:list': TodoList as any,
-  'todo:add': TodoAdd as any,
-  'todo:done': TodoDone as any,
-  'todo:reopen': TodoReopen as any,
-  'todo:delete': TodoDelete as any,
+  'auth:login': Login,
+  'auth:check': Check,
+  'extension:build': Build,
+  'extension:create': Create,
+  'extension:install': Install,
+  'extension:tail': Tail,
+  'extension:uninstall': Uninstall,
+  'extension:watch': Watch,
+  'extension:add-contribution': AddContribution,
+  'todo:list': TodoList,
+  'todo:add': TodoAdd,
+  'todo:done': TodoDone,
+  'todo:reopen': TodoReopen,
+  'todo:delete': TodoDelete,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
@@ -194,7 +199,7 @@ async function main() {
     return;
   }
 
-  const cmd = new (CommandClass as any)(commandArgv) as BaseCommand;
+  const cmd = new CommandClass(commandArgv);
   await cmd.execute();
 }
 

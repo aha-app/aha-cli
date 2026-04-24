@@ -73,7 +73,7 @@ export default class Watch extends BaseCommand {
     // Put no async code above this line. The instance variables must be updated before awaiting
 
     try {
-      await installExtension(this, false, this.flags.noCache);
+      await installExtension(this, false, this.flags.noCache === true);
     } catch (error) {
       // Do nothing if the compile fails
       const message = error instanceof Error ? error.message : String(error);

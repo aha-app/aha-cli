@@ -3,7 +3,7 @@ const netrc = new Netrc();
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
 import { FlagDefinition, Flags } from './lib/flags';
-import { parseArgs } from './lib/parse';
+import { ParsedArgs, parseArgs } from './lib/parse';
 
 interface ApiAuth {
   token: string;
@@ -22,7 +22,7 @@ abstract class BaseCommand {
   };
 
   argv: string[];
-  flags: any = {};
+  flags: Record<string, string | boolean> = {};
 
   _auth?: ApiAuth;
   _api?: AhaAPI;
@@ -35,13 +35,13 @@ abstract class BaseCommand {
     await this.init();
     try {
       await this.run();
-    } catch (error: any) {
+    } catch (error) {
       await this.catch(error);
     }
   }
 
   async init() {
-    const { flags } = this.parse(this.constructor as any);
+    const { flags } = this.parse(this.constructor as typeof BaseCommand);
     this.flags = flags;
 
     const { needsAuth } = this.constructor as typeof BaseCommand;
@@ -50,10 +50,8 @@ abstract class BaseCommand {
     }
   }
 
-  parse(
-    cmdClass?: any
-  ): { flags: Record<string, any>; args: Record<string, any>; argv: string[] } {
-    const klass = cmdClass || this.constructor;
+  parse(cmdClass?: typeof BaseCommand): ParsedArgs {
+    const klass = (cmdClass || this.constructor) as typeof BaseCommand;
     const flagDefs = klass.flags || {};
     return parseArgs(this.argv, flagDefs);
   }
@@ -89,7 +87,10 @@ abstract class BaseCommand {
       return this._auth;
     }
 
-    const subdomain = this.flags?.subdomain;
+    const subdomain =
+      typeof this.flags.subdomain === 'string'
+        ? this.flags.subdomain
+        : undefined;
     let machine;
 
     netrc.loadSync();
@@ -130,11 +131,11 @@ abstract class BaseCommand {
     return this._auth;
   }
 
-  log(message = '', ...args: any[]) {
+  log(message = '', ...args: unknown[]) {
     console.log(message, ...args);
   }
 
-  error(input: string | Error, options: { exit?: number | false } = {}): any {
+  error(input: string | Error, options: { exit?: number | false } = {}): void {
     const msg = input instanceof Error ? input.message : input;
     console.error(`Error: ${msg}`);
     if (options.exit !== false) {
@@ -142,8 +143,9 @@ abstract class BaseCommand {
     }
   }
 
-  async catch(error: Error) {
-    this.error(error.message, { exit: 1 });
+  async catch(error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    this.error(err.message, { exit: 1 });
   }
 }
 

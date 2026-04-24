@@ -16,6 +16,15 @@ interface TaskCreateResponse {
   };
 }
 
+interface TaskCreateRequest {
+  task: {
+    name: string;
+    body: string;
+    assigned_to_users: Array<{ email: string }>;
+    due_date?: string;
+  };
+}
+
 export default class TodoAdd extends BaseCommand {
   static needsAuth = true;
   static description = 'Create a new to-do';
@@ -28,7 +37,7 @@ export default class TodoAdd extends BaseCommand {
   };
 
   async run() {
-    const { argv } = this.parse(this.constructor as any);
+    const { argv } = this.parse(this.constructor as typeof BaseCommand);
     const name = argv[0];
 
     if (!name) {
@@ -39,7 +48,7 @@ export default class TodoAdd extends BaseCommand {
     const meResult = await this.api.get('/api/v1/me');
     const me = meResult.body as MeResponse;
 
-    const taskData: any = {
+    const taskData: TaskCreateRequest = {
       task: {
         name,
         body: '<p></p>',
@@ -47,7 +56,7 @@ export default class TodoAdd extends BaseCommand {
       },
     };
 
-    if (this.flags.due) {
+    if (typeof this.flags.due === 'string') {
       taskData.task.due_date = this.flags.due;
     }
 

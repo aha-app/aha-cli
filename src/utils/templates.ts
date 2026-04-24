@@ -1,9 +1,29 @@
-const templates: { [k: string]: any } = {
+import fs from 'fs';
+import {
+  AhaExtensionConfig,
+  ContributionConfig,
+  JsonObject,
+} from './extension-types';
+
+type TemplateFileSystem = Pick<
+  typeof fs,
+  'existsSync' | 'mkdirSync' | 'writeFileSync'
+>;
+
+type ContributionMap = Record<string, Record<string, ContributionConfig>>;
+
+type TemplateFunction = (
+  contributionName: string,
+  contribution: ContributionConfig,
+  identifier: string
+) => string;
+
+const templates = {
   writeContributionTemplates(
-    fs: any,
+    fs: TemplateFileSystem,
     directory: string,
     name: string,
-    contributions: { [k: string]: any }
+    contributions: ContributionMap
   ) {
     let directories: string[] = [];
     for (const contributionType in contributions) {
@@ -11,9 +31,13 @@ const templates: { [k: string]: any } = {
         for (const contributionName in contributions[contributionType]) {
           const contribution =
             contributions[contributionType][contributionName];
-          directories = contribution.entryPoint
+          const entryPoint = contribution.entryPoint;
+          if (!entryPoint) {
+            continue;
+          }
+          directories = entryPoint
             .split('/')
-            .slice(0, contribution.entryPoint.split('/').length - 1);
+            .slice(0, entryPoint.split('/').length - 1);
           directories.forEach((dir, index) => {
             const fullPathToDir =
               directories.slice(0, index).join('/') + '/' + dir;
@@ -21,13 +45,12 @@ const templates: { [k: string]: any } = {
               fs.mkdirSync(`${directory}/${fullPathToDir}`);
             }
           });
+          const template = templates[
+            `${contributionType}Template` as keyof typeof templates
+          ] as TemplateFunction;
           fs.writeFileSync(
-            `${directory}/${contribution.entryPoint}`,
-            templates[`${contributionType}Template`](
-              contributionName,
-              contribution,
-              name
-            )
+            `${directory}/${entryPoint}`,
+            template(contributionName, contribution, name)
           );
         }
       }
@@ -36,7 +59,7 @@ const templates: { [k: string]: any } = {
 
   viewsTemplate(
     contributionName: string,
-    contribution: { [k: string]: any },
+    contribution: ContributionConfig,
     _identifier: string
   ) {
     if (contribution.host === 'attribute') {
@@ -94,7 +117,7 @@ aha.on("${contributionName}", ({ ${
 
   commandsTemplate(
     contributionName: string,
-    _contribution: { [k: string]: any },
+    _contribution: ContributionConfig,
     _identifier: string
   ) {
     return `aha.on("${contributionName}", ({ record }, { identifier, settings }) => {
@@ -116,7 +139,7 @@ aha.on("${contributionName}", ({ ${
 
   importersTemplate(
     contributionName: string,
-    contribution: { [k: string]: any },
+    contribution: ContributionConfig,
     identifier: string
   ) {
     return `const importer = aha.getImporter("${identifier}.${contributionName}");
@@ -159,11 +182,11 @@ importer.on({ action: "listCandidates" }, async ({ filters, nextPage }, {identif
 
   eventsTemplate(
     contributionName: string,
-    contribution: { [k: string]: any },
+    contribution: ContributionConfig,
     _identifier: string
   ) {
     let returnTemplate = '';
-    contribution.handles.forEach((event: string) => {
+    (contribution.handles ?? []).forEach((event: string) => {
       returnTemplate += `
 aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
   // Event handler code for ${event}
@@ -177,9 +200,9 @@ aha.on({ event: '${event}' }, (arg, { identifier, settings }) => {
     identifier: string,
     name: string,
     author: string,
-    ahaExtensionsSchema: { [k: string]: any }
+    ahaExtensionsSchema: AhaExtensionConfig
   ) {
-    const packageJson: { [k: string]: any } = {
+    const packageJson: JsonObject = {
       name: identifier,
       description: name,
       version: '0.0.0',

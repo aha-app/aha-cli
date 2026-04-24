@@ -1,10 +1,17 @@
 import { FlagDefinition } from './flags';
 
+export type FlagValue = string | boolean;
+export interface ParsedArgs {
+  flags: Record<string, FlagValue>;
+  args: Record<string, string>;
+  argv: string[];
+}
+
 export function parseArgs(
   argv: string[],
   flagDefs: Record<string, FlagDefinition>
-): { flags: Record<string, any>; args: Record<string, any>; argv: string[] } {
-  const flags: Record<string, any> = {};
+): ParsedArgs {
+  const flags: Record<string, FlagValue> = {};
   const positional: string[] = [];
 
   // Set defaults

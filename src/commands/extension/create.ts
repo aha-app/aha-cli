@@ -5,6 +5,7 @@ import { ux } from '../../lib/ux';
 import { fetchRemoteTypes } from '../../utils/extension-utils';
 import * as questions from '../../utils/questions';
 import templates from '../../utils/templates';
+import { AhaExtensionConfig } from '../../utils/extension-types';
 
 export default class Create extends BaseCommand {
   static description = 'Create an example extension';
@@ -26,8 +27,7 @@ export default class Create extends BaseCommand {
       throw new Error(`A directory named '${directoryName}' already exists.`);
     }
 
-    const ahaExtensionSchema: { [k: string]: any } = {};
-    ahaExtensionSchema.contributes = {};
+    const ahaExtensionSchema: AhaExtensionConfig = { contributes: {} };
 
     const createContributions = (
       await inquirer.prompt(questions.addContributionsQuestion)
