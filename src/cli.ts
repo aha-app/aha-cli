@@ -41,26 +41,8 @@ function resolveCommand(
 ): { CommandClass: CommandClass; commandArgv: string[] } | null {
   if (argv.length === 0) return null;
 
-  // Try colon form: "auth:login"
-  if (argv[0].includes(':')) {
-    const cmd = COMMANDS[argv[0]];
-    if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(1) };
-    return null;
-  }
-
-  // Try two-word form: "auth login" (second arg must not be a flag)
-  if (argv.length >= 2 && !argv[1].startsWith('-')) {
-    const id = `${argv[0]}:${argv[1]}`;
-    const cmd = COMMANDS[id];
-    if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(2) };
-  }
-
-  // Try topic default command
-  const topic = TOPICS[argv[0]];
-  if (topic?.default) {
-    const cmd = COMMANDS[topic.default];
-    if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(1) };
-  }
+  const cmd = COMMANDS[argv[0]];
+  if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(1) };
 
   return null;
 }
@@ -94,15 +76,14 @@ function printTopicHelp(topicName: string) {
   console.log('COMMANDS');
   for (const [name, cmd] of Object.entries(COMMANDS)) {
     if (name.startsWith(topicName + ':')) {
-      const subName = name.replace(':', ' ');
       const desc = (cmd.description || '').split('\n')[0];
-      console.log(`  ${subName.padEnd(30)} ${desc}`);
+      console.log(`  ${name.padEnd(30)} ${desc}`);
     }
   }
 }
 
 function printCommandHelp(commandId: string, CommandClass: CommandClass) {
-  const usageName = commandId.replace(':', ' ');
+  const usageName = commandId;
   console.log(`${CommandClass.description}\n`);
   console.log(`USAGE`);
   console.log(`  $ aha ${usageName} [flags]\n`);

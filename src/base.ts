@@ -99,7 +99,7 @@ abstract class BaseCommand {
       machine = machines[subdomain];
       if (!machine) {
         throw new Error(
-          `No credentials found for ${subdomain}, use "aha auth login -s ${subdomain}" to login first`
+          `No credentials found for ${subdomain}, use "aha auth:login -s ${subdomain}" to login first`
         );
       }
     } else {
@@ -124,7 +124,7 @@ abstract class BaseCommand {
 
     if (!machine || !machine.token || !machine.url)
       throw new Error(
-        `No credentials found, use "aha auth login" to login first`
+        `No credentials found, use "aha auth:login" to login first`
       );
 
     this._auth = { url: machine.url, token: machine.token };
