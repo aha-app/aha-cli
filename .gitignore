@@ -6,3 +6,8 @@
 /package-lock.json
 /tmp
 node_modules
+tsconfig.tsbuildinfo
+.claude/settings.local.json
+.claude/local-instructions.md
+/dist
+*.tgz

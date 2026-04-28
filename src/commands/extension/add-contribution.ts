@@ -1,9 +1,10 @@
 import BaseCommand from '../../base';
-import { ux } from '@oclif/core';
-import * as fs from 'fs';
-import * as inquirer from 'inquirer';
+import { ux } from '../../lib/ux';
+import fs from 'fs';
+import inquirer from 'inquirer';
 import templates from '../../utils/templates';
 import * as questions from '../../utils/questions';
+import { PackageConfiguration } from '../../utils/extension-types';
 
 export default class AddContribution extends BaseCommand {
   static description = 'Add a contribution to an extension';
@@ -17,7 +18,9 @@ export default class AddContribution extends BaseCommand {
       throw new Error('Unable to find package.json in the current directory.');
     }
 
-    const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    const packageJson = JSON.parse(
+      fs.readFileSync('./package.json', 'utf8')
+    ) as PackageConfiguration;
 
     if (!packageJson.ahaExtension) {
       throw new Error('Unable to find the ahaExtension entry in package.json.');
@@ -26,7 +29,7 @@ export default class AddContribution extends BaseCommand {
     packageJson.ahaExtension.contributes =
       packageJson.ahaExtension.contributes || {};
 
-    const newContributions: { [k: string]: any } = {};
+    const newContributions: PackageConfiguration['ahaExtension']['contributes'] = {};
 
     do {
       process.stdout.write('\n');

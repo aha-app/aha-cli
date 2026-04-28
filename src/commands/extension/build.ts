@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { Flags } from '@oclif/core';
+import { Flags } from '../../lib/flags';
 import { buildExtension } from '../../utils/extension-utils';
 
 export default class Build extends BaseCommand {
@@ -14,6 +14,7 @@ export default class Build extends BaseCommand {
   };
 
   async run() {
-    await buildExtension(this, this.flags.noCache);
+    const noCache = this.flags.noCache === true;
+    await buildExtension(this, noCache);
   }
 }

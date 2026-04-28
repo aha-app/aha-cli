@@ -1,32 +1,47 @@
-import { Command, Flags } from '@oclif/core';
-import netrc from 'netrc-parser';
+import { Netrc } from 'netrc-parser';
+const netrc = new Netrc();
 import { prompt } from 'inquirer';
 import AhaAPI from './api';
+import { FlagDefinition, Flags } from './lib/flags';
+import { ParsedArgs, parseArgs } from './lib/parse';
 
 interface ApiAuth {
   token: string;
   url: string;
 }
 
-abstract class BaseCommand extends Command {
+abstract class BaseCommand {
+  static description = '';
   static needsAuth = false;
 
-  static flags = {
+  static flags: Record<string, FlagDefinition> = {
     subdomain: Flags.string({
       char: 's',
       description: 'Aha! subdomain to use for authentication',
     }),
   };
 
-  flags?: any;
+  argv: string[];
+  flags: Record<string, string | boolean> = {};
 
   _auth?: ApiAuth;
-
   _api?: AhaAPI;
 
+  constructor(argv: string[]) {
+    this.argv = argv;
+  }
+
+  async execute() {
+    await this.init();
+    try {
+      await this.run();
+    } catch (error) {
+      await this.catch(error);
+    }
+  }
+
   async init() {
-    // do some initialization
-    const { flags } = await this.parse(this.constructor as any);
+    const { flags } = this.parse(this.constructor as typeof BaseCommand);
     this.flags = flags;
 
     const { needsAuth } = this.constructor as typeof BaseCommand;
@@ -35,11 +50,18 @@ abstract class BaseCommand extends Command {
     }
   }
 
+  parse(cmdClass?: typeof BaseCommand): ParsedArgs {
+    const klass = (cmdClass || this.constructor) as typeof BaseCommand;
+    const flagDefs = klass.flags || {};
+    return parseArgs(this.argv, flagDefs);
+  }
+
+  abstract run(): Promise<void>;
+
   get api(): AhaAPI {
     if (this._api) {
       return this._api;
     }
-
     throw new Error(
       'API not initialized. Set static needsAuth = true in your command.'
     );
@@ -65,13 +87,15 @@ abstract class BaseCommand extends Command {
       return this._auth;
     }
 
-    const subdomain = this.flags?.subdomain;
+    const subdomain =
+      typeof this.flags.subdomain === 'string'
+        ? this.flags.subdomain
+        : undefined;
     let machine;
 
     netrc.loadSync();
     const { machines } = netrc;
     if (subdomain) {
-      // User specified the domain on the command line.
       machine = machines[subdomain];
       if (!machine) {
         throw new Error(
@@ -107,9 +131,21 @@ abstract class BaseCommand extends Command {
     return this._auth;
   }
 
-  // Catch all unhandled errors and display to the user in a reasonable way.
-  async catch(error: Error) {
-    this.error(error.message, { exit: 1 });
+  log(message = '', ...args: unknown[]) {
+    console.log(message, ...args);
+  }
+
+  error(input: string | Error, options: { exit?: number | false } = {}): void {
+    const msg = input instanceof Error ? input.message : input;
+    console.error(`Error: ${msg}`);
+    if (options.exit !== false) {
+      process.exit(typeof options.exit === 'number' ? options.exit : 1);
+    }
+  }
+
+  async catch(error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    this.error(err.message, { exit: 1 });
   }
 }
 

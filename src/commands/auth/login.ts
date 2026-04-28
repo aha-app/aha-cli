@@ -1,9 +1,10 @@
 import BaseCommand from '../../base';
-import { Flags, ux } from '@oclif/core';
-import netrc from 'netrc-parser';
-import * as open from 'open';
-import * as crypto from 'crypto';
-import { HTTP } from 'http-call';
+import { Flags } from '../../lib/flags';
+import { ux } from '../../lib/ux';
+import { Netrc } from 'netrc-parser';
+const netrc = new Netrc();
+import open from 'open';
+import crypto from 'crypto';
 
 interface NetrcEntry {
   token: string;
@@ -16,12 +17,6 @@ interface TokenInfo {
   token: string;
   domain: string;
   email: string;
-}
-
-interface HttpStatusError {
-  http?: {
-    statusCode?: number;
-  };
 }
 
 class Login extends BaseCommand {
@@ -41,53 +36,79 @@ Credentials are saved in ~/.netrc`;
 
   async run() {
     const cliToken = crypto.randomBytes(36).toString('hex');
+    const authServer =
+      typeof this.flags.authServer === 'string'
+        ? this.flags.authServer
+        : 'https://secure.aha.io';
+    const browser =
+      typeof this.flags.browser === 'string' ? this.flags.browser : undefined;
+    const requestedSubdomain =
+      typeof this.flags.subdomain === 'string'
+        ? this.flags.subdomain
+        : undefined;
 
     process.stderr.write(
       'Opening browser to login to Aha! and authorize the CLI\n'
     );
+    process.stderr.write('If the browser does not open, visit this URL:\n');
 
-    let url = `${this.flags.authServer}/external/cli/start?cli_token=${cliToken}`;
+    let url = `${authServer}/external/cli/start?cli_token=${cliToken}`;
 
-    if (this.flags.subdomain) {
-      url += `&requested_domain=${this.flags.subdomain}`;
+    if (requestedSubdomain) {
+      url += `&requested_domain=${requestedSubdomain}`;
     }
 
-    const cp = await open(url, {
-      app: this.flags.browser,
-      wait: false,
-    });
-    cp.on('error', err => {
-      ux.warn(err);
-      ux.warn('Cannot open browser');
-    });
+    process.stderr.write(`${url}\n`);
+
+    try {
+      await open(url, { app: browser, wait: false });
+    } catch {
+      // Browser open failed — user can use the URL above
+    }
     ux.action.start('Waiting for login');
 
-    let subdomain;
+    let authenticatedSubdomain: string | undefined;
     while (true) {
       try {
-        const { body }: { body: TokenInfo } = await HTTP.get(
-          `${this.flags.authServer}/external/cli/poll?cli_token=${cliToken}`
+        const response = await fetch(
+          `${authServer}/external/cli/poll?cli_token=${cliToken}`
         );
 
+        if (!response.ok) {
+          if (response.status === 408) {
+            await new Promise(r => setTimeout(r, 1000));
+            continue;
+          }
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const body: TokenInfo = (await response.json()) as TokenInfo;
         const { url, token, domain, email } = body;
 
         this.saveToken(domain, { token, url, email });
-        subdomain = domain;
+        authenticatedSubdomain = domain;
 
         break;
       } catch (error) {
-        const httpError = error as HttpStatusError;
-        if (!httpError.http || httpError.http.statusCode !== 408) throw error;
+        const message = error instanceof Error ? error.message : String(error);
+        const statusCode =
+          typeof error === 'object' && error !== null && 'http' in error
+            ? (error as { http?: { statusCode?: number } }).http?.statusCode
+            : undefined;
 
-        // Sleep a little before polling again
-        await new Promise(r => setTimeout(r, 1000));
+        // Check if it's an HTTP 408 timeout
+        if (statusCode === 408 || message.includes('408')) {
+          await new Promise(r => setTimeout(r, 1000));
+          continue;
+        }
+        throw error;
       }
     }
     ux.action.stop('complete.');
 
     // Try to use the token.
     ux.action.start('Testing login');
-    this.flags.subdomain = subdomain;
+    this.flags.subdomain = authenticatedSubdomain ?? '';
     this.resetAPI();
     await this.initAPI();
     await this.api.get('/api/v1/me');

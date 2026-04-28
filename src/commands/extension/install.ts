@@ -1,5 +1,5 @@
 import BaseCommand from '../../base';
-import { Flags } from '@oclif/core';
+import { Flags } from '../../lib/flags';
 import {
   fetchRemoteTypes,
   installExtension,
@@ -21,7 +21,10 @@ export default class Install extends BaseCommand {
   };
 
   async run() {
-    await installExtension(this, this.flags.dumpCode, this.flags.noCache);
+    const dumpCode = this.flags.dumpCode === true;
+    const noCache = this.flags.noCache === true;
+
+    await installExtension(this, dumpCode, noCache);
     await fetchRemoteTypes();
   }
 }

@@ -244,3 +244,41 @@ Replace `aha-cli-v1.17.0.tgz` with the actual filename produced by `npm pack`. A
 $ npx --yes --package aha-cli-v1.17.0.tgz aha extension:build
 $ npx --yes --package aha-cli-v1.17.0.tgz aha extension:install
 ```
+
+## Generating a binary executable
+
+You can compile the CLI into a standalone executable for your current platform using Bun.
+
+Install Bun:
+https://bun.com/docs/installation
+
+Install dependencies:
+
+```sh
+bun install
+```
+
+Build the executable:
+
+```sh
+bun run build:bun
+```
+
+This produces a binary at:
+
+```sh
+dist/aha
+```
+
+You can test it directly:
+
+```sh
+./dist/aha --version
+```
+
+If you want to install it locally on your PATH:
+
+```sh
+sudo mv dist/aha /usr/local/bin/
+aha --version
+```

@@ -1,7 +1,7 @@
 {
   "name": "aha-cli",
   "description": "Command line interface for Aha! (www.aha.io)",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "author": "Aha! (support@aha.io)",
   "bin": {
     "aha": "./bin/run"
@@ -9,16 +9,12 @@
   "bugs": "https://github.com/aha-app/aha-cli/issues",
   "dependencies": {
     "@fal-works/esbuild-plugin-global-externals": "2.1.1",
-    "@oclif/config": "1.15.1",
-    "@oclif/core": "2.6.1",
-    "@oclif/plugin-help": "5.2.7",
     "@types/inquirer": "7.3.1",
     "chalk": "4.1.0",
     "chokidar": "4.0.3",
     "crypto": "1.0.1",
     "esbuild": "0.11.2",
     "form-data": "3.0.0",
-    "http-call": "5.3.0",
     "inquirer": "8.0.0",
     "netrc-parser": "3.1.6",
     "open": "7.3.0",
@@ -26,15 +22,12 @@
   },
   "devDependencies": {
     "@types/node": "20.14.0",
-    "eslint": "5.16.0",
-    "eslint-config-oclif": "3.1.0",
-    "eslint-config-oclif-typescript": "0.1.0",
-    "eslint-config-prettier": "7.2.0",
-    "eslint-plugin-prettier": "3.3.1",
-    "globby": "10.0.2",
-    "oclif": "3.7.0",
+    "@typescript-eslint/eslint-plugin": "7",
+    "@typescript-eslint/parser": "7",
+    "eslint": "8",
+    "eslint-config-prettier": "9",
+    "eslint-plugin-prettier": "5",
     "prettier": "2.2.1",
-    "ts-node": "8.10.2",
     "typescript": "5.9.3"
   },
   "resolutions": {
@@ -53,34 +46,19 @@
   ],
   "homepage": "https://github.com/aha-app/aha-cli",
   "keywords": [
-    "oclif"
+    "cli",
+    "aha",
+    "extensions"
   ],
   "license": "MIT",
   "main": "lib/index.js",
-  "oclif": {
-    "commands": "./lib/commands",
-    "bin": "aha",
-    "topics": {
-      "auth": {
-        "description": "Authenticate to Aha!"
-      },
-      "extension": {
-        "description": "Manage extensions"
-      }
-    },
-    "plugins": [
-      "@oclif/plugin-help"
-    ],
-    "macos": {
-      "identifier": "io.aha.cli"
-    }
-  },
   "repository": "aha-app/aha-cli",
   "scripts": {
-    "postpack": "rm -f oclif.manifest.json",
+    "build": "rm -rf lib && tsc -b",
+    "build:bun": "bun build --compile src/cli.ts --outfile dist/aha",
+    "prepack": "rm -rf lib && tsc -b",
     "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rm -rf lib && tsc -b && oclif manifest && oclif readme",
-    "version": "oclif readme && git add README.md"
+    "start": "node lib/cli.js"
   },
   "types": "./aha.d.ts",
   "prettier": {

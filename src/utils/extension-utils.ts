@@ -1,15 +1,13 @@
 import { globalExternalsWithRegExp } from '@fal-works/esbuild-plugin-global-externals';
-import { ux } from '@oclif/core';
-import * as esbuild from 'esbuild';
-import * as FormData from 'form-data';
-import * as fs from 'fs';
-import * as path from 'path';
-import HTTP from 'http-call';
-import { Readable } from 'stream';
-import { createGzip } from 'zlib';
+import { ux } from '../lib/ux';
+import { build, Plugin } from 'esbuild';
+import FormData from 'form-data';
+import fs from 'fs';
+import path from 'path';
 import BaseCommand from '../base';
 import { httpPlugin } from './esbuild-http';
 import { SimpleCache } from './simple-cache';
+import { ContributionConfig, PackageConfiguration } from './extension-types';
 
 const REACT_JSX = 'React.createElement';
 const EXTERNALS = [
@@ -34,16 +32,20 @@ interface HttpBodyError {
   };
 }
 
-export function readConfiguration() {
+export function readConfiguration(): PackageConfiguration {
   try {
-    return JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }));
+    return JSON.parse(
+      fs.readFileSync('package.json', { encoding: 'utf-8' })
+    ) as PackageConfiguration;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Error loading package.json: ${message}`);
   }
 }
 
-export function identifierFromConfiguration(configuration: any) {
+export function identifierFromConfiguration(
+  configuration: PackageConfiguration
+) {
   return configuration.name.replace('@', '').replace('/', '.');
 }
 
@@ -51,7 +53,7 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   ux.action.start('Downloading JSON schemas and TypeScript types from Aha!');
 
   // prettier-ignore
-  const typings = {
+  const typings: Record<string, string> = {
     './types/aha-components.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-components.d.ts',
     './types/aha-models.d.ts': 'https://cdn.aha.io/assets/extensions/types/aha-models.d.ts',
     './schema/schema.json': 'https://cdn.aha.io/assets/extensions/schema/schema.json',
@@ -63,18 +65,17 @@ export async function fetchRemoteTypes(extensionRoot = process.cwd()) {
   const promises = Object.entries(typings).map(async ([filePath, url]) => {
     const absoluteFilePath = path.join(modulePath, filePath);
     fs.mkdirSync(path.dirname(absoluteFilePath), { recursive: true });
-    const fileStream = fs.createWriteStream(absoluteFilePath);
 
-    const result = await HTTP.get(url, { raw: true });
-    result.response.pipe(fileStream);
-    return new Promise(resolve => fileStream.on('close', resolve));
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    fs.writeFileSync(absoluteFilePath, new Uint8Array(arrayBuffer));
   });
 
   await Promise.all(promises);
   ux.action.stop();
 }
 
-function fileNameFromConfiguration(configuration: any) {
+function fileNameFromConfiguration(configuration: PackageConfiguration) {
   return `${identifierFromConfiguration(configuration)}-v${
     configuration.version
   }`;
@@ -107,7 +108,7 @@ export async function installExtension(
   dumpCode: boolean,
   skipCache = false
 ) {
-  let form: any = null;
+  let form: FormData | null = null;
 
   try {
     const configuration = readConfiguration();
@@ -120,19 +121,11 @@ export async function installExtension(
     throw error;
   }
 
-  // Upload all of the scripts and configuration in one go. This requires the
-  // use of form encoding, but it turns out to be much faster to just have one
-  // server round-trip with more data, than multiple round trips. It also allows
-  // us to treat extension updates atomically - which prevents mismatched code.
+  // Upload all of the scripts and configuration in one go.
   ux.action.start('Uploading');
   try {
     await command.api.post('/api/v1/extensions', {
-      body: new Readable({
-        read() {
-          this.push(form.getBuffer());
-          this.push(null);
-        },
-      }),
+      body: form.getBuffer(),
       headers: {
         'content-type': 'multipart/form-data; boundary=' + form.getBoundary(),
       },
@@ -173,6 +166,7 @@ export async function buildExtension(command: BaseCommand, skipCache = false) {
   const form = await prepareExtensionForm(command, false, skipCache);
 
   ux.action.start('Saving');
+  const { createGzip } = await import('zlib');
   const gzip = createGzip();
   const output = fs.createWriteStream(fileName);
   gzip.pipe(output);
@@ -190,7 +184,7 @@ async function prepareExtensionForm(
   // Upload the sources for the contributions. Validate we don't have more
   // than one contribution with the same name.
   const form = new FormData();
-  const contributionScripts: any = {};
+  const contributionScripts: Record<string, true> = {};
   const configuration = readConfiguration();
   const jsxFactory = configuration.ahaExtension.jsxFactory || REACT_JSX;
   const jsxFragment = jsxFactory === REACT_JSX ? 'React.Fragment' : 'Fragment';
@@ -209,17 +203,24 @@ async function prepareExtensionForm(
           );
         }
 
-        const contribution = typeContributions[contributionName];
+        const contribution = typeContributions[
+          contributionName
+        ] as ContributionConfig;
+        const entryPoint = contribution.entryPoint;
 
         process.stdout.write(
           `   contributes ${contributionType}: '${contributionName}'\n`
         );
 
-        // Only compile each entrypoint once.
-        if (scriptPaths.includes(contribution.entryPoint)) {
+        if (!entryPoint) {
           return null;
         }
-        scriptPaths.push(contribution.entryPoint);
+
+        // Only compile each entrypoint once.
+        if (scriptPaths.includes(entryPoint)) {
+          return null;
+        }
+        scriptPaths.push(entryPoint);
 
         // Compile and upload script. We just generate a promise here and
         // then wait for them all in parallel below.
@@ -227,7 +228,7 @@ async function prepareExtensionForm(
           command,
           form,
           contributionName,
-          contribution.entryPoint,
+          entryPoint,
           dumpCode,
           jsxFactory,
           jsxFragment,
@@ -250,10 +251,12 @@ async function prepareExtensionForm(
   form.append('extension[name]', configuration.description);
   form.append('extension[version]', configuration.version);
   form.append('extension[author]', configuration.author);
-  form.append(
-    'extension[repository]',
-    configuration.repository?.url || configuration.repository
-  );
+  const repository =
+    typeof configuration.repository === 'string'
+      ? configuration.repository
+      : configuration.repository?.url;
+
+  form.append('extension[repository]', repository ?? '');
   form.append(
     'extension[configuration]',
     JSON.stringify(configuration.ahaExtension)
@@ -288,7 +291,7 @@ async function prepareScript(
       extern => `(^${extern}$)|(-/${extern}@)`
     ).join('|');
 
-    const bundle = await esbuild.build({
+    const bundle = await build({
       jsxFactory,
       jsxFragment,
       entryPoints: [path],
@@ -304,7 +307,7 @@ async function prepareScript(
               type: 'cjs',
             };
           },
-        }) as any,
+        }) as Plugin,
         httpPlugin({ cache }),
       ],
       target: 'es2020',
@@ -336,7 +339,7 @@ async function prepareScript(
     form.append('extension[scripts][][name]', name);
     form.append('extension[scripts[][script_text]', code, 'script.txt');
     form.append('extension[scripts[][source_map]', map, 'source_map.txt');
-  } catch (error) {
+  } catch (_error) {
     ux.action.stop('failed');
     command.error('Compilation error', { exit: 1 });
   }

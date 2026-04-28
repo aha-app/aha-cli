@@ -1,6 +1,6 @@
 import { Plugin } from 'esbuild';
-import * as http from 'http';
-import * as https from 'https';
+import http from 'http';
+import https from 'https';
 import { URL } from 'url';
 import { SimpleCache } from './simple-cache';
 
