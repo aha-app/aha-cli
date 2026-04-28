@@ -249,15 +249,20 @@ $ npx --yes --package aha-cli-v1.17.0.tgz aha extension:install
 
 You can compile the CLI into a standalone executable for your current platform using Bun.
 
-1. Install Bun: https://bun.com/docs/installation
-2. Install dependencies:
-   ```sh
-   bun install
-   ```
-3. Build the executable:
-   ```sh
-   bun run build:bun
-   ```
+Install Bun:
+https://bun.com/docs/installation
+
+Install dependencies:
+
+```sh
+bun install
+```
+
+Build the executable:
+
+```sh
+bun run build:bun
+```
 
 This produces a binary at:
 
