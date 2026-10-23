@@ -252,6 +252,45 @@ test('empty JSON lists are arrays without the human empty-list message', async t
   assert.deepEqual(JSON.parse(result.stdout), []);
 });
 
+test('delete requires explicit confirmation in scripts before making API calls', async t => {
+  const { dir, requests } = await setup(t);
+  const result = await run(dir, ['todo', 'delete', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /Use --yes/);
+  assert.equal(requests.length, 0);
+});
+
+test('delete with --yes=false requires confirmation before making API calls', async t => {
+  const { dir, requests } = await setup(t);
+  const result = await run(dir, ['todo', 'delete', '123', '--yes=false']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /Use --yes/);
+  assert.equal(requests.length, 0);
+});
+
+test('delete rejects invalid boolean values before making API calls', async t => {
+  const { dir, requests } = await setup(t);
+  for (const value of ['', 'no', '0', 'FALSE']) {
+    const result = await run(dir, ['todo', 'delete', '123', `--yes=${value}`]);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /Flag --yes requires true or false/);
+  }
+  assert.equal(requests.length, 0);
+});
+
+test('delete accepts explicit --yes=true', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.method === 'DELETE' ? { status: 204 } : { record: todo }
+  );
+  const result = await run(dir, ['todo', 'delete', '123', '--yes=true']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Deleted to-do/);
+  assert.deepEqual(
+    requests.map(request => request.method),
+    ['GET', 'DELETE']
+  );
+});
+
 test('edit with --clear-record=false preserves the parent record', async t => {
   const { dir, requests } = await setup(t, () => ({ record: todo }));
   const result = await run(dir, [
@@ -266,6 +305,40 @@ test('edit with --clear-record=false preserves the parent record', async t => {
   assert.deepEqual(requests.find(request => request.method === 'PUT').body, {
     record: { name: 'New title' },
   });
+});
+
+test('delete resolves a reference and accepts a JSON-labelled 204 response', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.method === 'DELETE' ? { status: 204 } : { record: todo }
+  );
+  const result = await run(dir, [
+    'todo:delete',
+    'DEMO-TODO-1',
+    '--yes',
+    '--json',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), { id: '123', deleted: true });
+  assert.deepEqual(requests[1], {
+    method: 'DELETE',
+    url: '/api/v3/tasks/123',
+    auth: 'Bearer test-key',
+    body: undefined,
+  });
+  assert.equal(requests.length, 2);
+});
+
+test('delete failures do not report success or retry', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.method === 'DELETE'
+      ? { status: 403, error: 'Forbidden' }
+      : { record: todo }
+  );
+  const result = await run(dir, ['todo', 'delete', '123', '-y', '--json']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /HTTP 403/);
+  assert.equal(result.stdout, '');
+  assert.equal(requests.length, 2);
 });
 
 test('complete and reopen JSON return records, including an already-completed record', async t => {
@@ -356,6 +429,28 @@ test('invalid edits, list options, assignees, and parent combinations fail befor
   );
   assert.match((await run(dir, ['todo', 'view', '../me'])).stderr, /Usage/);
   assert.equal(requests.length, 0);
+});
+
+test('canceling the interactive deletion confirmation never sends DELETE', async t => {
+  const { dir, requests } = await setup(t, () => ({ record: todo }));
+  const result = await run(dir, ['todo', 'delete', '123'], { confirm: false });
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Deletion canceled/);
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].method, 'GET');
+});
+
+test('--yes=false still prompts and respects interactive cancellation', async t => {
+  const { dir, requests } = await setup(t, () => ({ record: todo }));
+  const result = await run(dir, ['todo', 'delete', '123', '--yes=false'], {
+    confirm: false,
+  });
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Deletion canceled/);
+  assert.deepEqual(
+    requests.map(request => request.method),
+    ['GET']
+  );
 });
 
 test('JSON mode requires an explicit account when several accounts are saved', async t => {

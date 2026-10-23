@@ -97,9 +97,12 @@ class AhaAPI {
     }
 
     const contentType = response.headers.get('content-type') || '';
-    const responseBody = contentType.includes('json')
-      ? await response.json()
-      : await response.text();
+    const responseBody =
+      response.status === 204
+        ? null
+        : contentType.includes('json')
+        ? await response.json()
+        : await response.text();
 
     return { body: responseBody, response };
   }

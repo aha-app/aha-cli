@@ -14,6 +14,7 @@ import TodoComplete from './commands/todo/complete';
 import TodoReopen from './commands/todo/reopen';
 import TodoView from './commands/todo/view';
 import TodoEdit from './commands/todo/edit';
+import TodoDelete from './commands/todo/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -42,6 +43,7 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:reopen': TodoReopen,
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
+  'todo:delete': TodoDelete,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
