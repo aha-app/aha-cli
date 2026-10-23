@@ -115,6 +115,77 @@ test('list uses the resolved user status and preserves v3 records in JSON', asyn
   assert.deepEqual(JSON.parse(all.stdout), [shared, ordinary]);
 });
 
+for (const action of ['complete', 'reopen']) {
+  test(`${action} updates only my assignment beyond the embedded limit`, async t => {
+    const status = action === 'complete' ? 'completed' : 'pending';
+    const before = action === 'complete' ? 'pending' : 'completed';
+    const { dir, requests } = await setup(t, req => {
+      if (req.url === '/api/v1/me') return { user: { id: '111' } };
+      if (req.url.startsWith('/api/v1/tasks/')) return fullAssignments(before);
+      return { record: shared };
+    });
+    const result = await run(dir, ['todo', action, 'DEMO-TODO-1', '--json']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), shared);
+    assert.deepEqual(requests.at(-1).body, {
+      record: { assigned_to: [{ id: '111', type: 'user', status }] },
+    });
+    assert.equal(requests.at(-1).method, 'PUT');
+    assert.match(requests.at(-1).url, /^\/api\/v3\/tasks\/123\?/);
+    assert.equal(requests.length, 4);
+  });
+
+  test(`${action} skips writes when the resolved assignment already has the requested status`, async t => {
+    const { dir, requests } = await setup(t, req => {
+      if (req.url === '/api/v1/me') return { user: { id: '111' } };
+      if (req.url.startsWith('/api/v1/tasks/'))
+        return fullAssignments(action === 'complete' ? 'completed' : 'pending');
+      return { record: shared };
+    });
+    const result = await run(dir, ['todo', action, '123']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stdout, /Already/);
+    assert.ok(requests.every(req => req.method === 'GET'));
+  });
+}
+
+test('missing assignments are omitted from lists and cannot be completed or reopened', async t => {
+  const { dir, requests } = await setup(t, req => {
+    if (req.url === '/api/v1/me') return { user: { id: '111' } };
+    if (req.url.startsWith('/api/v1/tasks/')) return fullAssignments();
+    if (req.url.startsWith('/api/v3/tasks?'))
+      return { records: [shared], pagination: { has_more: false } };
+    return { record: shared };
+  });
+  const list = await run(dir, ['todo', 'list', '--json']);
+  assert.equal(list.code, 0, list.stderr);
+  assert.deepEqual(JSON.parse(list.stdout), []);
+  for (const action of ['complete', 'reopen']) {
+    const result = await run(dir, ['todo', action, '123']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /not assigned to you/);
+  }
+  assert.ok(requests.every(req => req.method === 'GET'));
+});
+
+test('fallback HTTP failures do not produce partial lists or status writes', async t => {
+  const { dir, requests } = await setup(t, req => {
+    if (req.url === '/api/v1/me') return { user: { id: '111' } };
+    if (req.url.startsWith('/api/v1/tasks/'))
+      return { status: 403, error: 'Forbidden' };
+    if (req.url.startsWith('/api/v3/tasks?'))
+      return { records: [ordinary, shared], pagination: { has_more: false } };
+    return { record: shared };
+  });
+  for (const args of [['list'], ['complete', '123'], ['reopen', '123']]) {
+    const result = await run(dir, ['todo', ...args]);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /HTTP 403/);
+    assert.equal(result.stdout, '');
+  }
+  assert.ok(requests.every(req => req.method === 'GET'));
+});
+
 test('a truncated collection containing my assignment needs no fallback', async t => {
   const task = {
     ...ordinary,

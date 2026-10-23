@@ -372,6 +372,281 @@ test('list fails without printing an incomplete list when a later page fails', a
   assert.equal(result.stdout, '');
 });
 
+test('complete accepts a reference and changes only the signed-in user assignment', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Shared review',
+            assigned_to: {
+              records: [
+                { id: '222', type: 'user', status: 'pending' },
+                { id: '111', type: 'user', status: 'pending' },
+              ],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, [
+    'todo',
+    'complete',
+    'PERSONAL-TODO-1',
+    '-s',
+    'local',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Completed for you: Shared review/);
+  assert.equal(
+    requests[1].url,
+    '/api/v3/tasks/PERSONAL-TODO-1?fields=id,name,assigned_to'
+  );
+  assert.deepEqual(requests[2], {
+    method: 'PUT',
+    url: '/api/v3/tasks/123',
+    auth: 'Bearer test-key',
+    body: {
+      record: {
+        assigned_to: [{ id: '111', type: 'user', status: 'completed' }],
+      },
+    },
+  });
+  assert.equal(requests.length, 3);
+});
+
+test('colon-separated complete accepts a numeric ID and skips an already completed assignment', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Review notes',
+            assigned_to: {
+              records: [{ id: '111', type: 'user', status: 'completed' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo:complete', '123']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Already complete for you/);
+  assert.equal(requests[1].url, '/api/v3/tasks/123?fields=id,name,assigned_to');
+  assert.equal(requests.length, 2);
+});
+
+test('complete refuses to change a to-do assigned only to someone else', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Other review',
+            assigned_to: {
+              records: [{ id: '222', type: 'user', status: 'pending' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo', 'complete', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /not assigned to you/);
+  assert.equal(requests.length, 2);
+});
+
+test('complete fails without updating when the current user cannot be determined', async t => {
+  const { dir, requests } = await setup(t, () => ({ user: {} }));
+  const result = await run(dir, ['todo', 'complete', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /Could not determine/);
+  assert.equal(requests.length, 1);
+});
+
+test('completion errors return a failure without success output or retrying', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : req.method === 'PUT'
+      ? { status: 403, error: 'Forbidden' }
+      : {
+          record: {
+            id: '123',
+            name: 'Review notes',
+            assigned_to: {
+              records: [{ id: '111', type: 'user', status: 'pending' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo', 'complete', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /HTTP 403/);
+  assert.doesNotMatch(result.stdout, /Completed/);
+  assert.equal(requests.length, 3);
+});
+
+test('list and complete reject invalid arguments before loading the API', async t => {
+  const { dir, requests } = await setup(t);
+  assert.match(
+    (await run(dir, ['todo', 'list', '--typo'])).stderr,
+    /Unexpected arguments/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'complete'])).stderr,
+    /Usage: aha todo complete/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'complete', '123', '456'])).stderr,
+    /Usage: aha todo complete/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'complete', '../me'])).stderr,
+    /Usage: aha todo complete/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'complete', '--typo'])).stderr,
+    /Usage: aha todo complete/
+  );
+  assert.equal(requests.length, 0);
+  const help = await run(dir, ['todo', 'complete', '--help']);
+  assert.equal(help.code, 0);
+  assert.match(help.stdout, /aha todo complete <id-or-reference> \[flags\]/);
+});
+
+test('reopen changes only my completed assignment back to pending', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Shared review',
+            assigned_to: {
+              records: [
+                { id: '222', type: 'user', status: 'completed' },
+                { id: '111', type: 'user', status: 'completed' },
+              ],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, [
+    'todo',
+    'reopen',
+    'PERSONAL-TODO-1',
+    '-s',
+    'local',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Reopened for you: Shared review/);
+  assert.equal(
+    requests[1].url,
+    '/api/v3/tasks/PERSONAL-TODO-1?fields=id,name,assigned_to'
+  );
+  assert.deepEqual(requests[2], {
+    method: 'PUT',
+    url: '/api/v3/tasks/123',
+    auth: 'Bearer test-key',
+    body: {
+      record: { assigned_to: [{ id: '111', type: 'user', status: 'pending' }] },
+    },
+  });
+  assert.equal(requests.length, 3);
+});
+
+test('colon-separated reopen accepts a numeric ID and skips an already pending assignment', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Review notes',
+            assigned_to: {
+              records: [{ id: '111', type: 'user', status: 'pending' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo:reopen', '123']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /Already pending for you/);
+  assert.equal(requests.length, 2);
+});
+
+test('reopen refuses to change someone else assignment', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Other review',
+            assigned_to: {
+              records: [{ id: '222', type: 'user', status: 'completed' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo', 'reopen', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /not assigned to you/);
+  assert.equal(requests.length, 2);
+});
+
+test('reopen reports update failures without success output', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : req.method === 'PUT'
+      ? { status: 403, error: 'Forbidden' }
+      : {
+          record: {
+            id: '123',
+            name: 'Review notes',
+            assigned_to: {
+              records: [{ id: '111', type: 'user', status: 'completed' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo', 'reopen', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /HTTP 403/);
+  assert.doesNotMatch(result.stdout, /Reopened/);
+  assert.equal(requests.length, 3);
+});
+
+test('reopen validates arguments and documents its identifier', async t => {
+  const { dir, requests } = await setup(t);
+  assert.match(
+    (await run(dir, ['todo', 'reopen'])).stderr,
+    /Usage: aha todo reopen/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'reopen', '../me'])).stderr,
+    /Usage: aha todo reopen/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'reopen', '123', '456'])).stderr,
+    /Usage: aha todo reopen/
+  );
+  assert.equal(requests.length, 0);
+  const help = await run(dir, ['todo', 'reopen', '--help']);
+  assert.equal(help.code, 0);
+  assert.match(help.stdout, /aha todo reopen <id-or-reference> \[flags\]/);
+});
+
 test('v3 list checks my assignment rather than another assignee and still follows cursors', async t => {
   const { dir, requests } = await setup(t, req => {
     if (req.url === '/api/v1/me') return { user: { id: '111' } };
@@ -465,4 +740,25 @@ test('v3 list rejects a repeated cursor rather than looping or showing a partial
   assert.match(result.stderr, /invalid pagination cursor/);
   assert.equal(result.stdout, '');
   assert.equal(requests.length, 3);
+});
+
+test('v3 status updates refuse a project assignment with the same ID as the user', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          record: {
+            id: '123',
+            name: 'Project assignment',
+            assigned_to: {
+              records: [{ id: '111', type: 'project', status: 'pending' }],
+              has_more: false,
+            },
+          },
+        }
+  );
+  const result = await run(dir, ['todo', 'complete', '123']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /not assigned to you/);
+  assert.equal(requests.length, 2);
 });

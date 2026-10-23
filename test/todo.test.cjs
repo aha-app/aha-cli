@@ -268,6 +268,24 @@ test('edit with --clear-record=false preserves the parent record', async t => {
   });
 });
 
+test('complete and reopen JSON return records, including an already-completed record', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : req.method === 'PUT'
+      ? { record: { ...todo, status: 'pending' } }
+      : { record: todo }
+  );
+  const completed = await run(dir, ['todo', 'complete', '123', '--json']);
+  assert.equal(completed.code, 0, completed.stderr);
+  assert.deepEqual(JSON.parse(completed.stdout), todo);
+  assert.equal(requests.length, 2);
+  const reopened = await run(dir, ['todo', 'reopen', '123', '--json']);
+  assert.equal(reopened.code, 0, reopened.stderr);
+  assert.equal(JSON.parse(reopened.stdout).status, 'pending');
+  assert.equal(requests[4].body.record.assigned_to[0].status, 'pending');
+});
+
 test('invalid edits, list options, assignees, and parent combinations fail before API calls', async t => {
   const { dir, requests } = await setup(t);
   assert.match(

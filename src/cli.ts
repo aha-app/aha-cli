@@ -10,6 +10,8 @@ import Watch from './commands/extension/watch';
 import AddContribution from './commands/extension/add-contribution';
 import TodoCreate from './commands/todo/create';
 import TodoList from './commands/todo/list';
+import TodoComplete from './commands/todo/complete';
+import TodoReopen from './commands/todo/reopen';
 import TodoView from './commands/todo/view';
 import TodoEdit from './commands/todo/edit';
 import BaseCommand from './base';
@@ -36,6 +38,8 @@ const COMMANDS: Record<string, CommandClass> = {
   'extension:add-contribution': AddContribution,
   'todo:create': TodoCreate,
   'todo:list': TodoList,
+  'todo:complete': TodoComplete,
+  'todo:reopen': TodoReopen,
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
 };
