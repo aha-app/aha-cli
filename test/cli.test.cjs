@@ -270,3 +270,199 @@ test('API key login rejects missing keys and unsafe or ambiguous URLs', async t 
     /requires --with-token/
   );
 });
+
+test('list uses v3 assignee filters and follows opaque cursors through every page', async t => {
+  const { dir, requests } = await setup(t, req => {
+    if (req.url === '/api/v1/me') return { user: { id: '111' } };
+    const url = new URL(req.url, 'http://localhost');
+    assert.equal(url.pathname, '/api/v3/tasks');
+    assert.equal(
+      url.searchParams.get('fields'),
+      'id,reference_num,name,due_date,assigned_to'
+    );
+    assert.equal(url.searchParams.get('filter.eq[type]'), 'task');
+    assert.equal(url.searchParams.get('filter.eq[assigned_to.id]'), '111');
+    assert.equal(url.searchParams.get('filter.eq[assigned_to.type]'), 'user');
+    assert.equal(
+      url.searchParams.get('filter.eq[assigned_to.status]'),
+      'pending'
+    );
+    assert.equal(url.searchParams.get('per_page'), '100');
+    const next = url.searchParams.get('after');
+    if (next) assert.equal(next, 'opaque+cursor/=');
+    return {
+      records: next
+        ? [
+            {
+              id: '456',
+              name: 'Follow up\nwith team',
+              due_date: null,
+              assigned_to: {
+                records: [{ id: '111', type: 'user', status: 'pending' }],
+                has_more: false,
+              },
+            },
+          ]
+        : [
+            {
+              id: '123',
+              reference_num: 'PERSONAL-TODO-1',
+              name: 'Review notes',
+              due_date: '2026-11-01',
+              assigned_to: {
+                records: [{ id: '111', type: 'user', status: 'pending' }],
+                has_more: false,
+              },
+            },
+          ],
+      pagination: {
+        has_more: !next,
+        next_cursor: next ? null : 'opaque+cursor/=',
+      },
+    };
+  });
+  const result = await run(dir, ['todo', 'list', '-s', 'local']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /ID\s+DUE\s+STATE\s+TITLE/);
+  assert.match(
+    result.stdout,
+    /PERSONAL-TODO-1\s+2026-11-01\s+pending\s+Review notes/
+  );
+  assert.match(result.stdout, /456\s+—\s+pending\s+Follow up with team/);
+  assert.equal(requests.length, 3);
+  assert.equal(requests[1].method, 'GET');
+  assert.equal(requests[2].method, 'GET');
+});
+
+test('colon-separated list explains when there are no pending to-dos', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : { records: [], pagination: { has_more: false, next_cursor: null } }
+  );
+  const result = await run(dir, ['todo:list']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /No pending to-dos/);
+  assert.equal(requests.length, 2);
+});
+
+test('list fails without printing an incomplete list when a later page fails', async t => {
+  const { dir } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : !new URL(req.url, 'http://localhost').searchParams.has('after')
+      ? {
+          records: [
+            {
+              id: '123',
+              name: 'Review notes',
+              assigned_to: {
+                records: [{ id: '111', type: 'user', status: 'pending' }],
+                has_more: false,
+              },
+            },
+          ],
+          pagination: { has_more: true, next_cursor: 'next-page' },
+        }
+      : { status: 500, error: 'Server error' }
+  );
+  const result = await run(dir, ['todo', 'list']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /HTTP 500/);
+  assert.equal(result.stdout, '');
+});
+
+test('v3 list checks my assignment rather than another assignee and still follows cursors', async t => {
+  const { dir, requests } = await setup(t, req => {
+    if (req.url === '/api/v1/me') return { user: { id: '111' } };
+    const after = new URL(req.url, 'http://localhost').searchParams.get(
+      'after'
+    );
+    return {
+      records: after
+        ? [
+            {
+              id: '456',
+              name: 'My pending task',
+              assigned_to: {
+                records: [{ id: '111', type: 'user', status: 'pending' }],
+                has_more: false,
+              },
+            },
+          ]
+        : [
+            {
+              id: '123',
+              name: 'My completed task',
+              assigned_to: {
+                records: [
+                  { id: '111', type: 'user', status: 'completed' },
+                  { id: '222', type: 'user', status: 'pending' },
+                ],
+                has_more: false,
+              },
+            },
+            {
+              id: '124',
+              name: 'Project assignment',
+              assigned_to: {
+                records: [
+                  { id: '111', type: 'project', status: 'pending' },
+                  { id: '222', type: 'user', status: 'pending' },
+                ],
+                has_more: false,
+              },
+            },
+          ],
+      pagination: { has_more: !after, next_cursor: after ? null : 'page-two' },
+    };
+  });
+  const result = await run(dir, ['todo', 'list']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.match(result.stdout, /My pending task/);
+  assert.doesNotMatch(result.stdout, /My completed task|Project assignment/);
+  assert.equal(requests.length, 3);
+});
+
+test('list refuses an invalid fallback response instead of silently omitting a task', async t => {
+  const { dir } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          records: [
+            {
+              id: '123',
+              name: 'Many assignees',
+              assigned_to: {
+                records: [{ id: '222', type: 'user', status: 'pending' }],
+                has_more: true,
+              },
+            },
+          ],
+          pagination: { has_more: false, next_cursor: null },
+        }
+  );
+  const result = await run(dir, ['todo', 'list']);
+  assert.equal(result.code, 1);
+  assert.match(
+    result.stderr,
+    /Could not retrieve the full to-do assignment list/
+  );
+  assert.equal(result.stdout, '');
+});
+
+test('v3 list rejects a repeated cursor rather than looping or showing a partial list', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me'
+      ? { user: { id: '111' } }
+      : {
+          records: [],
+          pagination: { has_more: true, next_cursor: 'same-cursor' },
+        }
+  );
+  const result = await run(dir, ['todo', 'list']);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /invalid pagination cursor/);
+  assert.equal(result.stdout, '');
+  assert.equal(requests.length, 3);
+});

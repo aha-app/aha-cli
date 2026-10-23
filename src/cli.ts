@@ -9,6 +9,8 @@ import Uninstall from './commands/extension/uninstall';
 import Watch from './commands/extension/watch';
 import AddContribution from './commands/extension/add-contribution';
 import TodoCreate from './commands/todo/create';
+import TodoList from './commands/todo/list';
+import TodoView from './commands/todo/view';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -32,6 +34,8 @@ const COMMANDS: Record<string, CommandClass> = {
   'extension:watch': Watch,
   'extension:add-contribution': AddContribution,
   'todo:create': TodoCreate,
+  'todo:list': TodoList,
+  'todo:view': TodoView,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
