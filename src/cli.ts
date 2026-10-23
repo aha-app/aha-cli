@@ -8,6 +8,7 @@ import Tail from './commands/extension/tail';
 import Uninstall from './commands/extension/uninstall';
 import Watch from './commands/extension/watch';
 import AddContribution from './commands/extension/add-contribution';
+import TodoCreate from './commands/todo/create';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -30,11 +31,13 @@ const COMMANDS: Record<string, CommandClass> = {
   'extension:uninstall': Uninstall,
   'extension:watch': Watch,
   'extension:add-contribution': AddContribution,
+  'todo:create': TodoCreate,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
+  todo: { description: 'Manage to-dos' },
 };
 
 function resolveCommand(

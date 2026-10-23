@@ -34,6 +34,15 @@ export function parseArgs(
     if (kebab !== name) kebabMap[kebab] = name;
   }
 
+  const isFlag = (value: string): boolean => {
+    if (value === '--') return true;
+    if (value.startsWith('--')) {
+      const key = value.slice(2).split('=')[0];
+      return Boolean(flagDefs[key] || flagDefs[kebabMap[key]]);
+    }
+    return value.length === 2 && value[0] === '-' && Boolean(charMap[value[1]]);
+  };
+
   let i = 0;
   while (i < argv.length) {
     const arg = argv[i];
@@ -60,10 +69,17 @@ export function parseArgs(
       }
 
       if (def.type === 'boolean') {
-        flags[flagName] = true;
+        if (
+          eqValue !== undefined &&
+          eqValue !== 'true' &&
+          eqValue !== 'false'
+        ) {
+          throw new Error(`Flag --${rawKey} requires true or false`);
+        }
+        flags[flagName] = eqValue !== 'false';
       } else {
         const value = eqValue ?? argv[++i];
-        if (value === undefined) {
+        if (value === undefined || (eqValue === undefined && isFlag(value))) {
           throw new Error(`Flag --${rawKey} requires a value`);
         }
         flags[flagName] = value;
@@ -81,7 +97,7 @@ export function parseArgs(
         flags[name] = true;
       } else {
         const value = argv[++i];
-        if (value === undefined) {
+        if (value === undefined || isFlag(value)) {
           throw new Error(`Flag -${char} requires a value`);
         }
         flags[name] = value;
