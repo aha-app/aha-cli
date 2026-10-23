@@ -2,6 +2,46 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { setup, run } = require('./helpers.cjs');
 
+test('create and edit accept dash-prefixed descriptions with long and short flags', async t => {
+  const { dir, requests } = await setup(t);
+  for (const flag of ['--body', '-b']) {
+    for (const body of ['- First item\n- Second item', '--literal', '-']) {
+      for (const action of ['create', 'edit']) {
+        const result = await run(dir, [
+          'todo',
+          action,
+          ...(action === 'edit' ? ['99'] : []),
+          '--title',
+          'Bullet list',
+          flag,
+          body,
+        ]);
+        assert.equal(result.code, 0, result.stderr);
+        assert.equal(
+          requests.at(-1).body.record.description,
+          `<p>${body.replace(/\n/g, '<br>')}</p>`
+        );
+      }
+    }
+  }
+});
+
+test('description flags still reject missing values before recognized flags', async t => {
+  const { dir, requests } = await setup(t);
+  for (const args of [
+    ['--body', '--due=2026-11-01'],
+    ['-b', '-t', 'Title'],
+    ['--body', '--clear-record'],
+    ['-b', '--'],
+    ['--body'],
+  ]) {
+    const result = await run(dir, ['todo', 'edit', '123', ...args]);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /requires a value/);
+  }
+  assert.equal(requests.length, 0);
+});
+
 const others = Array.from({ length: 25 }, (_, i) => ({
   id: String(200 + i),
   type: 'user',

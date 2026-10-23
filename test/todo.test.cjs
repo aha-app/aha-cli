@@ -95,6 +95,92 @@ test('create supports unassigned tasks without looking up the current user', asy
   assert.deepEqual(requests[0].body.record.assigned_to, []);
 });
 
+test('edit sends only the supplied fields and outputs a JSON record', async t => {
+  const { dir, requests } = await setup(t, () => ({
+    record: { ...todo, name: 'New title' },
+  }));
+  const result = await run(dir, [
+    'todo:edit',
+    'DEMO-TODO-1',
+    '--title',
+    'New title',
+    '--json',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).name, 'New title');
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].method, 'PUT');
+  assert.deepEqual(requests[0].body, { record: { name: 'New title' } });
+});
+
+test('edit can clear the description, due date, and parent without touching assignments', async t => {
+  const { dir, requests } = await setup(t, () => ({ record: todo }));
+  const result = await run(dir, [
+    'todo',
+    'edit',
+    '123',
+    '--body=',
+    '--clear-due',
+    '--clear-record',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(requests[0].body, {
+    record: {
+      description: '<p></p>',
+      due_date: null,
+      record_id: null,
+      record_type: null,
+    },
+  });
+});
+
+test('edit patches specific assignments without replacing or resetting omitted assignees', async t => {
+  const { dir, requests } = await setup(t, req =>
+    req.url === '/api/v1/me' ? { user: { id: '111' } } : { record: todo }
+  );
+  const result = await run(dir, [
+    'todo',
+    'edit',
+    '123',
+    '--add-assignee',
+    '222,222',
+    '--remove-assignee',
+    '@me',
+    '--record',
+    '456',
+    '--record-type',
+    'requirement',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(requests[1].body, {
+    record: {
+      record_id: '456',
+      record_type: 'requirement',
+      assigned_to: [
+        { id: '222', type: 'user' },
+        { id: '111', type: 'user', _destroy: true },
+      ],
+    },
+  });
+  assert.equal(requests.length, 2);
+});
+
+test('assignment conflicts resolved through @me do not reach the write API', async t => {
+  const { dir, requests } = await setup(t, () => ({ user: { id: '111' } }));
+  const result = await run(dir, [
+    'todo',
+    'edit',
+    '123',
+    '--add-assignee',
+    '@me',
+    '--remove-assignee',
+    '111',
+  ]);
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /Cannot add and remove/);
+  assert.equal(requests.length, 1);
+});
+
 test('list all returns my pending and completed tasks as JSON and encodes title searches', async t => {
   const { dir, requests } = await setup(t, req =>
     req.url === '/api/v1/me'
@@ -164,6 +250,94 @@ test('empty JSON lists are arrays without the human empty-list message', async t
   const result = await run(dir, ['todo', 'list', '--json']);
   assert.equal(result.code, 0, result.stderr);
   assert.deepEqual(JSON.parse(result.stdout), []);
+});
+
+test('edit with --clear-record=false preserves the parent record', async t => {
+  const { dir, requests } = await setup(t, () => ({ record: todo }));
+  const result = await run(dir, [
+    'todo',
+    'edit',
+    '123',
+    '--title',
+    'New title',
+    '--clear-record=false',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  assert.deepEqual(requests.find(request => request.method === 'PUT').body, {
+    record: { name: 'New title' },
+  });
+});
+
+test('invalid edits, list options, assignees, and parent combinations fail before API calls', async t => {
+  const { dir, requests } = await setup(t);
+  assert.match(
+    (await run(dir, ['todo', 'edit', '123'])).stderr,
+    /at least one edit/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'edit', '123', '--due', '2026-02-30'])).stderr,
+    /valid date/
+  );
+  assert.match(
+    (
+      await run(dir, [
+        'todo',
+        'edit',
+        '123',
+        '--due',
+        '2026-11-01',
+        '--clear-due',
+      ])
+    ).stderr,
+    /either --due/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'edit', '123', '--record', 'DEMO-1'])).stderr,
+    /provided together/
+  );
+  assert.match(
+    (
+      await run(dir, [
+        'todo',
+        'edit',
+        '123',
+        '--record',
+        'DEMO-1',
+        '--record-type',
+        'feature',
+        '--clear-record',
+      ])
+    ).stderr,
+    /either --record/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'create', '-t', 'x', '--assignee', 'bad'])).stderr,
+    /numeric user IDs/
+  );
+  assert.match(
+    (
+      await run(dir, [
+        'todo',
+        'create',
+        '-t',
+        'x',
+        '--assignee',
+        '@me',
+        '--unassigned',
+      ])
+    ).stderr,
+    /either --assignee/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'list', '--state', 'closed'])).stderr,
+    /pending, completed, or all/
+  );
+  assert.match(
+    (await run(dir, ['todo', 'list', '--search='])).stderr,
+    /nonempty/
+  );
+  assert.match((await run(dir, ['todo', 'view', '../me'])).stderr, /Usage/);
+  assert.equal(requests.length, 0);
 });
 
 test('JSON mode requires an explicit account when several accounts are saved', async t => {

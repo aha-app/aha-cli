@@ -11,6 +11,7 @@ import AddContribution from './commands/extension/add-contribution';
 import TodoCreate from './commands/todo/create';
 import TodoList from './commands/todo/list';
 import TodoView from './commands/todo/view';
+import TodoEdit from './commands/todo/edit';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -36,6 +37,7 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:create': TodoCreate,
   'todo:list': TodoList,
   'todo:view': TodoView,
+  'todo:edit': TodoEdit,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
