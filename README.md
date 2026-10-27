@@ -222,10 +222,10 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.7
 # Aha! app commands
 
 Commands for working with records in an Aha! instance use space-separated syntax.
-Authenticate with `aha auth:login`, or use an API key from standard input:
+Authenticate with `aha auth login`, or use an API key from standard input:
 
 ```sh-session
-$ aha auth:login --with-token --url https://your-account.aha.io < /path/to/api-key
+$ aha auth login --with-token --url https://your-account.aha.io < /path/to/api-key
 ```
 
 Credentials are saved in `~/.netrc`. Use `-s <subdomain>` to select a saved account.

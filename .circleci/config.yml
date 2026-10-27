@@ -23,9 +23,18 @@ jobs:
           pkg-manager: yarn
       - run: yarn run posttest
 
+  test:
+    executor: node
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run: yarn run test
+
 workflows:
   version: 2.1
   test:
     jobs:
       - lint
       - build
+      - test
