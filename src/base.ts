@@ -109,6 +109,11 @@ abstract class BaseCommand {
       machine = machines[machineOptions[0]];
 
       if (machineOptions.length > 1) {
+        if (this.flags.json) {
+          throw new Error(
+            'Multiple Aha! accounts are saved. Use --subdomain to select one for JSON output.'
+          );
+        }
         ({ machine } = await prompt({
           type: 'list',
           name: 'machine',

@@ -2,12 +2,13 @@
 
 Command line interface for working with [Aha!](https://www.aha.io).
 
-Currently supported commands are for creating and managing extensions.
+Currently supported commands are for creating and managing extensions and to-dos.
 
 <!-- toc -->
 * [aha-cli](#aha-cli)
 * [Usage](#usage)
 * [Commands](#commands)
+* [Aha! app commands](#aha-app-commands)
 * [Development](#development)
 <!-- tocstop -->
 
@@ -217,6 +218,79 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.7/src/commands/help.ts)_
 <!-- commandsstop -->
+
+# Aha! app commands
+
+Commands for working with records in an Aha! instance use space-separated syntax.
+Authenticate with `aha auth login`, or use an API key from standard input:
+
+```sh-session
+$ aha auth login --with-token --url https://your-account.aha.io < /path/to/api-key
+```
+
+Credentials are saved in `~/.netrc`. Use `-s <subdomain>` to select a saved account.
+For API-key login, use `--subdomain <alias>` to give another instance a distinct
+saved name (for example, `acme-local`). Login refuses to replace an alias belonging
+to a different instance.
+
+## To-dos
+
+Create a to-do in My work, automatically assigned to yourself:
+
+```sh-session
+$ aha todo create --title "Review the release notes"
+$ aha todo create -t "Review the release notes" -b "Check the examples" --due 2026-11-01
+```
+
+The title is prompted for when running interactively; scripts and `--json` mode must
+provide `--title`. The optional `--body` is plain text, and `--due` uses `YYYY-MM-DD`.
+The command prints the created to-do's URL.
+
+List, view, edit, complete, reopen, or delete a to-do:
+
+```sh-session
+$ aha todo list
+$ aha todo list --state completed --search "release notes"
+$ aha todo list --state all --json
+$ aha todo view PERSONAL-TODO-1
+$ aha todo edit PERSONAL-TODO-1 --title "Review updated notes" --due 2026-11-02
+$ aha todo complete PERSONAL-TODO-1
+$ aha todo reopen PERSONAL-TODO-1
+$ aha todo delete PERSONAL-TODO-1 --yes
+```
+
+The list includes all pages of to-dos assigned to you. `--state` accepts `pending`
+(the default), `completed`, or `all`, based on your assignment's status. `--search`
+matches text in the title. Individual commands accept a numeric ID or reference.
+`view` shows the description, due date, overall status, assignees, parent, and link.
+
+`edit` changes only the supplied fields. Use `--body ""`, `--clear-due`, or
+`--clear-record` to clear the description, due date, or parent link. `complete` and
+`reopen` update only your assignment; repeating either action reports when it is
+already in the requested state. `delete` removes the entire shared to-do and asks
+for confirmation unless `--yes` is supplied. Scripts must use `--yes`.
+
+Assign users or link a to-do to a parent record when creating or editing it:
+
+```sh-session
+$ aha todo create -t "Review implementation" --assignee @me,123456789 --record DEMO-123 --record-type feature
+$ aha todo edit PERSONAL-TODO-1 --add-assignee 123456789 --remove-assignee @me
+$ aha todo edit PERSONAL-TODO-1 --record DEMO-123-1 --record-type requirement
+```
+
+Assignment options accept comma-separated numeric user IDs or `@me`. Create defaults
+to yourself; an explicit `--assignee` selects those users, and `--unassigned` creates
+without assignees. Edit adds or removes only the specified users, preserving other
+assignments and their states. Parent links require both `--record` (ID or reference)
+and `--record-type` (a v3 record type such as `feature`, `requirement`, `release`, or `page`).
+
+All to-do commands accept `--json`: list returns an array of v3 records, record
+commands return one v3 record, and delete returns `{ "id": "…", "deleted": true }`.
+JSON preserves v3 fields, including overall status and individual assignment states.
+Use `-s <subdomain>` to select an account when multiple accounts are saved; JSON mode
+does not prompt. JSON deletion requires `--yes`.
+
+Colon-separated commands also work, for example `aha todo:view` and `aha todo:edit`.
 
 # Development
 

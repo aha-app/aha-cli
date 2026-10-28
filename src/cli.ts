@@ -8,6 +8,13 @@ import Tail from './commands/extension/tail';
 import Uninstall from './commands/extension/uninstall';
 import Watch from './commands/extension/watch';
 import AddContribution from './commands/extension/add-contribution';
+import TodoCreate from './commands/todo/create';
+import TodoList from './commands/todo/list';
+import TodoComplete from './commands/todo/complete';
+import TodoReopen from './commands/todo/reopen';
+import TodoView from './commands/todo/view';
+import TodoEdit from './commands/todo/edit';
+import TodoDelete from './commands/todo/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -16,6 +23,7 @@ const VERSION = '3.0.0';
 interface CommandClass {
   new (argv: string[]): BaseCommand;
   description: string;
+  args?: string;
   flags: Record<string, FlagDefinition>;
 }
 
@@ -29,11 +37,19 @@ const COMMANDS: Record<string, CommandClass> = {
   'extension:uninstall': Uninstall,
   'extension:watch': Watch,
   'extension:add-contribution': AddContribution,
+  'todo:create': TodoCreate,
+  'todo:list': TodoList,
+  'todo:complete': TodoComplete,
+  'todo:reopen': TodoReopen,
+  'todo:view': TodoView,
+  'todo:edit': TodoEdit,
+  'todo:delete': TodoDelete,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
+  todo: { description: 'Manage to-dos' },
 };
 
 function resolveCommand(
@@ -43,6 +59,11 @@ function resolveCommand(
 
   const cmd = COMMANDS[argv[0]];
   if (cmd) return { CommandClass: cmd, commandArgv: argv.slice(1) };
+
+  const spacedCommand = COMMANDS[`${argv[0]}:${argv[1]}`];
+  if (spacedCommand) {
+    return { CommandClass: spacedCommand, commandArgv: argv.slice(2) };
+  }
 
   return null;
 }
@@ -61,10 +82,10 @@ TOPICS`);
   for (const [name, cmd] of Object.entries(COMMANDS)) {
     // Only use first line of description in the list
     const desc = (cmd.description || '').split('\n')[0];
-    console.log(`  ${name.padEnd(30)} ${desc}`);
+    console.log(`  ${name.replace(/:/g, ' ').padEnd(30)} ${desc}`);
   }
   console.log(
-    `\nRun "aha <command> --help" for more information about a command.`
+    `\nRun "aha <command> --help" for more information about a command.\nColon-separated commands (e.g. "aha auth:login") are also supported.`
   );
 }
 
@@ -77,16 +98,17 @@ function printTopicHelp(topicName: string) {
   for (const [name, cmd] of Object.entries(COMMANDS)) {
     if (name.startsWith(topicName + ':')) {
       const desc = (cmd.description || '').split('\n')[0];
-      console.log(`  ${name.padEnd(30)} ${desc}`);
+      console.log(`  ${name.replace(/:/g, ' ').padEnd(30)} ${desc}`);
     }
   }
 }
 
 function printCommandHelp(commandId: string, CommandClass: CommandClass) {
-  const usageName = commandId;
+  const usageName = commandId.replace(/:/g, ' ');
   console.log(`${CommandClass.description}\n`);
   console.log(`USAGE`);
-  console.log(`  $ aha ${usageName} [flags]\n`);
+  const args = CommandClass.args ? ` ${CommandClass.args}` : '';
+  console.log(`  $ aha ${usageName}${args} [flags]\n`);
 
   const flags = CommandClass.flags;
   if (flags && Object.keys(flags).length > 0) {

@@ -5,6 +5,7 @@ import { Netrc } from 'netrc-parser';
 const netrc = new Netrc();
 import open from 'open';
 import crypto from 'crypto';
+import AhaAPI from '../../api';
 
 interface NetrcEntry {
   token: string;
@@ -19,12 +20,22 @@ interface TokenInfo {
   email: string;
 }
 
+interface MeResponse {
+  user?: { email?: string };
+}
+
 class Login extends BaseCommand {
   static description = `Login to Aha! and save credentials for other commands
 Credentials are saved in ~/.netrc`;
 
   static flags = {
     ...BaseCommand.flags,
+    withToken: Flags.boolean({
+      description: 'Read an API key from standard input (requires --url)',
+    }),
+    url: Flags.string({
+      description: 'Aha! instance URL for API key authentication',
+    }),
     authServer: Flags.string({
       description: 'server to use for authentication',
       default: 'https://secure.aha.io',
@@ -35,6 +46,13 @@ Credentials are saved in ~/.netrc`;
   };
 
   async run() {
+    if (this.flags.withToken) {
+      await this.loginWithToken();
+      return;
+    }
+    if (this.flags.url) {
+      throw new Error('--url requires --with-token.');
+    }
     const cliToken = crypto.randomBytes(36).toString('hex');
     const authServer =
       typeof this.flags.authServer === 'string'
@@ -115,8 +133,81 @@ Credentials are saved in ~/.netrc`;
     ux.action.stop('Success!');
   }
 
-  private saveToken(host: string, entry: NetrcEntry) {
+  private async loginWithToken() {
+    if (typeof this.flags.url !== 'string') {
+      throw new Error(
+        '--with-token requires --url https://your-account.aha.io'
+      );
+    }
+    const url = new URL(this.flags.url);
+    if (
+      url.protocol !== 'https:' ||
+      url.username ||
+      url.password ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.hash
+    ) {
+      throw new Error(
+        '--url must be an HTTPS instance URL without a path, query, or credentials.'
+      );
+    }
+    if (process.stdin.isTTY) {
+      throw new Error(
+        'Pass the API key through standard input, e.g. aha auth login --with-token --url https://your-account.aha.io < key-file'
+      );
+    }
+    let input = '';
+    for await (const chunk of process.stdin) input += chunk.toString();
+    const token = input.trim();
+    if (!token || /\s/.test(token))
+      throw new Error('Standard input must contain a single API key.');
+
+    const api = new AhaAPI({ baseURL: url.origin });
+    api.defaults.headers = { authorization: `Bearer ${token}` };
+    const result = await api.get('/api/v1/me');
+    const body = result.body as MeResponse;
+    if (typeof body?.user?.email !== 'string' || !body.user.email) {
+      throw new Error(
+        'Could not verify the API key. Credentials were not saved.'
+      );
+    }
+    const domain =
+      typeof this.flags.subdomain === 'string'
+        ? this.flags.subdomain
+        : url.hostname.split('.')[0];
+    this.saveToken(
+      domain,
+      { token, url: url.origin, email: body.user.email },
+      { preserveInstance: true }
+    );
+    this.log(`Logged in to ${url.origin} as ${body.user.email}`);
+  }
+
+  private saveToken(
+    host: string,
+    entry: NetrcEntry,
+    { preserveInstance = false } = {}
+  ) {
     netrc.loadSync();
+
+    const existing = netrc.machines[host];
+    if (preserveInstance && existing) {
+      let sameInstance = false;
+      try {
+        sameInstance =
+          existing.type === 'aha' &&
+          typeof existing.url === 'string' &&
+          new URL(existing.url).origin === new URL(entry.url).origin;
+      } catch {
+        // An entry without a valid instance URL must not be overwritten.
+      }
+      if (!sameInstance) {
+        throw new Error(
+          `Saved account "${host}" already belongs to another instance or credential entry. Use --subdomain with a different alias to save this account. Credentials were not changed.`
+        );
+      }
+    }
 
     if (!netrc.machines[host]) netrc.machines[host] = {};
     netrc.machines[host].type = 'aha';
