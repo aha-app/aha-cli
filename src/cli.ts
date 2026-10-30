@@ -15,13 +15,11 @@ import TodoReopen from './commands/todo/reopen';
 import TodoView from './commands/todo/view';
 import TodoEdit from './commands/todo/edit';
 import TodoDelete from './commands/todo/delete';
-import {
-  FeatureCreate,
-  FeatureList,
-  FeatureView,
-  FeatureEdit,
-  FeatureDelete,
-} from './commands/feature';
+import FeatureCreate from './commands/feature/create';
+import FeatureView from './commands/feature/view';
+import FeatureEdit from './commands/feature/edit';
+import FeatureList from './commands/feature/list';
+import FeatureDelete from './commands/feature/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 

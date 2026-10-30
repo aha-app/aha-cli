@@ -1,83 +1,13 @@
-import { prompt } from 'inquirer';
-import BaseCommand from '../base';
-import { Flags } from '../lib/flags';
+import BaseCommand from '../../base';
+import { Flags } from '../../lib/flags';
 import {
   FeatureRecord,
   featureFlags,
-  featureEditFlags,
-  featureIdentifier,
-  featurePatch,
   resolveFeatureIds,
   fieldQuery,
-  fetchFeature,
   object,
   warnEmbedded,
-  printFeature,
-} from '../lib/feature-api';
-
-export class FeatureCreate extends BaseCommand {
-  static description = 'Create a feature in an explicit workspace or release';
-  static flags = {
-    ...featureFlags,
-    ...featureEditFlags,
-    workspace: Flags.string({
-      description: 'Workspace ID/reference (uses its default release)',
-    }),
-  };
-  async run() {
-    if (this.parse().argv.length)
-      throw new Error(
-        'Use --title and --workspace or --release to create a feature.'
-      );
-    const query = fieldQuery(this.flags);
-    const patch = await featurePatch(this.flags, true);
-    await this.initAPI();
-    await resolveFeatureIds(this.api, patch);
-    const result = await this.api.post(`/api/v3/features?${query}`, {
-      body: { record: patch },
-    });
-    printFeature(
-      this,
-      (result.body as { record: FeatureRecord }).record,
-      'Created feature'
-    );
-  }
-}
-
-export class FeatureView extends BaseCommand {
-  static description = 'View a feature by ID or reference';
-  static args = '<id-or-reference>';
-  static flags = featureFlags;
-  async run() {
-    const id = featureIdentifier(this.parse().argv, 'view');
-    const query = fieldQuery(this.flags);
-    await this.initAPI();
-    printFeature(this, await fetchFeature(this.api, id, query));
-  }
-}
-
-export class FeatureEdit extends BaseCommand {
-  static description =
-    'Edit only the supplied feature fields and collection patches';
-  static args = '<id-or-reference>';
-  static flags = { ...featureFlags, ...featureEditFlags };
-  async run() {
-    const id = featureIdentifier(this.parse().argv, 'edit');
-    const query = fieldQuery(this.flags);
-    const patch = await featurePatch(this.flags, false);
-    await this.initAPI();
-    await resolveFeatureIds(this.api, patch);
-    const result = await this.api.put(
-      `/api/v3/features/${encodeURIComponent(id)}?${query}`,
-      { body: { record: patch } }
-    );
-    printFeature(
-      this,
-      (result.body as { record: FeatureRecord }).record,
-      'Updated feature'
-    );
-  }
-}
+} from '../../lib/feature-api';
 
 interface FeaturePage {
   records: FeatureRecord[];
@@ -89,7 +19,7 @@ interface FeaturePage {
   };
 }
 
-export class FeatureList extends BaseCommand {
+export default class FeatureList extends BaseCommand {
   static description =
     'List features across all cursor pages, with API v3 filters';
   static flags = {
@@ -231,51 +161,5 @@ export class FeatureList extends BaseCommand {
         );
       if (!records.length) this.log('No features matched.');
     }
-  }
-}
-
-export class FeatureDelete extends BaseCommand {
-  static description = 'Delete a feature (requires --yes in scripts)';
-  static args = '<id-or-reference>';
-  static flags = {
-    ...BaseCommand.flags,
-    json: featureFlags.json,
-    yes: Flags.boolean({
-      char: 'y',
-      description: 'Confirm deletion without prompting',
-    }),
-  };
-  async run() {
-    const id = featureIdentifier(this.parse().argv, 'delete');
-    if (!this.flags.yes && (!process.stdin.isTTY || this.flags.json))
-      throw new Error(
-        'Use --yes to delete a feature without an interactive confirmation.'
-      );
-    await this.initAPI();
-    const feature = await fetchFeature(
-      this.api,
-      id,
-      new URLSearchParams({ fields: 'id,name,reference_num' })
-    );
-    if (typeof feature.id !== 'string' || !/^\d+$/.test(feature.id))
-      throw new Error(
-        'The API did not return a valid feature ID; nothing was deleted.'
-      );
-    if (!this.flags.yes) {
-      const { confirmed } = await prompt<{ confirmed: boolean }>({
-        type: 'confirm',
-        name: 'confirmed',
-        default: false,
-        message: `Delete "${feature.name}"?`,
-      });
-      if (!confirmed) {
-        this.log('Deletion canceled.');
-        return;
-      }
-    }
-    await this.api.delete(`/api/v3/features/${encodeURIComponent(feature.id)}`);
-    if (this.flags.json)
-      this.log(JSON.stringify({ id: feature.id, deleted: true }, null, 2));
-    else this.log(`Deleted feature: ${feature.reference_num || feature.id}`);
   }
 }
