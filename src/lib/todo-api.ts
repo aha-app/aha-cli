@@ -1,3 +1,5 @@
+import { printRecordResult } from './record-output';
+export { currentUserId } from './current-user';
 import AhaAPI from '../api';
 import BaseCommand from '../base';
 import { Flags } from './flags';
@@ -62,23 +64,7 @@ export function printTodoResult(
   todo: Todo,
   message: string
 ) {
-  if (command.flags.json) command.log(JSON.stringify(todo, null, 2));
-  else {
-    command.log(`${message}: ${todo.name}`);
-    command.log(todo.html_url || `ID: ${todo.id}`);
-  }
-}
-
-export async function currentUserId(api: AhaAPI): Promise<string> {
-  // V3 exposes users by ID, but has no current-user endpoint.
-  const result = await api.get('/api/v1/me');
-  const me = result.body as { user?: { id?: string } };
-  if (typeof me?.user?.id !== 'string' || !me.user.id) {
-    throw new Error(
-      'Could not determine the signed-in user. No to-do was changed.'
-    );
-  }
-  return me.user.id;
+  printRecordResult(command, todo, message);
 }
 
 export async function ownAssignment(

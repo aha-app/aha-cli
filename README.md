@@ -2,7 +2,7 @@
 
 Command line interface for working with [Aha!](https://www.aha.io).
 
-Currently supported commands are for creating and managing extensions and to-dos.
+Currently supported commands are for creating and managing extensions, to-dos, and features.
 
 <!-- toc -->
 * [aha-cli](#aha-cli)
@@ -222,6 +222,8 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.7
 # Aha! app commands
 
 Commands for working with records in an Aha! instance use space-separated syntax.
+Their shared interface and implementation patterns are defined in
+[Command conventions](docs/command-conventions.md).
 Authenticate with `aha auth login`, or use an API key from standard input:
 
 ```sh-session
@@ -291,6 +293,67 @@ Use `-s <subdomain>` to select an account when multiple accounts are saved; JSON
 does not prompt. JSON deletion requires `--yes`.
 
 Colon-separated commands also work, for example `aha todo:view` and `aha todo:edit`.
+
+## Features
+
+`aha feature create`, `list`, `view`, `edit`, and `delete` support both
+space-separated and colon-separated syntax. Select an account with `-s` and use
+`--json` for scripts. Interactive creation prompts for a missing title when JSON
+input is not supplied.
+Scripts and JSON mode require a title through flags or input, and deletion
+requires confirmation or `--yes`. Missing input and API permission/validation errors
+return a nonzero exit code; API v3 failures do not trigger a v1 retry.
+
+```sh
+aha feature create --workspace AK --title 'Improve CLI' --json -s big
+aha feature create --release AK-R-179 --title 'Improve CLI' -s big
+aha feature create --workspace AK -t 'Improve CLI' -b 'Check the examples' -s big
+aha feature list --workspace AK --search CLI --json -s big
+aha feature list --filters '{"eq[status.id]":"123"}' --fields default,status --json -s big
+aha feature view AK-123 --fields default,description,requirements,comments --json -s big
+aha feature edit AK-123 --release AK-R-179 --owner @me -s big
+aha feature edit AK-123 --status 123 --type 456 --start-date 2026-10-30 -s big
+aha feature delete AK-123 --yes --json -s big
+```
+
+Creation requires a title and exactly one workspace or release. A workspace
+uses its default release. Move an existing feature by selecting its new release.
+Use `--title`/`-t` for the title and `--body`/`-b` for a plain-text description.
+Workspace, release, team, iteration, epic, and initiative flags accept supported
+IDs/references and resolve references through API v3 before submitting ID fields.
+Workflow status/type and team status flags take IDs. The `@me` owner shortcut
+uses `/api/v1/me` because v3 has no current-user endpoint.
+
+For full writable payloads, pass a **record object** through `--input file.json`
+or pipe it to `--input -`; omit the outer `record` envelope. JSON IDs must be
+strings to avoid precision loss. Do not supply a field through both JSON and a
+flag. `--body` is escaped as plain text, consistently with to-dos. Use
+`--body ""` to clear it, or supply HTML in the JSON `description` field.
+Use JSON `null` to clear nullable dates/associations.
+
+```sh
+printf '%s' '{"description":"<p>Details</p>","initial_estimate":5,"remaining_estimate":3,"tags":[{"name":"CLI"}],"goals":[{"reference_num":"AK-G-1"}],"key_results":[{"reference_num":"AK-KR-1"}],"custom_fields":{"your_field_key":"value"}}' |
+  aha feature edit AK-123 --input - --json -s big
+```
+
+JSON input also exposes detailed estimates/work done, duration/progress/estimate
+sources, release phases, program increments, time codes, score facts, watchers,
+and the other writable feature fields in API v3. Collection changes use v3 patch
+semantics: omitted associations are untouched; use `{"id":"123","_destroy":true}`
+to remove a specific collection item. Read-only or unknown top-level fields are
+rejected locally. The server validates account-specific fields and permissions.
+
+Lists follow every cursor page. Human output is a table; `--json` returns
+a bare array of records, consistently with to-dos (including `[]` for no matches).
+Use `--per-page` (1–200), `--filters` with documented API v3 filter
+keys/string values, and `--fields` for field selection. Choose one parent flag
+(`--workspace` or `--release`). `--sort field` and optional `--descending` use API
+sorting, which may cap total results. Truncation emits a warning on stderr without
+changing the JSON array shape;
+remove sorting to retrieve the entire collection.
+Embedded collections are independently capped by API v3. Any embedded `has_more`
+is preserved in JSON and warned about on stderr; a feature view does not imply
+that every nested requirement or comment was returned.
 
 # Development
 
