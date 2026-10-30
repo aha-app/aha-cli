@@ -15,6 +15,13 @@ import TodoReopen from './commands/todo/reopen';
 import TodoView from './commands/todo/view';
 import TodoEdit from './commands/todo/edit';
 import TodoDelete from './commands/todo/delete';
+import {
+  FeatureCreate,
+  FeatureList,
+  FeatureView,
+  FeatureEdit,
+  FeatureDelete,
+} from './commands/feature';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -44,12 +51,18 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
   'todo:delete': TodoDelete,
+  'feature:create': FeatureCreate,
+  'feature:list': FeatureList,
+  'feature:view': FeatureView,
+  'feature:edit': FeatureEdit,
+  'feature:delete': FeatureDelete,
 };
 
 const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
+  feature: { description: 'Manage features with API v3' },
 };
 
 function resolveCommand(

@@ -2,7 +2,7 @@
 
 Command line interface for working with [Aha!](https://www.aha.io).
 
-Currently supported commands are for creating and managing extensions and to-dos.
+Currently supported commands are for creating and managing extensions, to-dos, and features.
 
 <!-- toc -->
 * [aha-cli](#aha-cli)
@@ -356,3 +356,57 @@ If you want to install it locally on your PATH:
 sudo mv dist/aha /usr/local/bin/
 aha --version
 ```
+
+## Feature commands (API v3)
+
+`aha feature create`, `list`, `view`, `edit`, and `delete` support both
+space-separated and colon-separated syntax. Select an account with `-s` and use
+`--json` for scripts. These commands never prompt except for an interactive
+feature deletion. Missing input and API permission/validation errors return a
+nonzero exit code; API v3 failures do not trigger a v1 retry.
+
+```sh
+aha feature create --workspace AK --title 'Improve CLI' --json -s big
+aha feature create --release AK-R-179 --title 'Improve CLI' -s big
+aha feature list --workspace AK --search CLI --json -s big
+aha feature list --filters '{"eq[status.id]":"123"}' --fields default,status --json -s big
+aha feature view AK-123 --fields default,description,requirements,comments --json -s big
+aha feature edit AK-123 --release AK-R-179 --owner @me -s big
+aha feature edit AK-123 --status 123 --type 456 --start-date 2026-10-30 -s big
+aha feature delete AK-123 --yes --json -s big
+```
+
+Creation requires a title and exactly one workspace or release. A workspace
+uses its default release. Move an existing feature by selecting its new release.
+Workspace, release, team, iteration, epic, and initiative flags accept supported
+IDs/references and resolve references through API v3 before submitting ID fields.
+Workflow status/type and team status flags take IDs. The `@me` owner shortcut
+uses `/api/v1/me` because v3 has no current-user endpoint.
+
+For full writable payloads, pass a **record object** through `--input file.json`
+or pipe it to `--input -`; omit the outer `record` envelope. JSON IDs must be
+strings to avoid precision loss. Do not supply a field through both JSON and a
+flag. `--description` and JSON descriptions contain HTML; an empty description
+clears it. Use JSON `null` to clear nullable dates/associations.
+
+```sh
+printf '%s' '{"description":"<p>Details</p>","initial_estimate":5,"remaining_estimate":3,"tags":[{"name":"CLI"}],"goals":[{"reference_num":"AK-G-1"}],"key_results":[{"reference_num":"AK-KR-1"}],"custom_fields":{"your_field_key":"value"}}' |
+  aha feature edit AK-123 --input - --json -s big
+```
+
+JSON input also exposes detailed estimates/work done, duration/progress/estimate
+sources, release phases, program increments, time codes, score facts, watchers,
+and the other writable feature fields in API v3. Collection changes use v3 patch
+semantics: omitted associations are untouched; use `{"id":"123","_destroy":true}`
+to remove a specific collection item. Read-only or unknown top-level fields are
+rejected locally. The server validates account-specific fields and permissions.
+
+Lists follow every cursor page and return `{ "records": [...], "pagination": ... }`
+in JSON mode. Use `--per-page` (1–200), `--filters` with documented API v3 filter
+keys/string values, and `--fields` for field selection. Choose one parent flag
+(`--workspace` or `--release`). `--sort field` and optional `--descending` use API
+sorting, which may cap total results. Truncation remains in the JSON pagination
+metadata and emits a warning; remove sorting to retrieve the entire collection.
+Embedded collections are independently capped by API v3. Any embedded `has_more`
+is preserved in JSON and warned about on stderr; a feature view does not imply
+that every nested requirement or comment was returned.
