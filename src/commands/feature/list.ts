@@ -1,3 +1,4 @@
+import { printTable } from '../../lib/record-output';
 import BaseCommand from '../../base';
 import { Flags } from '../../lib/flags';
 import {
@@ -113,14 +114,12 @@ export default class FeatureList extends BaseCommand {
     const records: FeatureRecord[] = [];
     const cursors = new Set<string>();
     let pagination: FeaturePage['pagination'];
-    let truncated = false;
     while (true) {
       const result = await this.api.get(`/api/v3/features?${query}`);
       const page = result.body as FeaturePage;
       records.push(...page.records);
       pagination = page.pagination;
       if (pagination.truncated) {
-        truncated = true;
         console.error(
           `Warning: ${
             pagination.truncated_message ||
@@ -138,28 +137,17 @@ export default class FeatureList extends BaseCommand {
       query.set('after', cursor);
     }
     warnEmbedded(records);
-    if (this.flags.json)
-      this.log(
-        JSON.stringify(
-          {
-            records,
-            pagination: {
-              ...pagination,
-              ...(truncated ? { truncated: true } : {}),
-            },
-          },
-          null,
-          2
-        )
+    if (this.flags.json) this.log(JSON.stringify(records, null, 2));
+    else if (!records.length) this.log('No features matched.');
+    else
+      printTable(
+        this,
+        ['ID', 'STATE', 'TITLE'],
+        records.map(record => [
+          record.reference_num || record.id || 'Feature',
+          record.status?.name || '—',
+          record.name || '',
+        ])
       );
-    else {
-      for (const record of records)
-        this.log(
-          `${record.reference_num || record.id || 'Feature'} — ${
-            record.name || ''
-          }`
-        );
-      if (!records.length) this.log('No features matched.');
-    }
   }
 }

@@ -101,9 +101,9 @@ test('feature list follows opaque cursors and retains filters and field selectio
   const result = await run(dir, ['feature', 'list', '--workspace', '123', '--search', 'CLI', '--fields', 'id,name', '--filters', '{"eq[status.id]":"456"}', '--json']);
   assert.equal(result.code, 0, result.stderr);
   const output = JSON.parse(result.stdout);
-  assert.equal(output.records.length, 2);
-  assert.equal(output.records[0].id, feature.id);
-  assert.equal(output.pagination.has_more, false);
+  assert.ok(Array.isArray(output));
+  assert.equal(output.length, 2);
+  assert.equal(output[0].id, feature.id);
   assert.equal(requests.length, 2);
   const query = new URL(requests[1].url, 'https://example.test').searchParams;
   assert.equal(query.get('after'), 'opaque+/= value');
@@ -113,11 +113,12 @@ test('feature list follows opaque cursors and retains filters and field selectio
   assert.equal(query.get('fields'), 'id,name');
 });
 
-test('sorted truncation and capped embedded collections remain visible in JSON mode', async t => {
+test('JSON lists remain arrays while truncation and capped collections warn on stderr', async t => {
   const { dir } = await setup(t, () => ({ records: [{ ...feature, requirements: { records: [], has_more: true } }], pagination: { has_more: false, next_cursor: null, truncated: true, truncated_message: 'Sorted results are limited.' } }));
   const result = await run(dir, ['feature', 'list', '--sort', 'name', '--json']);
   assert.equal(result.code, 0);
-  assert.equal(JSON.parse(result.stdout).pagination.truncated, true);
+  assert.ok(Array.isArray(JSON.parse(result.stdout)));
+  assert.equal(JSON.parse(result.stdout)[0].requirements.has_more, true);
   assert.match(result.stderr, /Sorted results are limited/);
   assert.match(result.stderr, /requirements.*incomplete/);
 });

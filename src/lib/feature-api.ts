@@ -1,8 +1,10 @@
+import { plainTextBody } from './record-input';
+import { descriptionText } from './record-output';
 import { readFile } from 'fs/promises';
 import BaseCommand from '../base';
 import AhaAPI from '../api';
 import { Flags } from './flags';
-import { currentUserId } from './todo-api';
+import { currentUserId } from './current-user';
 
 export interface FeatureRecord {
   id: string;
@@ -26,9 +28,10 @@ export const featureFlags = {
   }),
 };
 export const featureEditFlags = {
-  title: Flags.string({ description: 'Feature title' }),
-  description: Flags.string({
-    description: 'Description HTML (empty string clears it)',
+  title: Flags.string({ char: 't', description: 'Feature title' }),
+  body: Flags.string({
+    char: 'b',
+    description: 'Description of the feature (plain text; empty clears it)',
   }),
   input: Flags.string({
     description: 'Writable record JSON object from a file, or - for stdin',
@@ -88,7 +91,7 @@ const writable = new Set([
 ]);
 const flagKeys: Record<string, string> = {
   title: 'name',
-  description: 'description',
+  body: 'description',
   release: 'release_id',
   owner: 'assigned_to_user_id',
   status: 'status_id',
@@ -175,7 +178,8 @@ export async function featurePatch(
       throw new Error(
         `Supply ${key} through either --input or --${flag}, not both.`
       );
-    patch[key] = flags[flag];
+    patch[key] =
+      flag === 'body' ? plainTextBody(String(flags[flag])) : flags[flag];
   }
   for (const key of Object.keys(patch)) {
     if (!writable.has(key))
@@ -298,21 +302,18 @@ export function warnEmbedded(value: unknown, path = '') {
   }
 }
 
-export function printFeature(
-  command: BaseCommand,
-  feature: FeatureRecord,
-  label?: string
-) {
+export function printFeature(command: BaseCommand, feature: FeatureRecord) {
   warnEmbedded(feature);
   if (command.flags.json) command.log(JSON.stringify(feature, null, 2));
   else {
     command.log(
-      `${label ? `${label}: ` : ''}${
-        feature.reference_num || feature.id || 'Feature'
-      }${feature.name ? ` — ${feature.name}` : ''}`
+      `${feature.reference_num || feature.id || 'Feature'}${
+        feature.name ? `: ${feature.name}` : ''
+      }`
     );
     if (feature.status?.name) command.log(`Status: ${feature.status.name}`);
-    if (feature.description?.body) command.log(feature.description.body);
+    if (feature.description?.body)
+      command.log(descriptionText(feature.description.body));
     if (feature.html_url) command.log(feature.html_url);
   }
 }

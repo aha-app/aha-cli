@@ -1,3 +1,4 @@
+import { printRecordResult } from '../../lib/record-output';
 import BaseCommand from '../../base';
 import {
   FeatureRecord,
@@ -7,7 +8,7 @@ import {
   featurePatch,
   resolveFeatureIds,
   fieldQuery,
-  printFeature,
+  warnEmbedded,
 } from '../../lib/feature-api';
 
 export default class FeatureEdit extends BaseCommand {
@@ -25,10 +26,8 @@ export default class FeatureEdit extends BaseCommand {
       `/api/v3/features/${encodeURIComponent(id)}?${query}`,
       { body: { record: patch } }
     );
-    printFeature(
-      this,
-      (result.body as { record: FeatureRecord }).record,
-      'Updated feature'
-    );
+    const feature = (result.body as { record: FeatureRecord }).record;
+    warnEmbedded(feature);
+    printRecordResult(this, feature, 'Updated feature');
   }
 }
