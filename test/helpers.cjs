@@ -48,14 +48,14 @@ async function setup(t, handler) {
   return { dir, requests };
 }
 
-function run(dir, args, { input = '', response, confirm } = {}) {
+function run(dir, args, { input = '', response, confirm, answers } = {}) {
   // Give each subprocess an isolated credential store without touching the user's home.
   const bootstrap = `const credentialHome = process.argv[1]; require('node:os').homedir = () => credentialHome;
     ${
-      confirm !== undefined
+      confirm !== undefined || answers !== undefined
         ? `Object.defineProperty(process.stdin, 'isTTY', {value: true}); require('inquirer').prompt = async () => ({confirmed: ${JSON.stringify(
             confirm
-          )}});`
+          )}, ...${JSON.stringify(answers || {})}});`
         : ''
     }
     ${

@@ -109,9 +109,9 @@ abstract class BaseCommand {
       machine = machines[machineOptions[0]];
 
       if (machineOptions.length > 1) {
-        if (this.flags.json) {
+        if (this.flags.json || !process.stdin.isTTY) {
           throw new Error(
-            'Multiple Aha! accounts are saved. Use --subdomain to select one for JSON output.'
+            'Multiple Aha! accounts are saved. Use --subdomain to select one for noninteractive or JSON output.'
           );
         }
         ({ machine } = await prompt({

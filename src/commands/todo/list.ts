@@ -1,3 +1,4 @@
+import { printTable } from '../../lib/record-output';
 import BaseCommand from '../../base';
 import {
   currentUserId,
@@ -92,24 +93,15 @@ export default class TodoList extends BaseCommand {
       return;
     }
 
-    const rows = [
+    printTable(
+      this,
       ['ID', 'DUE', 'STATE', 'TITLE'],
-      ...tasks.map(task => [
+      tasks.map(task => [
         task.reference_num || task.id,
         task.due_date || '—',
         assignmentStatuses.get(task.id) || '—',
-        task.name.replace(/\s+/g, ' '),
-      ]),
-    ];
-    const idWidth = Math.max(...rows.map(row => row[0].length));
-    const dueWidth = Math.max(...rows.map(row => row[1].length));
-    const stateWidth = Math.max(...rows.map(row => row[2].length));
-    for (const [id, due, state, name] of rows) {
-      this.log(
-        `${id.padEnd(idWidth)}  ${due.padEnd(dueWidth)}  ${state.padEnd(
-          stateWidth
-        )}  ${name}`
-      );
-    }
+        task.name,
+      ])
+    );
   }
 }

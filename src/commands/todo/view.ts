@@ -1,6 +1,6 @@
 import BaseCommand from '../../base';
 import { fetchTodo, todoFlags, todoIdentifier } from '../../lib/todo-api';
-import { descriptionText } from '../../lib/todo-fields';
+import { descriptionText } from '../../lib/record-output';
 
 export default class TodoView extends BaseCommand {
   static description = 'View a to-do';

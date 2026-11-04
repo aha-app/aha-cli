@@ -1,3 +1,4 @@
+import { plainTextBody } from './record-input';
 import AhaAPI from '../api';
 import { Flags } from './flags';
 import { currentUserId } from './todo-api';
@@ -33,15 +34,6 @@ export interface TodoPatch {
   record_id?: string | null;
   record_type?: string | null;
   assigned_to?: AssignmentPatch[];
-}
-
-export function plainTextBody(value: string): string {
-  const escaped = value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\r?\n/g, '<br>');
-  return `<p>${escaped}</p>`;
 }
 
 export function editableTodoPatch(flags: FlagValues): TodoPatch {
@@ -132,33 +124,4 @@ export async function assignmentPatch(
       (id): AssignmentPatch => ({ id, type: 'user', _destroy: true })
     ),
   ];
-}
-
-export function descriptionText(html: string): string {
-  const entities: Record<string, string> = {
-    amp: '&',
-    lt: '<',
-    gt: '>',
-    quot: '"',
-    apos: "'",
-    nbsp: ' ',
-  };
-  return html
-    .replace(/<br\s*\/?\s*>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6])\s*>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(
-      /&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi,
-      (match, entity: string) => {
-        if (!entity.startsWith('#'))
-          return entities[entity.toLowerCase()] || match;
-        const code = entity.toLowerCase().startsWith('#x')
-          ? parseInt(entity.slice(2), 16)
-          : parseInt(entity.slice(1), 10);
-        return code > 0 && code <= 0x10ffff
-          ? String.fromCodePoint(code)
-          : match;
-      }
-    )
-    .trim();
 }

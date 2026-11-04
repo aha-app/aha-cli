@@ -1,4 +1,4 @@
-import { prompt } from 'inquirer';
+import { promptForTitle } from '../../lib/record-input';
 import BaseCommand from '../../base';
 import { Flags } from '../../lib/flags';
 import {
@@ -40,23 +40,10 @@ export default class TodoCreate extends BaseCommand {
       );
     }
 
-    let title =
-      typeof this.flags.title === 'string' ? this.flags.title.trim() : '';
-    if (
-      !title &&
-      this.flags.title === undefined &&
-      process.stdin.isTTY &&
-      !this.flags.json
-    ) {
-      const answers = await prompt<{ title: string }>({
-        type: 'input',
-        name: 'title',
-        message: 'Title',
-        validate: (value: string) =>
-          Boolean(value.trim()) || 'A title is required',
-      });
-      title = answers.title.trim();
-    }
+    const title = await promptForTitle(
+      this.flags.title,
+      Boolean(this.flags.json)
+    );
     if (!title) throw new Error('A title is required. Use --title "My to-do".');
 
     const patch = editableTodoPatch({ ...this.flags, title });
