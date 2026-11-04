@@ -20,6 +20,11 @@ import FeatureView from './commands/feature/view';
 import FeatureEdit from './commands/feature/edit';
 import FeatureList from './commands/feature/list';
 import FeatureDelete from './commands/feature/delete';
+import RequirementCreate from './commands/requirement/create';
+import RequirementList from './commands/requirement/list';
+import RequirementView from './commands/requirement/view';
+import RequirementEdit from './commands/requirement/edit';
+import RequirementDelete from './commands/requirement/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -49,6 +54,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
   'todo:delete': TodoDelete,
+  'requirement:create': RequirementCreate,
+  'requirement:list': RequirementList,
+  'requirement:view': RequirementView,
+  'requirement:edit': RequirementEdit,
+  'requirement:delete': RequirementDelete,
   'feature:create': FeatureCreate,
   'feature:list': FeatureList,
   'feature:view': FeatureView,
@@ -60,6 +70,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
+  requirement: { description: 'Manage requirements with API v3' },
   feature: { description: 'Manage features with API v3' },
 };
 

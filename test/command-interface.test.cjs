@@ -12,6 +12,9 @@ test('feature and to-do JSON lists share the bare-array contract', async t => {
   });
   const features = await run(dir, ['feature', 'list', '--json']);
   const todos = await run(dir, ['todo', 'list', '--json']);
+  const requirements = await run(dir, ['requirement', 'list', '--json']);
+  assert.equal(requirements.code, 0, requirements.stderr);
+  assert.deepEqual(JSON.parse(requirements.stdout), [feature]);
   assert.equal(features.code, 0, features.stderr);
   assert.equal(todos.code, 0, todos.stderr);
   assert.deepEqual(JSON.parse(features.stdout), [feature]);
@@ -71,4 +74,18 @@ test('feature views render readable descriptions and JSON retains the original H
   const json = await run(dir, ['feature', 'view', 'CLI-12', '--json']);
   assert.equal(json.code, 0, json.stderr);
   assert.equal(JSON.parse(json.stdout).description.body, record.description.body);
+});
+
+test('requirements share title/body, view and human result contracts', async t => {
+ const record = {...feature, reference_num: 'CLI-12-1', html_url: 'https://example.test/requirements/CLI-12-1', description: {body: '<p>One &amp; two</p>'}};
+ const {dir, requests} = await setup(t, () => ({record}));
+ const created = await run(dir, ['requirement', 'create', '--feature', '123', '-t', 'Title', '-b', '<literal> & text']);
+ assert.equal(created.code, 0, created.stderr);
+ assert.match(created.stdout, /CLI-12-1/);
+ assert.match(created.stdout, /https:\/\/example.test\/requirements\/CLI-12-1/);
+ assert.equal(requests[0].body.record.description, '<p>&lt;literal&gt; &amp; text</p>');
+ const human = await run(dir, ['requirement', 'view', 'CLI-12-1']);
+ assert.match(human.stdout, /One & two/);
+ const json = await run(dir, ['requirement', 'view', 'CLI-12-1', '--json']);
+ assert.deepEqual(JSON.parse(json.stdout), record);
 });

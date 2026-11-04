@@ -53,12 +53,21 @@ export function descriptionText(html: string): string {
 
 export function printRecordResult(
   command: BaseCommand,
-  record: { id: string; name?: string; html_url?: string },
+  record: {
+    id: string;
+    reference_num?: string;
+    name?: string;
+    html_url?: string;
+  },
   message: string
 ) {
   if (command.flags.json) command.log(JSON.stringify(record, null, 2));
   else {
-    command.log(`${message}: ${record.name || record.id}`);
+    command.log(
+      `${message}: ${record.reference_num ? `${record.reference_num}: ` : ''}${
+        record.name || record.id
+      }`
+    );
     command.log(record.html_url || `ID: ${record.id}`);
   }
 }
