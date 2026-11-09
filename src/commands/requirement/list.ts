@@ -4,7 +4,11 @@ import {
   requirementFlags,
   resolveRequirementIds,
 } from '../../lib/requirement-api';
-import { recordListFlags, listRecords } from '../../lib/record-list';
+import {
+  recordListFlags,
+  recordListQuery,
+  listRecords,
+} from '../../lib/record-list';
 
 export default class RequirementList extends BaseCommand {
   static description =
@@ -17,6 +21,7 @@ export default class RequirementList extends BaseCommand {
   async run() {
     if (this.parse().argv.length)
       throw new Error('Usage: aha requirement list [flags]');
+    const query = recordListQuery(this.flags);
     const parents: Record<string, unknown> = {};
     if (typeof this.flags.feature === 'string') {
       if (!/^[A-Za-z0-9][A-Za-z0-9-]*$/.test(this.flags.feature))
@@ -25,6 +30,6 @@ export default class RequirementList extends BaseCommand {
     }
     await this.initAPI();
     await resolveRequirementIds(this.api, parents);
-    await listRecords(this, 'requirements', 'requirement', parents);
+    await listRecords(this, 'requirements', 'requirement', parents, query);
   }
 }

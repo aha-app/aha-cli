@@ -1,7 +1,11 @@
 import BaseCommand from '../../base';
 import { Flags } from '../../lib/flags';
 import { featureFlags, resolveFeatureIds } from '../../lib/feature-api';
-import { recordListFlags, listRecords } from '../../lib/record-list';
+import {
+  recordListFlags,
+  recordListQuery,
+  listRecords,
+} from '../../lib/record-list';
 
 export default class FeatureList extends BaseCommand {
   static description =
@@ -21,6 +25,7 @@ export default class FeatureList extends BaseCommand {
       throw new Error(
         'Use either --workspace or --release as the list parent, not both.'
       );
+    const query = recordListQuery(this.flags);
     const parents: Record<string, unknown> = {};
     if (typeof this.flags.workspace === 'string') {
       if (!/^[A-Za-z0-9][A-Za-z0-9-]*$/.test(this.flags.workspace))
@@ -34,6 +39,6 @@ export default class FeatureList extends BaseCommand {
     }
     await this.initAPI();
     await resolveFeatureIds(this.api, parents);
-    await listRecords(this, 'features', 'feature', parents);
+    await listRecords(this, 'features', 'feature', parents, query);
   }
 }

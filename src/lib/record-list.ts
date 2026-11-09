@@ -28,27 +28,22 @@ export const recordListFlags = {
     default: '100',
   }),
 };
-export async function listRecords(
-  command: BaseCommand,
-  resource: string,
-  singular: string,
-  parents: Record<string, unknown>
-) {
-  const query = fieldQuery(command.flags);
+export function recordListQuery(flags: Record<string, string | boolean>) {
+  const query = fieldQuery(flags);
   if (
-    typeof command.flags.perPage !== 'string' ||
-    !/^\d+$/.test(command.flags.perPage) ||
-    Number(command.flags.perPage) < 1 ||
-    Number(command.flags.perPage) > 200
+    typeof flags.perPage !== 'string' ||
+    !/^\d+$/.test(flags.perPage) ||
+    Number(flags.perPage) < 1 ||
+    Number(flags.perPage) > 200
   )
     throw new Error('--per-page must be between 1 and 200.');
-  query.set('per_page', command.flags.perPage);
-  if (command.flags.descending && !command.flags.sort)
+  query.set('per_page', flags.perPage);
+  if (flags.descending && !flags.sort)
     throw new Error('--descending requires --sort.');
-  if (typeof command.flags.filters === 'string') {
+  if (typeof flags.filters === 'string') {
     let filters;
     try {
-      filters = object(JSON.parse(command.flags.filters), '--filters');
+      filters = object(JSON.parse(flags.filters), '--filters');
     } catch {
       throw new Error(
         '--filters must be a JSON object of API v3 filter keys and string values.'
@@ -62,18 +57,25 @@ export async function listRecords(
       query.set(`filter.${key}`, value);
     }
   }
-  if (typeof command.flags.search === 'string') {
-    if (!command.flags.search.trim())
+  if (typeof flags.search === 'string') {
+    if (!flags.search.trim())
       throw new Error('--search requires nonempty text.');
-    query.set('filter.contains[name]', command.flags.search);
+    query.set('filter.contains[name]', flags.search);
   }
-  if (typeof command.flags.sort === 'string') {
-    if (!command.flags.sort.trim()) throw new Error('--sort requires a field.');
-    query.set(
-      command.flags.descending ? 'sort.desc' : 'sort.asc',
-      command.flags.sort
-    );
+  if (typeof flags.sort === 'string') {
+    if (!flags.sort.trim()) throw new Error('--sort requires a field.');
+    query.set(flags.descending ? 'sort.desc' : 'sort.asc', flags.sort);
   }
+  return query;
+}
+
+export async function listRecords(
+  command: BaseCommand,
+  resource: string,
+  singular: string,
+  parents: Record<string, unknown>,
+  query: URLSearchParams
+) {
   for (const [key, value] of Object.entries(parents))
     query.set(key, String(value));
   const records: RecordSummary[] = [];

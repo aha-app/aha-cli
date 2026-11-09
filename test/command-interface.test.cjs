@@ -3,43 +3,35 @@ const assert = require('node:assert/strict');
 const { setup, run } = require('./helpers.cjs');
 
 const feature = { id: '999', reference_num: 'CLI-12', name: 'A title\nwith spacing', status: { name: 'In progress' } };
+const requirement = { ...feature, id: '777', reference_num: 'CLI-12-1' };
 const todo = { id: '888', reference_num: 'PERSONAL-TODO-1', name: feature.name, assigned_to: { records: [{ id: '123', type: 'user', status: 'pending' }], has_more: false } };
 
-test('feature and to-do JSON lists share the bare-array contract', async t => {
+test('record lists share the bare-array JSON contract', async t => {
   const { dir } = await setup(t, req => {
     if (req.url === '/api/v1/me') return { user: { id: '123' } };
-    return { records: [req.url.startsWith('/api/v3/tasks') ? todo : feature], pagination: { has_more: false, next_cursor: null } };
+    return { records: [req.url.startsWith('/api/v3/tasks') ? todo : req.url.startsWith('/api/v3/requirements') ? requirement : feature], pagination: { has_more: false, next_cursor: null } };
   });
-  const features = await run(dir, ['feature', 'list', '--json']);
-  const todos = await run(dir, ['todo', 'list', '--json']);
-  const requirements = await run(dir, ['requirement', 'list', '--json']);
-  assert.equal(requirements.code, 0, requirements.stderr);
-  assert.deepEqual(JSON.parse(requirements.stdout), [feature]);
-  assert.equal(features.code, 0, features.stderr);
-  assert.equal(todos.code, 0, todos.stderr);
-  assert.deepEqual(JSON.parse(features.stdout), [feature]);
-  assert.deepEqual(JSON.parse(todos.stdout), [todo]);
+  for (const [resource, record] of Object.entries({ feature, requirement, todo })) {
+    const result = await run(dir, [resource, 'list', '--json']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), [record]);
+  }
 });
 
-test('feature and to-do human lists share aligned headers and single-line rows', async t => {
+test('record lists share aligned headers and single-line rows', async t => {
   const { dir } = await setup(t, req => {
     if (req.url === '/api/v1/me') return { user: { id: '123' } };
-    return { records: [req.url.startsWith('/api/v3/tasks') ? todo : feature], pagination: { has_more: false, next_cursor: null } };
+    return { records: [req.url.startsWith('/api/v3/tasks') ? todo : req.url.startsWith('/api/v3/requirements') ? requirement : feature], pagination: { has_more: false, next_cursor: null } };
   });
-  const features = await run(dir, ['feature', 'list']);
-  const todos = await run(dir, ['todo', 'list']);
-  assert.equal(features.code, 0, features.stderr);
-  assert.equal(todos.code, 0, todos.stderr);
-  const featureLines = features.stdout.trimEnd().split('\n');
-  const todoLines = todos.stdout.trimEnd().split('\n');
-  assert.equal(featureLines.length, 2);
-  assert.equal(todoLines.length, 2);
-  assert.match(featureLines[0], /^ID\s+STATE\s+TITLE$/);
-  assert.match(todoLines[0], /^ID\s+DUE\s+STATE\s+TITLE$/);
-  assert.equal(featureLines[0].indexOf('TITLE'), featureLines[1].indexOf('A title'));
-  assert.equal(todoLines[0].indexOf('TITLE'), todoLines[1].indexOf('A title'));
-  assert.match(featureLines[1], /A title with spacing$/);
-  assert.match(todoLines[1], /A title with spacing$/);
+  for (const resource of ['feature', 'requirement', 'todo']) {
+    const result = await run(dir, [resource, 'list']);
+    assert.equal(result.code, 0, result.stderr);
+    const lines = result.stdout.trimEnd().split('\n');
+    assert.equal(lines.length, 2);
+    assert.deepEqual(lines[0].split(/\s+/), resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
+    assert.equal(lines[0].indexOf('TITLE'), lines[1].indexOf('A title'));
+    assert.match(lines[1], /A title with spacing$/);
+  }
 });
 
 test('feature body and short title/body flags use the existing plain-text convention', async t => {
@@ -88,4 +80,15 @@ test('requirements share title/body, view and human result contracts', async t =
  assert.match(human.stdout, /One & two/);
  const json = await run(dir, ['requirement', 'view', 'CLI-12-1', '--json']);
  assert.deepEqual(JSON.parse(json.stdout), record);
+});
+
+test('invalid list options fail before resolving parent references', async t => {
+  const { dir, requests } = await setup(t);
+  for (const [resource, parent] of [['feature', '--workspace'], ['requirement', '--feature']]) {
+    const result = await run(dir, [resource, 'list', parent, 'CLI-12', '--per-page', '201', '--json']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /1 and 200/);
+    assert.equal(result.stdout, '');
+  }
+  assert.equal(requests.length, 0);
 });
