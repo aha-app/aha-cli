@@ -355,6 +355,48 @@ Embedded collections are independently capped by API v3. Any embedded `has_more`
 is preserved in JSON and warned about on stderr; a feature view does not imply
 that every nested requirement or comment was returned.
 
+## Requirements
+
+Requirements follow the same command and output conventions as features and
+to-dos. Space-separated and colon-separated syntax both work:
+
+```sh
+aha requirement create --feature AK-123 --title "Add list command" --body "Details"
+aha requirement list --feature AK-123 --json
+aha requirement view AK-123-1
+aha requirement edit AK-123-1 --owner @me --status 123 --position 2
+aha requirement edit AK-123-1 --input changes.json --json
+aha requirement delete AK-123-1 --yes
+```
+
+Creates require an explicit feature ID/reference and a title. Human output prints
+the new reference and URL. Select an account with `-s`/`--subdomain`. `--body`/`-b`
+accepts plain text; JSON `description` preserves HTML. `--input` accepts a writable
+record object from a file or `-` for stdin, without an outer `record` wrapper:
+
+```json
+{
+  "description": "<p>Updated details</p>",
+  "initial_estimate": 2,
+  "start_date": "2026-11-04",
+  "tags": [{ "id": "123", "_destroy": true }],
+  "custom_fields": { "example_key": "Value" }
+}
+```
+
+Supported fields include description, owner/status, integer position, dates,
+estimates, team/team status, iteration, tags, and custom fields. IDs must be
+strings; team fields and time codes depend on account settings. Only supplied
+fields change. Tag items add/remove individual associations, leaving others
+untouched. Move a requirement with `--feature`; its parent cannot be null.
+
+Lists return bare JSON arrays or aligned `ID`, `STATE`, `TITLE` tables, follow all
+cursor pages, and support `--search`, `--filters`, `--fields`, `--sort`,
+`--descending`, and `--per-page`, as features do. Capped embedded collections and
+truncated sorted results warn on stderr. Commands use API v3; `--owner @me` shares
+the documented v1 current-user lookup exception. Scripts never prompt; deletion
+requires `--yes` in JSON or noninteractive mode.
+
 ## Epics
 
 Epics follow the same command and output conventions as features and to-dos:

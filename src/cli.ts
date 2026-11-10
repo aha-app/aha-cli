@@ -20,6 +20,11 @@ import FeatureView from './commands/feature/view';
 import FeatureEdit from './commands/feature/edit';
 import FeatureList from './commands/feature/list';
 import FeatureDelete from './commands/feature/delete';
+import RequirementCreate from './commands/requirement/create';
+import RequirementList from './commands/requirement/list';
+import RequirementView from './commands/requirement/view';
+import RequirementEdit from './commands/requirement/edit';
+import RequirementDelete from './commands/requirement/delete';
 import EpicCreate from './commands/epic/create';
 import EpicList from './commands/epic/list';
 import EpicView from './commands/epic/view';
@@ -54,6 +59,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
   'todo:delete': TodoDelete,
+  'requirement:create': RequirementCreate,
+  'requirement:list': RequirementList,
+  'requirement:view': RequirementView,
+  'requirement:edit': RequirementEdit,
+  'requirement:delete': RequirementDelete,
   'epic:create': EpicCreate,
   'epic:list': EpicList,
   'epic:view': EpicView,
@@ -70,6 +80,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
+  requirement: { description: 'Manage requirements with API v3' },
   epic: { description: 'Manage epics with API v3' },
   feature: { description: 'Manage features with API v3' },
 };
