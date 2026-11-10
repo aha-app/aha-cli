@@ -1,7 +1,8 @@
 # Record command conventions
 
-Use these patterns when adding or changing record command families. To-dos and
-features are the working examples; resource-specific fields and actions can differ.
+Use these patterns when adding or changing record command families. To-dos, features
+and requirements are the working examples; resource-specific fields and actions
+can differ.
 
 ## Commands and files
 
@@ -11,7 +12,9 @@ features are the working examples; resource-specific fields and actions can diff
   command class. Register it explicitly in `src/cli.ts`.
 - Keep action orchestration in the command file and reusable resource logic in
   `src/lib/<resource>-api.ts` or a focused helper. Share behavior that is actually
-  common through `record-input.ts`, `record-output.ts`, and `current-user.ts`.
+  common through `record-input.ts`, `record-output.ts`, and `current-user.ts`. Features and requirements also share input/ID
+  validation in `record-api.ts` and cursor/filter/table behavior in
+  `record-list.ts`. Validate list flags before authentication or parent lookup.
 - Accept a positional ID/reference for single-record actions. Use `--title`/`-t`
   and `--body`/`-b` for titles and plain-text descriptions. Escape plain text to
   HTML before submitting it; render descriptions as readable text for humans.
