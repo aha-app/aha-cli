@@ -8,7 +8,7 @@ import {
 } from '../../lib/epic-api';
 
 export default class EpicView extends BaseCommand {
-  static description = 'View a epic by ID or reference';
+  static description = 'View an epic by ID or reference';
   static args = '<id-or-reference>';
   static flags = epicFlags;
   async run() {

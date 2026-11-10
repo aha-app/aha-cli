@@ -13,7 +13,7 @@ import {
 } from '../../lib/epic-api';
 
 export default class EpicCreate extends BaseCommand {
-  static description = 'Create a epic in an explicit workspace or release';
+  static description = 'Create an epic in an explicit workspace or release';
   static flags = {
     ...epicFlags,
     ...epicEditFlags,
@@ -24,7 +24,7 @@ export default class EpicCreate extends BaseCommand {
   async run() {
     if (this.parse().argv.length)
       throw new Error(
-        'Use --title and --workspace or --release to create a epic.'
+        'Use --title and --workspace or --release to create an epic.'
       );
     const query = fieldQuery(this.flags);
     const flags = { ...this.flags };

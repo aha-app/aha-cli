@@ -4,7 +4,7 @@ import { Flags } from '../../lib/flags';
 import { epicFlags, epicIdentifier, fetchEpic } from '../../lib/epic-api';
 
 export default class EpicDelete extends BaseCommand {
-  static description = 'Delete a epic (requires --yes in scripts)';
+  static description = 'Delete an epic (requires --yes in scripts)';
   static args = '<id-or-reference>';
   static flags = {
     ...BaseCommand.flags,
@@ -18,7 +18,7 @@ export default class EpicDelete extends BaseCommand {
     const id = epicIdentifier(this.parse().argv, 'delete');
     if (!this.flags.yes && (!process.stdin.isTTY || this.flags.json))
       throw new Error(
-        'Use --yes to delete a epic without an interactive confirmation.'
+        'Use --yes to delete an epic without an interactive confirmation.'
       );
     await this.initAPI();
     const epic = await fetchEpic(

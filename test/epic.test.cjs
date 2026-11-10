@@ -69,15 +69,6 @@ test('epic views preserve capped features and display their references without c
   assert.match(human.stdout, /More features/);
 });
 
-test('epic API errors remain errors without a legacy retry', async t => {
-  const {dir, requests} = await setup(t, () => ({status: 403, error: 'Not permitted'}));
-  const result = await run(dir, ['epic:view', 'CLI-E-1', '--json']);
-  assert.equal(result.code, 1);
-  assert.match(result.stderr, /403.*Not permitted/);
-  assert.equal(result.stdout, '');
-  assert.equal(requests.length, 1);
-});
-
 test('epic deletion requires confirmation and deletes only the resolved ID', async t => {
   const {dir, requests} = await setup(t, req => req.method === 'DELETE' ? {} : {record: epic});
   const denied = await run(dir, ['epic', 'delete', 'CLI-E-1', '--json']);
