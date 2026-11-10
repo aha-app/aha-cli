@@ -20,6 +20,11 @@ import FeatureView from './commands/feature/view';
 import FeatureEdit from './commands/feature/edit';
 import FeatureList from './commands/feature/list';
 import FeatureDelete from './commands/feature/delete';
+import EpicCreate from './commands/epic/create';
+import EpicList from './commands/epic/list';
+import EpicView from './commands/epic/view';
+import EpicEdit from './commands/epic/edit';
+import EpicDelete from './commands/epic/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -49,6 +54,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'todo:view': TodoView,
   'todo:edit': TodoEdit,
   'todo:delete': TodoDelete,
+  'epic:create': EpicCreate,
+  'epic:list': EpicList,
+  'epic:view': EpicView,
+  'epic:edit': EpicEdit,
+  'epic:delete': EpicDelete,
   'feature:create': FeatureCreate,
   'feature:list': FeatureList,
   'feature:view': FeatureView,
@@ -60,6 +70,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   auth: { description: 'Authenticate to Aha!' },
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
+  epic: { description: 'Manage epics with API v3' },
   feature: { description: 'Manage features with API v3' },
 };
 

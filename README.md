@@ -355,6 +355,38 @@ Embedded collections are independently capped by API v3. Any embedded `has_more`
 is preserved in JSON and warned about on stderr; a feature view does not imply
 that every nested requirement or comment was returned.
 
+## Epics
+
+Epics follow the same command and output conventions as features and to-dos:
+
+```sh
+aha epic create --workspace AK --title "Improve onboarding" --body "Details"
+aha epic list --release AK-R-179 --json
+aha epic view AK-E-1
+aha epic edit AK-E-1 --release AK-R-180 --owner @me
+aha epic edit AK-E-1 --input changes.json --json
+aha epic delete AK-E-1 --yes
+```
+
+Create in exactly one explicit workspace or release, using an ID or reference.
+`--body` accepts plain text; `--input` accepts a writable JSON record object from a
+file or `-` for stdin. Structured input supports dates, estimates, progress/score
+settings, teams, iterations, strategy associations, tags, watchers, and custom
+fields supported by v3. IDs must be strings. Edits change only supplied fields;
+collection patches preserve omitted associations. Move an epic with `--release`.
+
+Lists support the feature filters, fields, sorting and pagination options, return
+bare JSON arrays, and use aligned tables for people. Views include associated
+features by default. Embedded feature collections may be capped: the CLI retains
+`has_more`, warns on stderr, and shows how to retrieve the full set:
+
+```sh
+aha feature list --filters '{"eq[epic.id]":"1234567890123456789"}' --json
+```
+
+Select an account with `-s`/`--subdomain`. All epic operations use API v3; `--owner @me` shares the existing v1 current-user lookup exception. Scripts never prompt,
+and deletion requires `--yes` outside interactive use.
+
 # Development
 
 ## Building
