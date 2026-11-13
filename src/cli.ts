@@ -30,6 +30,11 @@ import EpicList from './commands/epic/list';
 import EpicView from './commands/epic/view';
 import EpicEdit from './commands/epic/edit';
 import EpicDelete from './commands/epic/delete';
+import ReleaseCreate from './commands/release/create';
+import ReleaseList from './commands/release/list';
+import ReleaseView from './commands/release/view';
+import ReleaseEdit from './commands/release/edit';
+import ReleaseDelete from './commands/release/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -64,6 +69,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'release:create': ReleaseCreate,
+  'release:list': ReleaseList,
+  'release:view': ReleaseView,
+  'release:edit': ReleaseEdit,
+  'release:delete': ReleaseDelete,
   'epic:create': EpicCreate,
   'epic:list': EpicList,
   'epic:view': EpicView,
@@ -81,6 +91,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  release: { description: 'Manage releases with API v3' },
   epic: { description: 'Manage epics with API v3' },
   feature: { description: 'Manage features with API v3' },
 };

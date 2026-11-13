@@ -1,7 +1,7 @@
 # Record command conventions
 
 Use these patterns when adding or changing record command families. To-dos, features,
-requirements and epics are the working examples; resource-specific fields and
+requirements, epics and releases are the working examples; resource-specific fields and
 actions can differ.
 
 ## Commands and files
