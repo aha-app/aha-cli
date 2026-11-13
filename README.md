@@ -431,6 +431,40 @@ and deletion requires `--yes` outside interactive use.
 
 # Development
 
+## Releases
+
+Use `aha release` to create, list, view, edit, and delete releases and parking lots
+with API v3. Set an explicit workspace when creating a release; IDs and references
+are accepted for workspaces and parent rollup releases.
+
+```sh
+aha release create --workspace DEMO --title "November launch" --release-date 2026-11-30
+aha release create --workspace DEMO --title "Later" --parking-lot true
+aha release list --workspace DEMO --filters '{"eq[parking_lot]":"false"}' --json
+aha release view DEMO-R-1
+aha release edit DEMO-R-1 --external-release-date 2026-12-01 --external-date-resolution month
+aha release delete DEMO-R-1 --yes
+```
+
+Create/edit accept `--title`/`-t`, `--body`/`-b` (plain text), `--owner` (a user ID
+or `@me`), `--status`, `--parent`, date flags, and `--parking-lot true|false`.
+Use `--type rollup_release` on create for a rollup release. Workspace and type
+are create-only. Manage feature moves with `aha feature edit --release`.
+
+Use `--input file.json` or `--input -` for the full writable v3 record, including
+HTML descriptions, `released_on`, `development_started_on`, position, progress,
+duration settings, watcher patches, and custom fields. Send only desired changes;
+omitted fields and associations are preserved. JSON `null` clears nullable fields.
+The current v3 API cannot clear release owners or detach parents. The CLI rejects
+`owner_id:null` and `parent_id:null` with an explanation; supply a user/rollup release
+ID to change those associations.
+The API enforces permissions and whether a release can be a parking lot or child.
+
+Lists follow all cursor pages and support `--search`, `--filters`, `--fields`,
+`--sort`, `--descending`, and `--per-page`. Human lists use tables; JSON lists are
+bare arrays. Sorted or embedded truncation is reported on stderr. JSON mode never
+prompts, and scripts must pass `--yes` to delete. Use `-s` to select an account.
+
 ## Building
 
 Build the CLI package into a `.tgz` file:

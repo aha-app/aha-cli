@@ -6,8 +6,9 @@ const feature = { id: '999', reference_num: 'CLI-12', name: 'A title\nwith spaci
 const requirement = { ...feature, id: '777', reference_num: 'CLI-12-1', html_url: 'https://example.test/requirements/CLI-12-1' };
 const epic = { ...feature, id: '666', reference_num: 'CLI-E-1', html_url: 'https://example.test/epics/CLI-E-1' };
 const todo = { id: '888', reference_num: 'PERSONAL-TODO-1', name: feature.name, assigned_to: { records: [{ id: '123', type: 'user', status: 'pending' }], has_more: false } };
-const records = { feature, requirement, epic, todo };
-const parents = { feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], todo: [] };
+const release = { ...feature, id: '555', reference_num: 'CLI-R-1', html_url: 'https://example.test/releases/CLI-R-1' };
+const records = { feature, requirement, epic, release, todo };
+const parents = { feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], todo: [] };
 
 test('record lists share the bare-array JSON contract', async t => {
   for (const [resource, record] of Object.entries(records)) {
@@ -32,7 +33,7 @@ test('record lists share aligned headers and single-line rows', async t => {
 });
 
 test('record creates share plain-text title/body flags and human references', async t => {
-  for (const [resource, record] of Object.entries({feature, requirement, epic})) {
+  for (const [resource, record] of Object.entries({feature, requirement, epic, release})) {
     const {dir, requests} = await setup(t, () => ({record}));
     const result = await run(dir, [resource, 'create', ...parents[resource], '-t', 'Title', '-b', '<literal> & text\nsecond line']);
     assert.equal(result.code, 0, result.stderr);
@@ -57,7 +58,7 @@ test('record creates prompt for a title only in interactive non-JSON mode', asyn
 });
 
 test('record views render readable descriptions and JSON retains the original HTML', async t => {
-  for (const [resource, base] of Object.entries({feature, requirement, epic})) {
+  for (const [resource, base] of Object.entries({feature, requirement, epic, release})) {
     const record = {...base, description: {body: '<p>One &amp; two</p><p>Next line</p>'}};
     const {dir} = await setup(t, () => ({record}));
     const human = await run(dir, [resource, 'view', record.reference_num]);
@@ -72,7 +73,7 @@ test('record views render readable descriptions and JSON retains the original HT
 
 test('invalid list options fail before resolving parent references', async t => {
   const { dir, requests } = await setup(t);
-  for (const [resource, parent] of [['feature', '--workspace'], ['requirement', '--feature'], ['epic', '--workspace']]) {
+  for (const [resource, parent] of [['feature', '--workspace'], ['requirement', '--feature'], ['epic', '--workspace'], ['release', '--workspace']]) {
     const result = await run(dir, [resource, 'list', parent, 'CLI-12', '--per-page', '201', '--json']);
     assert.equal(result.code, 1);
     assert.match(result.stderr, /1 and 200/);

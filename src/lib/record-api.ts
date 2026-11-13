@@ -12,6 +12,7 @@ export interface RecordSummary {
 
 export interface RecordInputConfig {
   resource: string;
+  dateFields?: string[];
   writable: Set<string>;
   flagKeys: Record<string, string>;
   references: Record<string, string>;
@@ -98,7 +99,7 @@ export async function recordPatch(
       throw new Error('A nonempty title is required.');
     patch.name = patch.name.trim();
   }
-  for (const key of ['start_date', 'end_date']) {
+  for (const key of config.dateFields || ['start_date', 'end_date']) {
     const value = patch[key];
     if (value === undefined || value === null) continue;
     if (
@@ -119,7 +120,9 @@ export async function recordPatch(
         !value ||
         (!/^\d+$/.test(value) &&
           !config.references[key] &&
-          !(key === 'assigned_to_user_id' && value === '@me'))
+          !(
+            ['assigned_to_user_id', 'owner_id'].includes(key) && value === '@me'
+          ))
       ) {
         throw new Error(
           `${key} requires a string ID${
@@ -139,7 +142,7 @@ export async function resolveRecordIds(
   references: Record<string, string>
 ) {
   for (const [key, value] of Object.entries(patch)) {
-    if (key === 'assigned_to_user_id' && value === '@me') {
+    if (['assigned_to_user_id', 'owner_id'].includes(key) && value === '@me') {
       // API v3 exposes users by ID, but has no current-user lookup endpoint.
       patch[key] = await currentUserId(api);
     } else if (
