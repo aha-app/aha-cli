@@ -429,8 +429,6 @@ aha feature list --filters '{"eq[epic.id]":"1234567890123456789"}' --json
 Select an account with `-s`/`--subdomain`. All epic operations use API v3; `--owner @me` shares the existing v1 current-user lookup exception. Scripts never prompt,
 and deletion requires `--yes` outside interactive use.
 
-# Development
-
 ## Releases
 
 Use `aha release` to create, list, view, edit, and delete releases and parking lots
@@ -464,6 +462,8 @@ Lists follow all cursor pages and support `--search`, `--filters`, `--fields`,
 `--sort`, `--descending`, and `--per-page`. Human lists use tables; JSON lists are
 bare arrays. Sorted or embedded truncation is reported on stderr. JSON mode never
 prompts, and scripts must pass `--yes` to delete. Use `-s` to select an account.
+
+# Development
 
 ## Building
 

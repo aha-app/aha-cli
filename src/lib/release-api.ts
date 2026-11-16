@@ -137,7 +137,8 @@ export function releasePatch(
           );
         if (
           'type' in patch &&
-          !['release', 'rollup_release'].includes(String(patch.type))
+          (typeof patch.type !== 'string' ||
+            !['release', 'rollup_release'].includes(patch.type))
         )
           throw new Error('type must be release or rollup_release.');
       } else {
@@ -166,9 +167,16 @@ export function releasePatch(
         throw new Error('parking_lot must be a boolean.');
       if (
         'external_date_resolution' in patch &&
-        !['sync', 'exact', 'week', 'month', 'quarter', 'half', 'year'].includes(
-          String(patch.external_date_resolution)
-        )
+        (typeof patch.external_date_resolution !== 'string' ||
+          ![
+            'sync',
+            'exact',
+            'week',
+            'month',
+            'quarter',
+            'half',
+            'year',
+          ].includes(patch.external_date_resolution))
       )
         throw new Error(
           'Invalid external_date_resolution; use sync, exact, week, month, quarter, half, or year.'
@@ -208,9 +216,11 @@ export function printRelease(command: BaseCommand, release: ReleaseRecord) {
       command.log(`Release date: ${release.release_date}`);
     if (release.external_release_date)
       command.log(
-        `External release date: ${release.external_release_date} (${
-          release.external_date_resolution || 'exact'
-        })`
+        `External release date: ${release.external_release_date}${
+          release.external_date_resolution
+            ? ` (${release.external_date_resolution})`
+            : ''
+        }`
       );
     if (release.parent)
       command.log(

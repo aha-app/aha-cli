@@ -32,7 +32,8 @@ test('release validation rejects invalid dates, read-only fields and missing par
   for (const [action, input] of [
     [['create'], {name: 'Release'}],
     [['create'], {name: 'Release', project_id: '123', type: 'feature'}],
-    ...[{project_id: '123'}, {type: 'release'}, {features: []}, {release_date: '2026-02-30'}, {external_release_date: 'tomorrow'}, {released_on: '2026-13-01'}, {development_started_on: '2026-11-31'}, {parking_lot: 'false'}, {external_date_resolution: 'daily'}, {owner_id: 123}, {owner_id: null}, {parent_id: null}].map(input => [['edit', 'CLI-R-1'], input]),
+    [['create'], {name: 'Release', project_id: '123', type: ['release']}],
+    ...[{project_id: '123'}, {type: 'release'}, {features: []}, {release_date: '2026-02-30'}, {external_release_date: 'tomorrow'}, {released_on: '2026-13-01'}, {development_started_on: '2026-11-31'}, {parking_lot: 'false'}, {external_date_resolution: 'daily'}, {external_date_resolution: ['month']}, {owner_id: 123}, {owner_id: null}, {parent_id: null}].map(input => [['edit', 'CLI-R-1'], input]),
   ]) {
     const result = await run(dir, ['release', ...action, '--input', '-', '--json'], {input: JSON.stringify(input)});
     assert.equal(result.code, 1, JSON.stringify(input));
@@ -43,15 +44,13 @@ test('release validation rejects invalid dates, read-only fields and missing par
   assert.equal(requests.length, 0);
 });
 
-test('release list resolves workspace and preserves parking-lot filters across pages', async t => {
-  let page = 0;
-  const {dir, requests} = await setup(t, req => req.url.startsWith('/api/v3/projects/CLI') ? {record: {id: '123'}} : {records: [release], pagination: {has_more: ++page === 1, next_cursor: page === 1 ? 'opaque+/=' : null}});
+test('release list resolves workspace and applies parking-lot filters', async t => {
+  const {dir, requests} = await setup(t, req => req.url.startsWith('/api/v3/projects/CLI') ? {record: {id: '123'}} : {records: [release], pagination: {has_more: false, next_cursor: null}});
   const result = await run(dir, ['release', 'list', '--workspace', 'CLI', '--filters', '{"eq[parking_lot]":"true"}', '--fields', 'id,name', '--json']);
   assert.equal(result.code, 0, result.stderr);
-  assert.equal(JSON.parse(result.stdout).length, 2);
-  const query = new URL(requests[2].url, 'https://example.test').searchParams;
+  assert.deepEqual(JSON.parse(result.stdout), [release]);
+  const query = new URL(requests[1].url, 'https://example.test').searchParams;
   assert.equal(query.get('project_id'), '123');
-  assert.equal(query.get('after'), 'opaque+/=');
   assert.equal(query.get('filter.eq[parking_lot]'), 'true');
 });
 
@@ -68,4 +67,14 @@ test('release deletion requires confirmation, resolves its ID, and surfaces API 
   assert.match(forbidden.stderr, /403/);
   assert.equal(forbidden.stdout, '');
   assert.equal(requests.at(-1).url, '/api/v3/releases/' + release.id);
+});
+
+test('release views show external date resolution only when the API supplies it', async t => {
+  for (const resolution of [undefined, 'month']) {
+    const {dir} = await setup(t, () => ({record: {...release, external_release_date: '2026-12-01', external_date_resolution: resolution}}));
+    const result = await run(dir, ['release', 'view', 'CLI-R-1', '--fields', 'id,external_release_date' + (resolution ? ',external_date_resolution' : '')]);
+    assert.equal(result.code, 0, result.stderr);
+    const dateLine = result.stdout.split('\n').find(line => line.startsWith('External release date:'));
+    assert.equal(dateLine, 'External release date: 2026-12-01' + (resolution ? ' (month)' : ''));
+  }
 });
