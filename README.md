@@ -463,6 +463,38 @@ Lists follow all cursor pages and support `--search`, `--filters`, `--fields`,
 bare arrays. Sorted or embedded truncation is reported on stderr. JSON mode never
 prompts, and scripts must pass `--yes` to delete. Use `-s` to select an account.
 
+## Release phases and milestones
+
+Use `aha release-phase create|list|view|edit|delete` for release phases and
+milestones. Create requires a release ID/reference, a title, and an explicit
+`--type phase` or `--type milestone`. Single-record commands accept an ID or
+reference; colon aliases such as `aha release-phase:view` also work.
+
+```sh
+aha release-phase create --release PRJ-R-1 --type phase --title "Build" --start-date 2026-12-01 --end-date 2026-12-15
+aha release-phase create --release PRJ-R-1 --type milestone --title "Launch" --start-date 2026-12-15
+aha release-phase list --release PRJ-R-1 --filters '{"eq[type]":"milestone"}' --json
+aha release-phase view PRJ-RP-1
+aha release-phase edit PRJ-RP-1 --position 2 --color '#336699' --progress-source manual --progress 25
+aha release-phase edit PRJ-RP-1 --input phase-update.json --json
+aha release-phase delete PRJ-RP-1 --yes
+```
+
+`--body` is plain text; `--input` accepts a writable JSON object from a file or
+stdin (`-`), including HTML `description` and `custom_fields`. It also supports
+`name`, `type`, `start_date`, `end_date`, `position`, `color`, `progress`,
+`progress_source`, and `duration_source`. The release association (`release_id`)
+can only be set on creation. Omitted fields and associations stay unchanged.
+Milestones use their start date as their date; the API controls milestone date
+and progress behavior. Use `--duration-source manual` for milestone dates.
+When converting a milestone back to a phase, include `--progress-source manual`;
+the current API can reject the automatically selected progress source.
+
+Lists follow all cursor pages and share `--search`, `--filters`, `--sort`,
+`--descending`, `--per-page`, and `--fields` with other record commands. Human
+views show type, dates, release and metadata; JSON preserves API fields and HTML.
+Deletion requires interactive confirmation or `--yes` in scripts.
+
 # Development
 
 ## Building

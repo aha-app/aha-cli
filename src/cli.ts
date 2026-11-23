@@ -35,6 +35,11 @@ import ReleaseList from './commands/release/list';
 import ReleaseView from './commands/release/view';
 import ReleaseEdit from './commands/release/edit';
 import ReleaseDelete from './commands/release/delete';
+import ReleasePhaseCreate from './commands/release-phase/create';
+import ReleasePhaseList from './commands/release-phase/list';
+import ReleasePhaseView from './commands/release-phase/view';
+import ReleasePhaseEdit from './commands/release-phase/edit';
+import ReleasePhaseDelete from './commands/release-phase/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -69,6 +74,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'release-phase:create': ReleasePhaseCreate,
+  'release-phase:list': ReleasePhaseList,
+  'release-phase:view': ReleasePhaseView,
+  'release-phase:edit': ReleasePhaseEdit,
+  'release-phase:delete': ReleasePhaseDelete,
   'release:create': ReleaseCreate,
   'release:list': ReleaseList,
   'release:view': ReleaseView,
@@ -91,6 +101,9 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  'release-phase': {
+    description: 'Manage release phases and milestones with API v3',
+  },
   release: { description: 'Manage releases with API v3' },
   epic: { description: 'Manage epics with API v3' },
   feature: { description: 'Manage features with API v3' },
