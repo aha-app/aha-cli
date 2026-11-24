@@ -555,6 +555,40 @@ The v3 endpoints do not expose workspace deletion or workspace type/line changes
 Those commands and writable fields are intentionally unavailable. Teams can be
 listed and viewed; creation uses the API's default workspace type.
 
+## Comments and replies
+
+```sh
+aha comment create --record CLI-12 --record-type feature --body "Ready for review"
+aha comment list --record CLI-12 --record-type feature --json
+aha comment create --record CLI-12 --record-type feature --reply-to 123456789 --body "Agreed"
+aha comment view 123456789
+aha comment edit 123456789 --input comment-update.json --json
+aha comment delete 123456789 --yes
+```
+
+Create requires an owning `--record` ID/reference, its API `--record-type`, and a
+plain-text `--body`/`-b`. JSON `--input` (file or `-` for stdin) accepts the writable
+object directly: `{"record_id":"123","record_type":"feature","body":"<p>HTML</p>"}`.
+Add `parent_id` in JSON, or `--reply-to`, for a reply to a top-level comment on the
+same owning record. The owning record and reply parent are separate associations;
+replies to replies and replies on another record fail with the API's error.
+IDs in structured input stay strings. Reference lookup uses the owning type's
+published v3 endpoint; types without one require a numeric ID. The API determines
+whether a record supports comments and whether the user has access.
+
+List follows all cursor pages and supports `--fields`, `--filters`, `--sort`, and
+`--per-page`. `--search` searches comment HTML bodies. Use `--record` together with
+`--record-type` to scope a list; otherwise it lists accessible comments across
+supported record types. Filter by `eq[parent.id]` to select replies. Human lists
+show an excerpt; view shows the readable full body, author, owning record, and
+reply parent. JSON preserves the original HTML and requested metadata. Capped
+embeds and truncated sorted results produce warnings on stderr.
+
+View/edit/delete use the comment ID. Edit accepts only `body` and preserves the
+record, author and reply association. Deleting a top-level comment also removes
+its replies. Interactive deletion asks for confirmation; scripts and JSON mode
+require `--yes`. Permission, validation and not-found errors return a nonzero exit.
+
 # Development
 
 ## Building
