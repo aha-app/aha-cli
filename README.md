@@ -495,6 +495,36 @@ Lists follow all cursor pages and share `--search`, `--filters`, `--sort`,
 views show type, dates, release and metadata; JSON preserves API fields and HTML.
 Deletion requires interactive confirmation or `--yes` in scripts.
 
+## Iterations and sprints
+
+Use `aha iteration create|list|view|edit|delete` for a team workspace's sprints.
+Create requires `--workspace` (ID/reference) and a title. Single-record commands
+accept iteration IDs/references, including the colon alias `aha iteration:view`.
+
+```sh
+aha iteration create --workspace TEAM --title "Sprint 1" --status planning --start-date 2026-12-01 --duration 14 --goal "Ship the release"
+aha iteration list --workspace TEAM --filters '{"eq[status]":"planning"}' --json
+aha iteration view TEAM-SP-1
+aha iteration edit TEAM-SP-1 --end-date 2026-12-20 --progress 50
+aha iteration edit TEAM-SP-1 --input sprint-update.json --json
+aha feature edit TEAM-42 --iteration TEAM-SP-1
+aha iteration delete TEAM-SP-1 --yes
+```
+
+`--body` accepts plain text. `--input` accepts a writable JSON object from a file
+or stdin (`-`): `name`, `status`, `start_date`, `end_date`, `duration`, `goal`,
+`progress`, and HTML `description`; `project_id` is creation-only. Use either
+an end date or duration in days, since the API derives the end date from the
+start and duration. Edits preserve omitted fields. The API enforces status
+transitions and deletion restrictions (for example, sprints with records or
+started sprints cannot be deleted).
+
+Scheduling features/requirements uses that record's `--iteration` field. The
+iteration's feature and requirement collections are read-only, not membership
+mutation endpoints. List filters, field selection, cursor pagination, JSON and
+human output follow the shared record conventions; deletion requires interactive
+confirmation or `--yes` in scripts.
+
 # Development
 
 ## Building
