@@ -9,8 +9,9 @@ const todo = { id: '888', reference_num: 'PERSONAL-TODO-1', name: feature.name, 
 const release = { ...feature, id: '555', reference_num: 'CLI-R-1', html_url: 'https://example.test/releases/CLI-R-1' };
 const phase = {...feature, id: '444', reference_num: 'CLI-P-1', type: 'phase'};
 const iteration = {...feature, id: '333', reference_num: 'CLI-SP-1', status: 'planning'};
-const records = { feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
-const parents = { feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
+const workspace = {id: '222', name: feature.name, html_url: 'https://example.test/projects/CLI', reference_prefix: 'CLI', type: 'team'};
+const records = { workspace, feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
+const parents = { workspace: ['--prefix', 'CLI'], feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
 
 test('record lists share the bare-array JSON contract', async t => {
   for (const [resource, record] of Object.entries(records)) {
@@ -28,7 +29,7 @@ test('record lists share aligned headers and single-line rows', async t => {
     assert.equal(result.code, 0, result.stderr);
     const lines = result.stdout.trimEnd().split('\n');
     assert.equal(lines.length, 2);
-    assert.deepEqual(lines[0].split(/\s+/), resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
+    assert.deepEqual(lines[0].split(/\s+/), resource === 'workspace' ? ['ID', 'STATE', 'PREFIX', 'TYPE', 'PARENT', 'TITLE'] : resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
     assert.equal(lines[0].indexOf('TITLE'), lines[1].indexOf('A title'));
     assert.match(lines[1], /A title with spacing$/);
     if (resource === 'iteration') assert.match(lines[1], /planning/);
@@ -36,13 +37,13 @@ test('record lists share aligned headers and single-line rows', async t => {
 });
 
 test('record creates share plain-text title/body flags and human references', async t => {
-  for (const [resource, record] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration})) {
+  for (const [resource, record] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace})) {
     const {dir, requests} = await setup(t, () => ({record}));
     const result = await run(dir, [resource, 'create', ...parents[resource], '-t', 'Title', '-b', '<literal> & text\nsecond line']);
     assert.equal(result.code, 0, result.stderr);
     assert.equal(requests[0].body.record.name, 'Title');
     assert.equal(requests[0].body.record.description, '<p>&lt;literal&gt; &amp; text<br>second line</p>');
-    assert.ok(result.stdout.includes(record.reference_num));
+    assert.ok(result.stdout.includes(record.reference_num || record.reference_prefix || record.id));
     assert.ok(result.stdout.includes(record.html_url));
   }
 });
@@ -61,14 +62,14 @@ test('record creates prompt for a title only in interactive non-JSON mode', asyn
 });
 
 test('record views render readable descriptions and JSON retains the original HTML', async t => {
-  for (const [resource, base] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration})) {
+  for (const [resource, base] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace})) {
     const record = {...base, description: {body: '<p>One &amp; two</p><p>Next line</p>'}};
     const {dir} = await setup(t, () => ({record}));
-    const human = await run(dir, [resource, 'view', record.reference_num]);
+    const human = await run(dir, [resource, 'view', record.reference_num || record.reference_prefix]);
     assert.equal(human.code, 0, human.stderr);
     assert.match(human.stdout, /One & two\nNext line/);
     assert.doesNotMatch(human.stdout, /<p>/);
-    const json = await run(dir, [resource, 'view', record.reference_num, '--json']);
+    const json = await run(dir, [resource, 'view', record.reference_num || record.reference_prefix, '--json']);
     assert.equal(json.code, 0, json.stderr);
     assert.deepEqual(JSON.parse(json.stdout), record);
   }

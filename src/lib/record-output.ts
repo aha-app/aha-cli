@@ -56,6 +56,7 @@ export function printRecordResult(
   record: {
     id: string;
     reference_num?: string;
+    reference_prefix?: string;
     name?: string;
     html_url?: string;
   },
@@ -63,8 +64,9 @@ export function printRecordResult(
 ) {
   if (command.flags.json) command.log(JSON.stringify(record, null, 2));
   else {
+    const reference = record.reference_num || record.reference_prefix;
     command.log(
-      `${message}: ${record.reference_num ? `${record.reference_num}: ` : ''}${
+      `${message}: ${reference ? `${reference}: ` : ''}${
         record.name || record.id
       }`
     );
