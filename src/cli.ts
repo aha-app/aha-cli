@@ -45,6 +45,10 @@ import IterationList from './commands/iteration/list';
 import IterationView from './commands/iteration/view';
 import IterationEdit from './commands/iteration/edit';
 import IterationDelete from './commands/iteration/delete';
+import WorkspaceCreate from './commands/workspace/create';
+import WorkspaceList from './commands/workspace/list';
+import WorkspaceView from './commands/workspace/view';
+import WorkspaceEdit from './commands/workspace/edit';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -79,6 +83,10 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'workspace:create': WorkspaceCreate,
+  'workspace:list': WorkspaceList,
+  'workspace:view': WorkspaceView,
+  'workspace:edit': WorkspaceEdit,
   'iteration:create': IterationCreate,
   'iteration:list': IterationList,
   'iteration:view': IterationView,
@@ -111,6 +119,9 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  workspace: {
+    description: 'Inspect and configure workspaces and teams with API v3',
+  },
   iteration: { description: 'Manage iterations and sprints with API v3' },
   'release-phase': {
     description: 'Manage release phases and milestones with API v3',

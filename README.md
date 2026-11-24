@@ -525,6 +525,36 @@ mutation endpoints. List filters, field selection, cursor pagination, JSON and
 human output follow the shared record conventions; deletion requires interactive
 confirmation or `--yes` in scripts.
 
+## Workspaces and teams
+
+Use `aha workspace list` to select context for other commands. Lists include string
+IDs, prefixes, types, and parents. `view` also shows workspace-line status, children,
+and readable descriptions. Both actions accept `--fields` for requested metadata;
+embedded children may be capped and produce a warning. Lists follow every cursor
+page and share `--search`, `--filters`, `--per-page`, and sorting options.
+
+```sh
+aha workspace list --filters '{"eq[type]":"team"}' --json
+aha workspace view TEAM --fields default,type,line,parent,children,custom_fields
+aha workspace create --title "Client tools" --prefix CLIENT --parent PRODUCTS
+aha workspace edit CLIENT --body "Shared tools for client teams"
+aha workspace edit CLIENT --input workspace-update.json --json
+```
+
+Create requires a title and prefix. View/edit accept an ID or workspace prefix;
+`--parent` accepts a workspace-line ID or prefix. Prefix, parent, and plain-text
+body flags work on create/edit. Structured `--input` (a file or `-` for stdin)
+accepts the full published v3 writable object: `name`, `reference_prefix`,
+`parent_id`, HTML `description`, `custom_fields`, and `watchers`. Watchers use item
+patches (`{"id":"123"}` adds, `{"id":"123","_destroy":true}` removes);
+omitted watchers remain untouched. Set `parent_id` to `null` to clear the parent.
+Changing hierarchy requires account permission and a valid workspace-line parent.
+Edits send only requested fields; JSON preserves original API HTML.
+
+The v3 endpoints do not expose workspace deletion or workspace type/line changes.
+Those commands and writable fields are intentionally unavailable. Teams can be
+listed and viewed; creation uses the API's default workspace type.
+
 # Development
 
 ## Building

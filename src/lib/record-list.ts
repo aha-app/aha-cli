@@ -5,8 +5,8 @@ import { object, fieldQuery, warnEmbedded, RecordSummary } from './record-api';
 interface ListRecord extends Omit<RecordSummary, 'status'> {
   status?: RecordSummary['status'] | string;
 }
-interface RecordPage {
-  records: ListRecord[];
+interface RecordPage<T extends ListRecord = ListRecord> {
+  records: T[];
   pagination: {
     has_more: boolean;
     next_cursor: string | null;
@@ -72,21 +72,26 @@ export function recordListQuery(flags: Record<string, string | boolean>) {
   return query;
 }
 
-export async function listRecords(
+export async function listRecords<T extends ListRecord = ListRecord>(
   command: BaseCommand,
   resource: string,
   singular: string,
   parents: Record<string, unknown>,
-  query: URLSearchParams
+  query: URLSearchParams,
+  table?: {
+    columns: string[];
+    row: (record: T) => string[];
+    emptyMessage?: string;
+  }
 ) {
   for (const [key, value] of Object.entries(parents))
     query.set(key, String(value));
-  const records: ListRecord[] = [];
+  const records: T[] = [];
   const cursors = new Set<string>();
   let pagination: RecordPage['pagination'];
   while (true) {
     const result = await command.api.get(`/api/v3/${resource}?${query}`);
-    const page = result.body as RecordPage;
+    const page = result.body as RecordPage<T>;
     records.push(...page.records);
     pagination = page.pagination;
     if (pagination.truncated) {
@@ -108,17 +113,22 @@ export async function listRecords(
   }
   warnEmbedded(records);
   if (command.flags.json) command.log(JSON.stringify(records, null, 2));
-  else if (!records.length) command.log(`No ${resource} matched.`);
+  else if (!records.length)
+    command.log(table?.emptyMessage || `No ${resource} matched.`);
   else
     printTable(
       command,
-      ['ID', 'STATE', 'TITLE'],
-      records.map(record => [
-        record.reference_num || record.id || singular,
-        typeof record.status === 'string'
-          ? record.status
-          : record.status?.name || '—',
-        record.name || '',
-      ])
+      table?.columns || ['ID', 'STATE', 'TITLE'],
+      records.map(record =>
+        table
+          ? table.row(record)
+          : [
+              record.reference_num || record.id || singular,
+              typeof record.status === 'string'
+                ? record.status
+                : record.status?.name || '—',
+              record.name || '',
+            ]
+      )
     );
 }
