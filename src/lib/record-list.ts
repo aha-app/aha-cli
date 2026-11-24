@@ -2,8 +2,11 @@ import BaseCommand from '../base';
 import { Flags } from './flags';
 import { printTable } from './record-output';
 import { object, fieldQuery, warnEmbedded, RecordSummary } from './record-api';
+interface ListRecord extends Omit<RecordSummary, 'status'> {
+  status?: RecordSummary['status'] | string;
+}
 interface RecordPage {
-  records: RecordSummary[];
+  records: ListRecord[];
   pagination: {
     has_more: boolean;
     next_cursor: string | null;
@@ -78,7 +81,7 @@ export async function listRecords(
 ) {
   for (const [key, value] of Object.entries(parents))
     query.set(key, String(value));
-  const records: RecordSummary[] = [];
+  const records: ListRecord[] = [];
   const cursors = new Set<string>();
   let pagination: RecordPage['pagination'];
   while (true) {
@@ -112,7 +115,9 @@ export async function listRecords(
       ['ID', 'STATE', 'TITLE'],
       records.map(record => [
         record.reference_num || record.id || singular,
-        record.status?.name || '—',
+        typeof record.status === 'string'
+          ? record.status
+          : record.status?.name || '—',
         record.name || '',
       ])
     );

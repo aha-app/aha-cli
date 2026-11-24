@@ -40,6 +40,11 @@ import ReleasePhaseList from './commands/release-phase/list';
 import ReleasePhaseView from './commands/release-phase/view';
 import ReleasePhaseEdit from './commands/release-phase/edit';
 import ReleasePhaseDelete from './commands/release-phase/delete';
+import IterationCreate from './commands/iteration/create';
+import IterationList from './commands/iteration/list';
+import IterationView from './commands/iteration/view';
+import IterationEdit from './commands/iteration/edit';
+import IterationDelete from './commands/iteration/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -74,6 +79,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'iteration:create': IterationCreate,
+  'iteration:list': IterationList,
+  'iteration:view': IterationView,
+  'iteration:edit': IterationEdit,
+  'iteration:delete': IterationDelete,
   'release-phase:create': ReleasePhaseCreate,
   'release-phase:list': ReleasePhaseList,
   'release-phase:view': ReleasePhaseView,
@@ -101,6 +111,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  iteration: { description: 'Manage iterations and sprints with API v3' },
   'release-phase': {
     description: 'Manage release phases and milestones with API v3',
   },
