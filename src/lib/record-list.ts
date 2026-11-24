@@ -31,7 +31,10 @@ export const recordListFlags = {
     default: '100',
   }),
 };
-export function recordListQuery(flags: Record<string, string | boolean>) {
+export function recordListQuery(
+  flags: Record<string, string | boolean>,
+  searchField = 'name'
+) {
   const query = fieldQuery(flags);
   if (
     typeof flags.perPage !== 'string' ||
@@ -63,7 +66,7 @@ export function recordListQuery(flags: Record<string, string | boolean>) {
   if (typeof flags.search === 'string') {
     if (!flags.search.trim())
       throw new Error('--search requires nonempty text.');
-    query.set('filter.contains[name]', flags.search);
+    query.set(`filter.contains[${searchField}]`, flags.search);
   }
   if (typeof flags.sort === 'string') {
     if (!flags.sort.trim()) throw new Error('--sort requires a field.');

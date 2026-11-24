@@ -10,11 +10,12 @@ const release = { ...feature, id: '555', reference_num: 'CLI-R-1', html_url: 'ht
 const phase = {...feature, id: '444', reference_num: 'CLI-P-1', type: 'phase'};
 const iteration = {...feature, id: '333', reference_num: 'CLI-SP-1', status: 'planning'};
 const workspace = {id: '222', name: feature.name, html_url: 'https://example.test/projects/CLI', reference_prefix: 'CLI', type: 'team'};
+const comment = {id: '111', body: '<p>A title\nwith spacing</p>'};
 const records = { workspace, feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
 const parents = { workspace: ['--prefix', 'CLI'], feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
 
 test('record lists share the bare-array JSON contract', async t => {
-  for (const [resource, record] of Object.entries(records)) {
+  for (const [resource, record] of Object.entries({...records, comment})) {
     const { dir } = await setup(t, req => req.url === '/api/v1/me' ? {user: {id: '123'}} : {records: [record], pagination: {has_more: false, next_cursor: null}});
     const result = await run(dir, [resource, 'list', '--json']);
     assert.equal(result.code, 0, result.stderr);
@@ -23,13 +24,13 @@ test('record lists share the bare-array JSON contract', async t => {
 });
 
 test('record lists share aligned headers and single-line rows', async t => {
-  for (const [resource, record] of Object.entries(records)) {
+  for (const [resource, record] of Object.entries({...records, comment})) {
     const { dir } = await setup(t, req => req.url === '/api/v1/me' ? {user: {id: '123'}} : {records: [record], pagination: {has_more: false, next_cursor: null}});
     const result = await run(dir, [resource, 'list']);
     assert.equal(result.code, 0, result.stderr);
     const lines = result.stdout.trimEnd().split('\n');
     assert.equal(lines.length, 2);
-    assert.deepEqual(lines[0].split(/\s+/), resource === 'workspace' ? ['ID', 'STATE', 'PREFIX', 'TYPE', 'PARENT', 'TITLE'] : resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
+    assert.deepEqual(lines[0].split(/\s+/), resource === 'comment' ? ['ID', 'STATE', 'RECORD', 'REPLY-TO', 'TITLE'] : resource === 'workspace' ? ['ID', 'STATE', 'PREFIX', 'TYPE', 'PARENT', 'TITLE'] : resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
     assert.equal(lines[0].indexOf('TITLE'), lines[1].indexOf('A title'));
     assert.match(lines[1], /A title with spacing$/);
     if (resource === 'iteration') assert.match(lines[1], /planning/);
