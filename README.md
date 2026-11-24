@@ -589,6 +589,43 @@ record, author and reply association. Deleting a top-level comment also removes
 its replies. Interactive deletion asks for confirmation; scripts and JSON mode
 require `--yes`. Permission, validation and not-found errors return a nonzero exit.
 
+## Tags
+
+```sh
+aha tag list --search "Infrastructure" --json
+aha tag list --filters '{"eq[name]":"Infrastructure","eq[type]":"general"}' --fields id,name,type,color --json
+aha tag create --title "Infrastructure" --type general --color '#123456'
+aha tag view 123456789
+aha tag edit 123456789 --color '#abcdef'
+aha tag delete 123456789 --yes
+```
+
+Tag actions use string IDs. Look up a name with `list`; use `eq[name]` for an exact,
+case-sensitive match and `eq[type]` to distinguish tag types. Lists follow every
+cursor page and share field selection, filters, search, and sorting options.
+Create requires `--title`/`-t` or `name` in structured `--input` (file or `-` for
+stdin). The full writable object is `{"name":"Infrastructure","type":"general","color":"#123456"}`.
+View shows name, type and color; edit sends only requested fields. Tags have no
+body/description field. Type is `general` or `research`; research requires Aha!
+Discovery. Although v3 accepts a type field on update, the current API rejects
+changing a tag's type after creation. A tag still in use cannot be deleted.
+Interactive delete confirms first; scripts/JSON require `--yes`. API validation,
+permission and missing-record errors fail without changing associations.
+
+Feature, requirement and epic commands use tag **item patches**, preserving tags
+omitted from the input. Add a general tag by ID, then remove just that tag:
+
+```sh
+printf '%s' '{"tags":[{"id":"123456789"}]}' | aha feature edit CLI-12 --input - --json
+printf '%s' '{"tags":[{"id":"123456789","_destroy":true}]}' | aha feature edit CLI-12 --input - --json
+```
+
+The same JSON works with `aha requirement edit CLI-12-1` and `aha epic edit CLI-E-1`.
+Existing tag names can also be matched case-sensitively with `{"name":"Infrastructure"}`;
+IDs take precedence if both are supplied. An empty `tags` array changes nothing.
+Deleting a tag is separate from removing an association: detach it from every
+record before attempting deletion. Omitted and unrelated tags remain attached.
+
 # Development
 
 ## Building

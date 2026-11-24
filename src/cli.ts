@@ -54,6 +54,11 @@ import CommentList from './commands/comment/list';
 import CommentView from './commands/comment/view';
 import CommentEdit from './commands/comment/edit';
 import CommentDelete from './commands/comment/delete';
+import TagCreate from './commands/tag/create';
+import TagList from './commands/tag/list';
+import TagView from './commands/tag/view';
+import TagEdit from './commands/tag/edit';
+import TagDelete from './commands/tag/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -88,6 +93,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'tag:create': TagCreate,
+  'tag:list': TagList,
+  'tag:view': TagView,
+  'tag:edit': TagEdit,
+  'tag:delete': TagDelete,
   'comment:create': CommentCreate,
   'comment:list': CommentList,
   'comment:view': CommentView,
@@ -129,6 +139,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  tag: { description: 'Manage tags with API v3' },
   comment: { description: 'Manage comments and replies with API v3' },
   workspace: {
     description: 'Inspect and configure workspaces and teams with API v3',
