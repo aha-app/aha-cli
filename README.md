@@ -780,6 +780,37 @@ selected API fields. Capped embedded collections and sorted truncation warn on
 stderr. Delete confirms interactively or requires `--yes` in scripts/JSON mode.
 Record operations use v3; permission/validation failures never retry through v1.
 
+## Competitors
+
+```sh
+aha competitor create --workspace CLI --title "Acme" --subtitle "Alternative platform" --website 'https://acme.example.com' --color '#123456'
+aha competitor list --workspace CLI --filters '{"eq[subtitle]":"Alternative platform"}' --json
+aha competitor view CLI-C-1
+aha competitor edit CLI-C-1 --website 'https://acme.example.com/products'
+aha competitor edit CLI-C-1 --input competitor-update.json --json
+aha competitor delete CLI-C-1 --yes
+```
+
+Create requires an explicit workspace ID/prefix and title. Single-record actions
+accept IDs or competitor references. Workspace assignment is create-only. Subtitle
+and website are text; an empty string clears either. Website uses the API's
+`website` field, distinct from the Aha record's `html_url` and API `url`. Hostnames
+without a scheme are accepted by the API. Colors use six-digit hex strings,
+including `#000000`; malformed colors fail before access instead of being silently
+ignored by the API.
+
+JSON `--input` accepts a writable object from a file or stdin (`-`): `name`,
+`subtitle`, `website`, `color`, `custom_fields`, and create-only `project_id`.
+Edits send only supplied changes. Use configured custom-field keys for supported
+structured competitor data. Watchers, top-level description/body, image upload,
+and document editing are not writable in this payload; `--body` is not exposed.
+
+Lists follow cursor pages with workspace scope, fields, filters, search, and
+sorting. Human views show workspace, subtitle, company website, color, and the Aha
+record URL; JSON retains selected API fields. Capped embeds and sorted truncation
+warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
+Record operations use v3; API failures never retry through v1.
+
 # Development
 
 ## Building

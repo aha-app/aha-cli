@@ -64,6 +64,11 @@ import KeyResultList from './commands/key-result/list';
 import KeyResultView from './commands/key-result/view';
 import KeyResultEdit from './commands/key-result/edit';
 import KeyResultDelete from './commands/key-result/delete';
+import CompetitorCreate from './commands/competitor/create';
+import CompetitorList from './commands/competitor/list';
+import CompetitorView from './commands/competitor/view';
+import CompetitorEdit from './commands/competitor/edit';
+import CompetitorDelete from './commands/competitor/delete';
 import PersonaCreate from './commands/persona/create';
 import PersonaList from './commands/persona/list';
 import PersonaView from './commands/persona/view';
@@ -123,6 +128,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'key-result:view': KeyResultView,
   'key-result:edit': KeyResultEdit,
   'key-result:delete': KeyResultDelete,
+  'competitor:create': CompetitorCreate,
+  'competitor:list': CompetitorList,
+  'competitor:view': CompetitorView,
+  'competitor:edit': CompetitorEdit,
+  'competitor:delete': CompetitorDelete,
   'persona:create': PersonaCreate,
   'persona:list': PersonaList,
   'persona:view': PersonaView,
@@ -184,6 +194,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
     description:
       'Manage key results with API v3 (requires Enterprise+ capability)',
   },
+  competitor: { description: 'Manage workspace competitors with API v3' },
   persona: { description: 'Manage workspace personas with API v3' },
   goal: { description: 'Manage workspace goals with API v3' },
   tag: { description: 'Manage tags with API v3' },
