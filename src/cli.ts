@@ -59,6 +59,11 @@ import TagList from './commands/tag/list';
 import TagView from './commands/tag/view';
 import TagEdit from './commands/tag/edit';
 import TagDelete from './commands/tag/delete';
+import GoalCreate from './commands/goal/create';
+import GoalList from './commands/goal/list';
+import GoalView from './commands/goal/view';
+import GoalEdit from './commands/goal/edit';
+import GoalDelete from './commands/goal/delete';
 import BaseCommand from './base';
 import { FlagDefinition } from './lib/flags';
 
@@ -93,6 +98,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'requirement:view': RequirementView,
   'requirement:edit': RequirementEdit,
   'requirement:delete': RequirementDelete,
+  'goal:create': GoalCreate,
+  'goal:list': GoalList,
+  'goal:view': GoalView,
+  'goal:edit': GoalEdit,
+  'goal:delete': GoalDelete,
   'tag:create': TagCreate,
   'tag:list': TagList,
   'tag:view': TagView,
@@ -139,6 +149,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   extension: { description: 'Manage extensions' },
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
+  goal: { description: 'Manage workspace goals with API v3' },
   tag: { description: 'Manage tags with API v3' },
   comment: { description: 'Manage comments and replies with API v3' },
   workspace: {
