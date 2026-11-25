@@ -64,6 +64,11 @@ import KeyResultList from './commands/key-result/list';
 import KeyResultView from './commands/key-result/view';
 import KeyResultEdit from './commands/key-result/edit';
 import KeyResultDelete from './commands/key-result/delete';
+import PersonaCreate from './commands/persona/create';
+import PersonaList from './commands/persona/list';
+import PersonaView from './commands/persona/view';
+import PersonaEdit from './commands/persona/edit';
+import PersonaDelete from './commands/persona/delete';
 import GoalCreate from './commands/goal/create';
 import GoalList from './commands/goal/list';
 import GoalView from './commands/goal/view';
@@ -118,6 +123,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'key-result:view': KeyResultView,
   'key-result:edit': KeyResultEdit,
   'key-result:delete': KeyResultDelete,
+  'persona:create': PersonaCreate,
+  'persona:list': PersonaList,
+  'persona:view': PersonaView,
+  'persona:edit': PersonaEdit,
+  'persona:delete': PersonaDelete,
   'goal:create': GoalCreate,
   'goal:list': GoalList,
   'goal:view': GoalView,
@@ -174,6 +184,7 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
     description:
       'Manage key results with API v3 (requires Enterprise+ capability)',
   },
+  persona: { description: 'Manage workspace personas with API v3' },
   goal: { description: 'Manage workspace goals with API v3' },
   tag: { description: 'Manage tags with API v3' },
   comment: { description: 'Manage comments and replies with API v3' },
