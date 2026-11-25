@@ -711,6 +711,44 @@ users only by ID; record operations use v3. Workflow status/timeframe IDs must b
 accessible to the account; inspect current records or workspace configuration.
 Delete confirms interactively or requires `--yes` in scripts/JSON mode.
 
+## Key results
+
+```sh
+aha key-result create --goal CLI-G-1 --title "Improve renewal" --owner @me --starting-metric "50%" --current-metric "65%" --target-metric "80%" --progress 50
+aha key-result list --goal CLI-G-1 --json
+aha key-result list --workspace CLI --filters '{"eq[status.id]":"123"}' --json
+aha key-result view CLI-G-1-KR-1
+aha key-result edit CLI-G-1-KR-1 --current-metric "70%" --progress 67
+aha key-result edit CLI-G-1-KR-1 --input key-result-update.json --json
+aha key-result delete CLI-G-1-KR-1 --yes
+```
+
+Key results require an Enterprise+ plan or the account's enabled key-result
+capability, plus permission to access the goal. API denials fail with the original
+error and capability/permission context; they do not retry through v1.
+
+Create requires an explicit goal ID/reference and title. The goal determines the
+workspace; it cannot be changed on edit. Starting/current/target metrics are text
+(such as `"80%"`), while progress is a separate number: changing metric text does
+not calculate progress. Position is an integer. Status uses a workflow status ID;
+owner accepts a user ID or `@me`. JSON `assigned_to_user_id: null` clears the owner.
+`@me` reuses the existing v1 current-user lookup because v3 exposes users only by
+ID; all record operations use v3.
+
+JSON `--input` accepts a writable object from a file or stdin (`-`): `name`, HTML
+`description`, `position`, `progress`, `starting_metric`, `current_metric`,
+`target_metric`, `status_id`, `assigned_to_user_id`, `custom_fields`, `watchers`, and
+create-only `goal_id`. Edits send only supplied fields. Watcher items add by string
+`id`, remove with `_destroy: true`, preserve omitted watchers, and leave everything
+unchanged for an empty array. Read-only associations and progress-source changes
+are not writable through this API.
+
+List across the account or choose one parent scope: goal or workspace. Lists follow
+cursor pages and support fields, filters, search, and sorting. Capped embeds and
+sorted truncation warn on stderr. Human views show the goal, metrics, owner,
+status, progress and readable description; JSON retains HTML and string IDs.
+Delete confirms interactively or requires `--yes` in scripts/JSON mode.
+
 # Development
 
 ## Building

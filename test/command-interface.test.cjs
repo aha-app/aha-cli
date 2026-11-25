@@ -14,8 +14,9 @@ const comment = {id: '111', body: '<p>A title\nwith spacing</p>'};
 const tag = {id: '110', name: feature.name, type: 'general', color: '#123456'};
 const goal = {...feature, id: '109', reference_num: 'CLI-G-1', html_url: 'https://example.test/goals/CLI-G-1'};
 const initiative = {...feature, id: '108', reference_num: 'CLI-I-1', html_url: 'https://example.test/initiatives/CLI-I-1'};
-const records = { initiative, goal, workspace, feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
-const parents = { initiative: ['--workspace','123'], goal: ['--workspace','123'], workspace: ['--prefix', 'CLI'], feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
+const keyResult = {...feature, id: '107', reference_num: 'CLI-G-1-KR-1', html_url: 'https://example.test/key_results/CLI-G-1-KR-1'};
+const records = { 'key-result': keyResult, initiative, goal, workspace, feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
+const parents = { 'key-result': ['--goal','123'], initiative: ['--workspace','123'], goal: ['--workspace','123'], workspace: ['--prefix', 'CLI'], feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
 
 test('record lists share the bare-array JSON contract', async t => {
   for (const [resource, record] of Object.entries({...records, comment, tag})) {
@@ -41,7 +42,7 @@ test('record lists share aligned headers and single-line rows', async t => {
 });
 
 test('record creates share plain-text title/body flags and human references', async t => {
-  for (const [resource, record] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace, goal, initiative})) {
+  for (const [resource, record] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace, goal, initiative, 'key-result': keyResult})) {
     const {dir, requests} = await setup(t, () => ({record}));
     const result = await run(dir, [resource, 'create', ...parents[resource], '-t', 'Title', '-b', '<literal> & text\nsecond line']);
     assert.equal(result.code, 0, result.stderr);
@@ -66,7 +67,7 @@ test('record creates prompt for a title only in interactive non-JSON mode', asyn
 });
 
 test('record views render readable descriptions and JSON retains the original HTML', async t => {
-  for (const [resource, base] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace, goal, initiative})) {
+  for (const [resource, base] of Object.entries({feature, requirement, epic, release, 'release-phase': phase, iteration, workspace, goal, initiative, 'key-result': keyResult})) {
     const record = {...base, description: {body: '<p>One &amp; two</p><p>Next line</p>'}};
     const {dir} = await setup(t, () => ({record}));
     const human = await run(dir, [resource, 'view', record.reference_num || record.reference_prefix]);
@@ -81,7 +82,7 @@ test('record views render readable descriptions and JSON retains the original HT
 
 test('invalid list options fail before resolving parent references', async t => {
   const { dir, requests } = await setup(t);
-  for (const [resource, parent] of [['feature', '--workspace'], ['requirement', '--feature'], ['epic', '--workspace'], ['release', '--workspace'], ['release-phase', '--release'], ['iteration', '--workspace'], ['goal', '--workspace'], ['initiative', '--workspace']]) {
+  for (const [resource, parent] of [['feature', '--workspace'], ['requirement', '--feature'], ['epic', '--workspace'], ['release', '--workspace'], ['release-phase', '--release'], ['iteration', '--workspace'], ['goal', '--workspace'], ['initiative', '--workspace'], ['key-result', '--goal']]) {
     const result = await run(dir, [resource, 'list', parent, 'CLI-12', '--per-page', '201', '--json']);
     assert.equal(result.code, 1);
     assert.match(result.stderr, /1 and 200/);

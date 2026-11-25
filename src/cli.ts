@@ -59,6 +59,11 @@ import TagList from './commands/tag/list';
 import TagView from './commands/tag/view';
 import TagEdit from './commands/tag/edit';
 import TagDelete from './commands/tag/delete';
+import KeyResultCreate from './commands/key-result/create';
+import KeyResultList from './commands/key-result/list';
+import KeyResultView from './commands/key-result/view';
+import KeyResultEdit from './commands/key-result/edit';
+import KeyResultDelete from './commands/key-result/delete';
 import GoalCreate from './commands/goal/create';
 import GoalList from './commands/goal/list';
 import GoalView from './commands/goal/view';
@@ -108,6 +113,11 @@ const COMMANDS: Record<string, CommandClass> = {
   'initiative:view': InitiativeView,
   'initiative:edit': InitiativeEdit,
   'initiative:delete': InitiativeDelete,
+  'key-result:create': KeyResultCreate,
+  'key-result:list': KeyResultList,
+  'key-result:view': KeyResultView,
+  'key-result:edit': KeyResultEdit,
+  'key-result:delete': KeyResultDelete,
   'goal:create': GoalCreate,
   'goal:list': GoalList,
   'goal:view': GoalView,
@@ -160,6 +170,10 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   todo: { description: 'Manage to-dos' },
   requirement: { description: 'Manage requirements with API v3' },
   initiative: { description: 'Manage workspace initiatives with API v3' },
+  'key-result': {
+    description:
+      'Manage key results with API v3 (requires Enterprise+ capability)',
+  },
   goal: { description: 'Manage workspace goals with API v3' },
   tag: { description: 'Manage tags with API v3' },
   comment: { description: 'Manage comments and replies with API v3' },
