@@ -811,6 +811,38 @@ record URL; JSON retains selected API fields. Capped embeds and sorted truncatio
 warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
 Record operations use v3; API failures never retry through v1.
 
+## Ideas (read-only)
+
+```sh
+aha idea list --workspace CLI --search "onboarding" --json
+aha idea list --filters '{"eq[status.id]":"123","eq[visibility]":"public"}' --sort score --descending --json
+aha idea view CLI-I-1
+aha idea view CLI-I-1 --fields 'default,description,status,project,assigned_to_user,submitted_idea_portal,contributor,score_facts,portal_comments,custom_fields' --json
+```
+
+The published v3 idea endpoints are GET-only. These commands list/filter and view
+ideas; they expose no creation, edits, deletion, promotion, or voting. Idea writes
+are deferred until API support exists, with no fallback to v1.
+
+Single-record views accept an idea ID or reference. Lists follow all cursor pages
+and support field selection, search, filters, and sorting. `--workspace` accepts a
+workspace ID/prefix and resolves it to `filter.eq[project.id]`; the idea endpoint
+has no `project_id` parent parameter. Use that filter directly in `--filters`
+instead if preferred, and do not supply the same scope in both places. Other
+associated filters can select status, owner, submitted portal, or contributor as
+supported by the API.
+
+Human views show requested idea metadata, owner, submitted portal, contributor,
+score/endorsement count, spam/visibility, readable description, score facts, and
+the Aha record link. Internal and portal comment counts are labeled separately
+as the number shown. `--json` preserves the selected fields and original HTML,
+including custom fields and embedded metadata. Embedded comments, score facts,
+watchers, and status history can be capped; `has_more` markers are retained and
+incomplete collections warn on stderr. No embedded collection is silently fetched
+as complete. Sorted-result truncation also warns; omit sorting to retrieve all
+matching ideas. Permission, field/filter, and not-found errors return a nonzero
+exit without a legacy retry.
+
 # Development
 
 ## Building
