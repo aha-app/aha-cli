@@ -811,6 +811,77 @@ record URL; JSON retains selected API fields. Capped embeds and sorted truncatio
 warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
 Record operations use v3; API failures never retry through v1.
 
+## Custom field definitions and options
+
+```sh
+aha custom-field list --filters '{"eq[record_type]":"feature"}' --json
+aha custom-field view 123 --fields 'default,record_type,description,layouts,options'
+aha custom-field create --title Region --key region --type predefined_choice_list --record-type feature
+aha custom-field edit 123 --input definition-patch.json --json
+aha custom-field-option list --definition 123 --json
+aha custom-field-option create --definition 123 --title West --color '#123456'
+aha custom-field-option edit 456 --hidden=false --position 1 --json
+aha custom-field-option delete 456 --yes --json
+```
+
+Definitions describe a field; options are choices belonging to a choice definition.
+They are separate from values assigned to features, ideas, or other records. IDs
+are numeric strings. Definition commands cover list/view/create/edit, and option
+commands add delete. Rechecking the API found a newer asynchronous definition
+DELETE endpoint; it is outside this requirement's dedicated command set.
+
+For full configuration, `--input` accepts a writable record object from a file or
+stdin (`-`), without a `record` envelope. Common create fields are `name`, `key`,
+`type`, and `record_type`. Definition type and record type cannot change; a custom
+table field also needs create-only `custom_table_id`. Keys use lowercase letters,
+digits and underscores. The API checks account/plan availability and administrative
+permissions; valid published types can still be unavailable to a particular account.
+
+Type-specific configuration includes number `prefix`, `suffix`, `use_delimiters`;
+checkbox `label`; choice-list `display`; records-field `scope`; attachment
+`supported_file_types`; relationship `linked_custom_table_id` (create only) and
+`project_scope` where supported; scorecard `scoring_system_id`; and worksheet
+`worksheet_rows`. Relationship and scorecard fields require their target IDs.
+Scope availability also depends on record type and is checked by the API.
+
+`layouts` uses item patches, e.g. `[{"id":"10"},{"id":"11","_destroy":true}]`.
+Account-level and custom table fields cannot choose layouts. Worksheet rows use
+`id` for partial edits/removal and omit it when appending: e.g.
+`{"worksheet_rows":[{"type":"field","name":"Value","equation":"1+2","format":"number","precision":2}]}`.
+Rows not sent stay unchanged; `[]` is a no-op. Section rows have no field settings;
+number/percent rows support precision and separators, currency rows support a
+currency, and date rows support a date format. A row's type cannot change.
+
+Option inputs support `name`, `color`, `hidden`, `position` and create-only
+`parent_id` for conditional choices. Create requires `custom_field_definition_id`.
+Hidden choices remain on existing records. Omitted fields are preserved; explicitly
+use `--hidden=false` to show a choice again. Deletion removes choices from record
+values and definition defaults and cascades to conditional children, so it requires
+confirmation or `--yes`. No definition or relationship is changed by viewing it.
+
+Lists follow cursor pages and share search, filters, fields, sort and JSON options.
+Requested JSON and capped collection markers are preserved; warnings go to stderr.
+Use `custom-field-option list --definition ID` for options beyond an embedded cap.
+Worksheet rows are returned as an array and have no separate collection endpoint;
+row patches update only the named rows.
+
+Read and update **record values** through that record's command:
+
+```sh
+aha feature view CLI-1 --fields 'default,custom_fields.region' --json
+aha feature list --filters '{"gte[custom_fields.revenue]":"100000"}' --json
+printf '%s' '{"custom_fields":{"region":{"id":"456"}}}' | aha feature edit CLI-1 --input - --json
+```
+
+Basic text/number/date/checkbox fields support the API's corresponding value
+filters; choice and relationship filtering is not supported by the current v3
+filter implementation. Basic text/number/checkbox values use their natural JSON types; a single choice
+uses `{ "id": "..." }` (or `{ "name": "..." }` for non-conditional choices),
+with `null` to clear. Multiple-choice/records fields use item patches and preserve
+omitted entries. Attachments cannot be uploaded or cleared through v3 record
+values. Selecting/filtering an unknown key or writing an unavailable field returns
+the API's error. Definition management does not set values on existing records.
+
 ## Idea endorsements (read-only)
 
 ```sh
