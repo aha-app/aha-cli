@@ -811,6 +811,31 @@ record URL; JSON retains selected API fields. Capped embeds and sorted truncatio
 warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
 Record operations use v3; API failures never retry through v1.
 
+## Idea organizations (read-only)
+
+```sh
+aha idea-organization list --search 'Acme' --json
+aha idea-organization list --filters '{"gte[revenue]":"100000"}' --sort revenue --descending --json
+aha idea-organization view ACCOUNT-O-1
+aha idea-organization view ACCOUNT-O-1 --fields 'default,description,creator,revenue,email_domains,custom_fields,created_at,updated_at' --json
+```
+
+List and view idea organizations through the published GET-only API v3 endpoints.
+Single-record lookups accept an organization reference or numeric ID. Human views
+show readable descriptions, revenue (including zero and decimals), email domains,
+and the creator when present. JSON preserves the selected fields and original
+HTML, including custom fields and available associations. The API currently
+exposes the description and creator associations; portal membership/contact lists
+and relationship mutations are not available on this endpoint.
+
+Lists share `--search` (name), `--filters`, `--fields`, `--sort`, `--descending`,
+`--per-page`, account selection, and `--json`. They follow cursor pages and warn
+about capped embeds or sorted-result truncation. Supported filters include ID,
+reference number, name, revenue, timestamps, and empty/nonempty associations;
+email-domain filtering/sorting is not supported by this API. Organization access
+is scoped to the selected account and its API permissions. No organization
+creation, edits, deletion, or relationship changes are exposed.
+
 ## Idea portals and users (read-only)
 
 ```sh

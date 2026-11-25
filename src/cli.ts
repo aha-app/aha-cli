@@ -72,6 +72,8 @@ import PortalUserList from './commands/portal-user/list';
 import PortalUserView from './commands/portal-user/view';
 import IdeaUserList from './commands/idea-user/list';
 import IdeaUserView from './commands/idea-user/view';
+import IdeaOrganizationList from './commands/idea-organization/list';
+import IdeaOrganizationView from './commands/idea-organization/view';
 import CompetitorCreate from './commands/competitor/create';
 import CompetitorList from './commands/competitor/list';
 import CompetitorView from './commands/competitor/view';
@@ -144,6 +146,8 @@ const COMMANDS: Record<string, CommandClass> = {
   'portal-user:view': PortalUserView,
   'idea-user:list': IdeaUserList,
   'idea-user:view': IdeaUserView,
+  'idea-organization:list': IdeaOrganizationList,
+  'idea-organization:view': IdeaOrganizationView,
   'competitor:create': CompetitorCreate,
   'competitor:list': CompetitorList,
   'competitor:view': CompetitorView,
@@ -209,6 +213,9 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   'key-result': {
     description:
       'Manage key results with API v3 (requires Enterprise+ capability)',
+  },
+  'idea-organization': {
+    description: 'Inspect idea organizations (read-only)',
   },
   idea: { description: 'Inspect ideas with API v3 (read-only)' },
   'idea-portal': { description: 'Look up idea portals (read-only)' },

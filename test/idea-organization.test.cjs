@@ -1,0 +1,30 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {setup,run}=require('./helpers.cjs');
+const organization={id:'7712000000000000001',reference_num:'ACCOUNT-O-12',name:'Acme',revenue:'120000.25',email_domains:['acme.example','acme.test'],description:{body:'<p>Partner &amp; customer</p><p>Next line</p>'},creator:{id:'7712000000000000002',name:'Alex',email:'alex@example.test',type:'idea'},created_at:'2026-10-01T00:00:00Z',updated_at:'2026-11-01T00:00:00Z',custom_fields:{notes:'<p>Keep original HTML</p>'},html_url:'https://example.test/idea_organizations/ACCOUNT-O-12'};
+
+test('organization lists follow cursor pages with filters, sorting and selected associations',async t=>{
+ let page=0;const {dir,requests}=await setup(t,()=>({records:[organization],pagination:{has_more:++page===1,next_cursor:page===1?'opaque+/=':null}}));const result=await run(dir,['idea-organization:list','--search','Acme & Co','--filters','{"gte[revenue]":"100000","contains[creator.email]":"example.test","eq[reference_num]":"ACCOUNT-O-12"}','--sort','revenue','--descending','--per-page','1','--fields','default,description,creator,custom_fields','--json']);assert.equal(result.code,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),[organization,organization]);assert.equal(requests.length,2);assert.ok(requests.every(r=>r.method==='GET'&&r.url.startsWith('/api/v3/idea_organizations?')));const query=new URL(requests[1].url,'https://example.test').searchParams;assert.equal(query.get('after'),'opaque+/=');assert.equal(query.get('filter.contains[name]'),'Acme & Co');assert.equal(query.get('filter.gte[revenue]'),'100000');assert.equal(query.get('filter.contains[creator.email]'),'example.test');assert.equal(query.get('filter.eq[reference_num]'),'ACCOUNT-O-12');assert.equal(query.get('sort.desc'),'revenue');assert.equal(query.get('fields'),'default,description,creator,custom_fields');
+});
+
+test('organization views accept references or IDs and preserve revenue, domains and creator fields',async t=>{
+ const {dir,requests}=await setup(t,()=>({record:organization}));const human=await run(dir,['idea-organization','view',organization.reference_num]);assert.equal(human.code,0,human.stderr);for(const text of [organization.reference_num,'Revenue: 120000.25','Email domains: acme.example, acme.test','Creator: Alex (idea) [7712000000000000002]','Partner & customer\nNext line','Created: '+organization.created_at,'Updated: '+organization.updated_at,organization.html_url])assert.ok(human.stdout.includes(text),text);assert.doesNotMatch(human.stdout,/<p>/);
+ const json=await run(dir,['idea-organization','view',organization.id,'--fields','default,revenue,email_domains,creator,custom_fields','--json']);assert.equal(json.code,0,json.stderr);assert.deepEqual(JSON.parse(json.stdout),organization);assert.ok(requests[0].url.startsWith('/api/v3/idea_organizations/'+organization.reference_num+'?'));assert.ok(requests[1].url.startsWith('/api/v3/idea_organizations/'+organization.id+'?'));assert.ok(requests.every(r=>r.method==='GET'));
+});
+
+test('organization human output handles zero revenue, empty domains and missing creator',async t=>{
+ const {dir}=await setup(t,()=>({record:{id:organization.id,name:'Minimal',revenue:0,email_domains:[],creator:null}}));const result=await run(dir,['idea-organization','view',organization.id]);assert.equal(result.code,0,result.stderr);assert.match(result.stdout,/Revenue: 0/);assert.match(result.stdout,/Email domains: —/);assert.doesNotMatch(result.stdout,/Creator:|undefined|null/);
+});
+
+test('organization validation rejects malformed identifiers and list flags before access',async t=>{
+ const {dir,requests}=await setup(t);for(const args of [['view'],['view','bad/slash'],['view','12','13'],['view',organization.id,'--fields',''],['list','extra'],['list','--per-page','0'],['list','--descending'],['list','--filters','{"eq[revenue]":5}']]){const result=await run(dir,['idea-organization',...args,'--json']);assert.equal(result.code,1,JSON.stringify(args));assert.equal(result.stdout,'');}assert.equal(requests.length,0);
+});
+
+test('organization lists refuse incomplete pagination and preserve capped embed markers',async t=>{
+ for(const cursor of [null,'same']){const {dir,requests}=await setup(t,()=>({records:[organization],pagination:{has_more:true,next_cursor:cursor}}));const result=await run(dir,['idea-organization','list','--json']);assert.equal(result.code,1);assert.match(result.stderr,/incomplete/);assert.equal(result.stdout,'');assert.equal(requests.length,cursor?2:1);}
+ const record={...organization,custom_fields:{related:{records:[{id:'1'}],has_more:true}}};const {dir}=await setup(t,()=>({records:[record],pagination:{has_more:false,next_cursor:null,truncated:true}}));const result=await run(dir,['idea-organization','list','--sort','revenue','--json']);assert.equal(result.code,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),[record]);assert.match(result.stderr,/truncated/);assert.match(result.stderr,/related is incomplete/);
+});
+
+test('organization lookup is GET-only and retains permission/not-found errors',async t=>{
+ const {dir,requests}=await setup(t,req=>req.url.includes('/404?')?{status:404,error:'Not found'}:{status:403,error:'Not permitted'});for(const action of ['create','edit','delete','link','unlink','merge']){const result=await run(dir,['idea-organization',action,organization.id,'--json']);assert.equal(result.code,1);assert.equal(result.stdout,'');}assert.equal(requests.length,0);const help=await run(dir,['idea-organization','--help']);assert.equal(help.code,0,help.stderr);assert.match(help.stdout,/read-only/);assert.match(help.stdout,/list/);assert.match(help.stdout,/view/);for(const args of [['list'],['view',organization.id],['view','404']]){const result=await run(dir,['idea-organization',...args,'--json']);assert.equal(result.code,1);assert.match(result.stderr,/HTTP (403|404)/);assert.equal(result.stdout,'');}assert.equal(requests.length,3);assert.ok(requests.every(r=>r.method==='GET'&&r.url.startsWith('/api/v3/idea_organizations')));
+});
