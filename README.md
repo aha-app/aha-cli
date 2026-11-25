@@ -749,6 +749,37 @@ sorted truncation warn on stderr. Human views show the goal, metrics, owner,
 status, progress and readable description; JSON retains HTML and string IDs.
 Delete confirms interactively or requires `--yes` in scripts/JSON mode.
 
+## Personas
+
+```sh
+aha persona create --workspace CLI --title "Product leader" --occupation "Product manager" --quote "Help me prioritize" --color '#123456'
+aha persona list --workspace CLI --filters '{"eq[occupation]":"Product manager"}' --json
+aha persona view CLI-P-1
+aha persona edit CLI-P-1 --quote "Show me the customer impact"
+aha persona edit CLI-P-1 --input persona-update.json --json
+aha persona delete CLI-P-1 --yes
+```
+
+Create requires an explicit workspace ID/prefix and title. Single-record actions
+accept IDs or persona references. Workspace assignment is create-only. Occupation
+and quote are plain text; an empty string clears either. Colors use six-digit hex
+strings (including `#000000`); malformed colors fail before API access rather than
+being silently ignored by the API.
+
+JSON `--input` accepts a writable object from a file or stdin (`-`): `name`,
+`occupation`, `quote`, `color`, `watchers`, `custom_fields`, and create-only
+`project_id`. Edits send only supplied changes. Watcher items add by string `id`,
+remove with `_destroy: true`, preserve omitted watchers, and an empty array changes
+nothing. Use configured custom-field keys for supported structured persona data.
+There is no top-level description/body, image upload, or document editing field in
+this API; these commands do not expose `--body` or those writes.
+
+Lists follow all cursor pages with workspace scope, fields, filters, search, and
+sorting. Human views show workspace, occupation, quote, and color; JSON retains
+selected API fields. Capped embedded collections and sorted truncation warn on
+stderr. Delete confirms interactively or requires `--yes` in scripts/JSON mode.
+Record operations use v3; permission/validation failures never retry through v1.
+
 # Development
 
 ## Building
