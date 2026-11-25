@@ -76,6 +76,15 @@ import IdeaOrganizationList from './commands/idea-organization/list';
 import IdeaOrganizationView from './commands/idea-organization/view';
 import IdeaEndorsementList from './commands/idea-endorsement/list';
 import IdeaEndorsementView from './commands/idea-endorsement/view';
+import CustomFieldList from './commands/custom-field/list';
+import CustomFieldView from './commands/custom-field/view';
+import CustomFieldCreate from './commands/custom-field/create';
+import CustomFieldEdit from './commands/custom-field/edit';
+import CustomFieldOptionList from './commands/custom-field-option/list';
+import CustomFieldOptionView from './commands/custom-field-option/view';
+import CustomFieldOptionCreate from './commands/custom-field-option/create';
+import CustomFieldOptionEdit from './commands/custom-field-option/edit';
+import CustomFieldOptionDelete from './commands/custom-field-option/delete';
 import CompetitorCreate from './commands/competitor/create';
 import CompetitorList from './commands/competitor/list';
 import CompetitorView from './commands/competitor/view';
@@ -152,6 +161,15 @@ const COMMANDS: Record<string, CommandClass> = {
   'idea-organization:view': IdeaOrganizationView,
   'idea-endorsement:list': IdeaEndorsementList,
   'idea-endorsement:view': IdeaEndorsementView,
+  'custom-field:list': CustomFieldList,
+  'custom-field:view': CustomFieldView,
+  'custom-field:create': CustomFieldCreate,
+  'custom-field:edit': CustomFieldEdit,
+  'custom-field-option:list': CustomFieldOptionList,
+  'custom-field-option:view': CustomFieldOptionView,
+  'custom-field-option:create': CustomFieldOptionCreate,
+  'custom-field-option:edit': CustomFieldOptionEdit,
+  'custom-field-option:delete': CustomFieldOptionDelete,
   'competitor:create': CompetitorCreate,
   'competitor:list': CompetitorList,
   'competitor:view': CompetitorView,
@@ -217,6 +235,13 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   'key-result': {
     description:
       'Manage key results with API v3 (requires Enterprise+ capability)',
+  },
+  'custom-field': {
+    description:
+      'Manage custom field definitions (separate from record values)',
+  },
+  'custom-field-option': {
+    description: 'Manage choices belonging to custom field definitions',
   },
   'idea-endorsement': {
     description: 'Inspect idea support and linked records (read-only)',
