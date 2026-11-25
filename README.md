@@ -811,6 +811,33 @@ record URL; JSON retains selected API fields. Capped embeds and sorted truncatio
 warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
 Record operations use v3; API failures never retry through v1.
 
+## Idea endorsements (read-only)
+
+```sh
+aha idea-endorsement list --search 'Onboarding' --json
+aha idea-endorsement list --filters '{"eq[idea.id]":"123","gte[weight]":"2"}' --sort value --descending --json
+aha idea-endorsement list --filters '{"eq[idea_organization.id]":"456","contains[contributor.email]":"example.com"}' --json
+aha idea-endorsement view 789
+aha idea-endorsement view 789 --fields 'default,description,weight,value,idea,idea_organization,contributor,custom_fields,created_at,updated_at' --json
+```
+
+Inspect existing support for ideas using the published GET-only API v3 endpoints.
+Endorsements have numeric IDs, not reference numbers. Linked ideas and organizations
+retain their own references. Human lists show the linked idea title, weight, value,
+contributor and organization; views also render descriptions as readable text.
+Weight and value remain separate values, including zero; no currency or total vote
+count is inferred from them. The current API formats value as an integer, so
+fractional stored values are not returned. Missing optional associations are handled without
+inventing a linked record.
+
+`--search` filters linked idea titles through `idea.name`. Other supported filters
+include endorsement ID, weight/value, timestamps, and available nested idea,
+organization and contributor fields. `--fields` selects metadata, custom fields
+and associations; `--json` preserves their original representation and HTML.
+Lists use the shared cursor pagination, sort/filter options and truncation warnings.
+Account and linked-record permissions apply. This command cannot cast votes,
+create/delete endorsements, or change their weight, value, or relationships.
+
 ## Idea organizations (read-only)
 
 ```sh

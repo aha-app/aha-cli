@@ -74,6 +74,8 @@ import IdeaUserList from './commands/idea-user/list';
 import IdeaUserView from './commands/idea-user/view';
 import IdeaOrganizationList from './commands/idea-organization/list';
 import IdeaOrganizationView from './commands/idea-organization/view';
+import IdeaEndorsementList from './commands/idea-endorsement/list';
+import IdeaEndorsementView from './commands/idea-endorsement/view';
 import CompetitorCreate from './commands/competitor/create';
 import CompetitorList from './commands/competitor/list';
 import CompetitorView from './commands/competitor/view';
@@ -148,6 +150,8 @@ const COMMANDS: Record<string, CommandClass> = {
   'idea-user:view': IdeaUserView,
   'idea-organization:list': IdeaOrganizationList,
   'idea-organization:view': IdeaOrganizationView,
+  'idea-endorsement:list': IdeaEndorsementList,
+  'idea-endorsement:view': IdeaEndorsementView,
   'competitor:create': CompetitorCreate,
   'competitor:list': CompetitorList,
   'competitor:view': CompetitorView,
@@ -213,6 +217,9 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
   'key-result': {
     description:
       'Manage key results with API v3 (requires Enterprise+ capability)',
+  },
+  'idea-endorsement': {
+    description: 'Inspect idea support and linked records (read-only)',
   },
   'idea-organization': {
     description: 'Inspect idea organizations (read-only)',
