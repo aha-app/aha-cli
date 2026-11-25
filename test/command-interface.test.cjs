@@ -18,11 +18,12 @@ const keyResult = {...feature, id: '107', reference_num: 'CLI-G-1-KR-1', html_ur
 const persona = {id: '106', reference_num: 'CLI-P-1', name: feature.name, html_url: 'https://example.test/personas/CLI-P-1'};
 const competitor = {id: '105', reference_num: 'CLI-C-1', name: feature.name, html_url: 'https://example.test/competitors/CLI-C-1'};
 const idea = {...feature, id: '104', reference_num: 'CLI-I-1', html_url: 'https://example.test/ideas/CLI-I-1'};
+const lookups = {'idea-portal': {id: '103', name: feature.name}, 'portal-user': {id: '102', name: feature.name}, 'idea-user': {id: '101', name: feature.name}};
 const records = { competitor, persona, 'key-result': keyResult, initiative, goal, workspace, feature, requirement, epic, release, 'release-phase': phase, iteration, todo };
 const parents = { competitor: ['--workspace','123'], persona: ['--workspace','123'], 'key-result': ['--goal','123'], initiative: ['--workspace','123'], goal: ['--workspace','123'], workspace: ['--prefix', 'CLI'], feature: ['--release', '123'], requirement: ['--feature', '123'], epic: ['--workspace', '123'], release: ['--workspace', '123'], 'release-phase': ['--release', '123', '--type', 'phase'], iteration: ['--workspace', '123'], todo: [] };
 
 test('record lists share the bare-array JSON contract', async t => {
-  for (const [resource, record] of Object.entries({...records, idea, comment, tag})) {
+  for (const [resource, record] of Object.entries({...records, ...lookups, idea, comment, tag})) {
     const { dir } = await setup(t, req => req.url === '/api/v1/me' ? {user: {id: '123'}} : {records: [record], pagination: {has_more: false, next_cursor: null}});
     const result = await run(dir, [resource, 'list', '--json']);
     assert.equal(result.code, 0, result.stderr);
@@ -31,13 +32,13 @@ test('record lists share the bare-array JSON contract', async t => {
 });
 
 test('record lists share aligned headers and single-line rows', async t => {
-  for (const [resource, record] of Object.entries({...records, idea, comment, tag})) {
+  for (const [resource, record] of Object.entries({...records, ...lookups, idea, comment, tag})) {
     const { dir } = await setup(t, req => req.url === '/api/v1/me' ? {user: {id: '123'}} : {records: [record], pagination: {has_more: false, next_cursor: null}});
     const result = await run(dir, [resource, 'list']);
     assert.equal(result.code, 0, result.stderr);
     const lines = result.stdout.trimEnd().split('\n');
     assert.equal(lines.length, 2);
-    assert.deepEqual(lines[0].split(/\s+/), resource === 'tag' ? ['ID', 'STATE', 'TYPE', 'COLOR', 'TITLE'] : resource === 'comment' ? ['ID', 'STATE', 'RECORD', 'REPLY-TO', 'TITLE'] : resource === 'workspace' ? ['ID', 'STATE', 'PREFIX', 'TYPE', 'PARENT', 'TITLE'] : resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
+    assert.deepEqual(lines[0].split(/\s+/), resource === 'portal-user' ? ['ID', 'STATE', 'EMAIL', 'PORTAL', 'IDEA-USER', 'TITLE'] : resource === 'idea-user' ? ['ID', 'STATE', 'EMAIL', 'TITLE'] : resource === 'tag' ? ['ID', 'STATE', 'TYPE', 'COLOR', 'TITLE'] : resource === 'comment' ? ['ID', 'STATE', 'RECORD', 'REPLY-TO', 'TITLE'] : resource === 'workspace' ? ['ID', 'STATE', 'PREFIX', 'TYPE', 'PARENT', 'TITLE'] : resource === 'todo' ? ['ID', 'DUE', 'STATE', 'TITLE'] : ['ID', 'STATE', 'TITLE']);
     assert.equal(lines[0].indexOf('TITLE'), lines[1].indexOf('A title'));
     assert.match(lines[1], /A title with spacing$/);
     if (resource === 'iteration') assert.match(lines[1], /planning/);

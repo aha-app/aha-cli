@@ -811,6 +811,46 @@ record URL; JSON retains selected API fields. Capped embeds and sorted truncatio
 warn on stderr. Delete confirms interactively or requires `--yes` in scripts/JSON.
 Record operations use v3; API failures never retry through v1.
 
+## Idea portals and users (read-only)
+
+```sh
+aha idea-portal list --search "Customer" --json
+aha idea-portal view 123 --fields 'default,external_url,access,enabled,projects'
+aha idea-user list --search 'customer@example.com' --json
+aha idea-user list --filters '{"contains[first_name]":"Alex"}' --json
+aha idea-user view 456 --fields 'default,portal_users,custom_fields' --json
+aha portal-user list --filters '{"eq[idea_portal.id]":"123","eq[idea_user.id]":"456"}' --json
+aha portal-user view 789
+```
+
+These are three distinct API v3 resources: an idea portal, an idea user (a person),
+and a portal user (that person's membership in one portal). Single-record lookups
+require numeric IDs; these resources have no reference numbers. Membership views
+show the linked portal and idea-user IDs, permissions, enabled/verified status and
+subscription settings. Portal views distinguish the customer-facing portal URL
+from its Aha settings URL and API URL.
+
+All three families support `list`, `view`, `--fields`, `--filters`, `--sort`,
+`--descending`, `--per-page`, `--json`, and account selection. Lists follow all
+cursor pages, return bare JSON arrays, and warn on truncated results or capped
+embedded collections. Collection counts in human views say how many are shown,
+not the total. Use `portal-user list` with `eq[idea_user.id]` to retrieve memberships
+beyond a capped idea-user embed. Portals and memberships are restricted to portals
+in workspaces accessible to the selected account user.
+
+`idea-portal list --search` filters portal names. `idea-user list --search` filters email
+addresses; use `contains[first_name]` / `contains[last_name]` filters for names.
+The API cannot directly filter or sort portal memberships by their associated
+person's name or email, so `portal-user list` has no `--search`. Look up an idea
+user first, then filter memberships by `eq[idea_user.id]`. Other supported filters
+include portal `eq[access]` / `eq[enabled]`, and membership `eq[permission]`,
+`eq[enabled]`, `eq[verified]` and `eq[unsubscribed]`. Unsupported API filters or
+sort fields return the API's error.
+
+The published endpoints are GET-only. No invitations, access changes, creation,
+edits, or deletion are exposed. Requested JSON fields and embedded `has_more`
+markers are preserved, including custom fields. Account/API permissions still apply.
+
 ## Ideas (read-only)
 
 ```sh

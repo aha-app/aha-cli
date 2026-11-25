@@ -66,6 +66,12 @@ import KeyResultEdit from './commands/key-result/edit';
 import KeyResultDelete from './commands/key-result/delete';
 import IdeaList from './commands/idea/list';
 import IdeaView from './commands/idea/view';
+import IdeaPortalList from './commands/idea-portal/list';
+import IdeaPortalView from './commands/idea-portal/view';
+import PortalUserList from './commands/portal-user/list';
+import PortalUserView from './commands/portal-user/view';
+import IdeaUserList from './commands/idea-user/list';
+import IdeaUserView from './commands/idea-user/view';
 import CompetitorCreate from './commands/competitor/create';
 import CompetitorList from './commands/competitor/list';
 import CompetitorView from './commands/competitor/view';
@@ -132,6 +138,12 @@ const COMMANDS: Record<string, CommandClass> = {
   'key-result:delete': KeyResultDelete,
   'idea:list': IdeaList,
   'idea:view': IdeaView,
+  'idea-portal:list': IdeaPortalList,
+  'idea-portal:view': IdeaPortalView,
+  'portal-user:list': PortalUserList,
+  'portal-user:view': PortalUserView,
+  'idea-user:list': IdeaUserList,
+  'idea-user:view': IdeaUserView,
   'competitor:create': CompetitorCreate,
   'competitor:list': CompetitorList,
   'competitor:view': CompetitorView,
@@ -199,6 +211,9 @@ const TOPICS: Record<string, { description: string; default?: string }> = {
       'Manage key results with API v3 (requires Enterprise+ capability)',
   },
   idea: { description: 'Inspect ideas with API v3 (read-only)' },
+  'idea-portal': { description: 'Look up idea portals (read-only)' },
+  'portal-user': { description: 'Look up portal memberships (read-only)' },
+  'idea-user': { description: 'Look up idea users (read-only)' },
   competitor: { description: 'Manage workspace competitors with API v3' },
   persona: { description: 'Manage workspace personas with API v3' },
   goal: { description: 'Manage workspace goals with API v3' },
