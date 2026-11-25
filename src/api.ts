@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+import { parseJSONWithStringIds } from './lib/json-ids';
 
 interface IConfig {
   baseURL: string;
@@ -85,7 +86,7 @@ class AhaAPI {
       const errorText = await response.text();
       let parsedBody: unknown;
       try {
-        parsedBody = JSON.parse(errorText);
+        parsedBody = parseJSONWithStringIds(errorText);
       } catch {
         // ignore JSON parse errors
       }
@@ -101,7 +102,7 @@ class AhaAPI {
       response.status === 204
         ? null
         : contentType.includes('json')
-        ? await response.json()
+        ? parseJSONWithStringIds(await response.text())
         : await response.text();
 
     return { body: responseBody, response };

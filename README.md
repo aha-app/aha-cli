@@ -664,6 +664,53 @@ sorted-result truncation produce warnings. Interactive deletion confirms first;
 scripts/JSON require `--yes`. API permission and validation failures return a
 nonzero exit without retrying through v1.
 
+## Initiatives
+
+```sh
+aha initiative create --workspace CLI --title "Modernize the platform" --owner @me --body "Improve delivery" --start-date 2026-12-01 --end-date 2027-03-31 --duration-source manual --progress-source manual --progress 25
+aha initiative list --workspace CLI --filters '{"eq[progress_source]":"manual"}' --json
+aha initiative view CLI-S-1
+aha initiative edit CLI-S-1 --initial-estimate 12 --remaining-estimate 8 --work-done 4
+aha initiative edit CLI-S-1 --input initiative-update.json --json
+aha initiative delete CLI-S-1 --yes
+```
+
+Create requires an explicit workspace ID/prefix and title. Lists follow all cursor
+pages and support workspace scope, fields, filters, search and sorting. Single-record
+actions accept IDs or initiative references. Edits preserve omitted fields and
+cannot change the workspace. Use public progress/duration source names and set
+`manual` explicitly when entering manual values. Dates can change the API's date
+calculation mode; the API applies its own estimate/score calculations.
+
+Flags expose owner/status, dates, timeframe/time code, estimates, progress/source,
+duration source, score, effort/value, position and color. JSON `--input` (file or
+`-` for stdin) accepts all published writable fields: `name`, HTML `description`,
+`start_date`, `end_date`, `position`, `progress_source`, `duration_source`, `progress`,
+`score`, `color`, `initial_estimate`, `detailed_estimate`, `remaining_estimate`,
+`work_done`, `effort`, `value`, `status_id`, `assigned_to_user_id`, `time_frame_id`,
+`time_code_id`, `score_facts`, `custom_fields`, `watchers`, and create-only `project_id`.
+Time codes require the account's timesheet capability; they are omitted from default
+field selection. Read-only parent/goals associations cannot be written here.
+
+Score facts use item patches, identified by `scoring_system_metric_id`: an item
+with `value` sets that metric, `_destroy: true` removes it, omitted metrics remain
+untouched, and an empty array changes nothing. Watchers use the same add/remove
+semantics with `id`. For example:
+
+```json
+{"score_facts":[{"scoring_system_metric_id":"123456789","value":4}],"watchers":[{"id":"987654321"}]}
+```
+
+IDs must stay strings. The shared API client preserves numeric identifier tokens
+as strings before parsing, including large metric IDs in score-fact responses;
+estimates, scores and other values remain numbers. Body HTML is preserved in JSON
+and rendered readably for humans. Capped embeds and sorted truncation warn on stderr.
+Use `assigned_to_user_id: null` in JSON input to clear the owner.
+Owner `@me` reuses the existing `/api/v1/me` current-user lookup because v3 exposes
+users only by ID; record operations use v3. Workflow status/timeframe IDs must be
+accessible to the account; inspect current records or workspace configuration.
+Delete confirms interactively or requires `--yes` in scripts/JSON mode.
+
 # Development
 
 ## Building
