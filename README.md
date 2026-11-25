@@ -626,6 +626,44 @@ IDs take precedence if both are supplied. An empty `tags` array changes nothing.
 Deleting a tag is separate from removing an association: detach it from every
 record before attempting deletion. Omitted and unrelated tags remain attached.
 
+## Goals
+
+```sh
+aha goal create --workspace CLI --title "Improve retention" --body "Keep customers" --progress-source manual --progress 25 --effort 35 --value 85
+aha goal list --workspace CLI --filters '{"eq[progress_source]":"manual"}' --json
+aha goal view CLI-G-1
+aha goal edit CLI-G-1 --status 123456789 --time-frame 987654321 --success-metric-name "Renewals"
+aha goal edit CLI-G-1 --input goal-update.json --json
+aha goal delete CLI-G-1 --yes
+```
+
+Create requires an explicit workspace ID/prefix and a title. Lists can be scoped
+by `--workspace` and follow every cursor page; field selection, filters, sorting
+and search share the standard CLI behavior. View/edit/delete accept an ID or goal
+reference. Edits preserve omitted fields and cannot move a goal to another workspace.
+Use `--progress-source manual` when entering manual progress; calculated sources
+use the public API names such as `from_features` and `from_key_results`.
+
+Flags cover title, plain-text body, status/timeframe IDs, success metric name,
+progress/source, integer effort/value (0–100), position and color. Structured
+`--input` (file or `-` for stdin) supports all published writable fields:
+`name`, `position`, `color`, `effort`, `value`, `progress`, `progress_source`,
+`status_id`, `time_frame_id`, HTML `description`, `success_metric_name`, HTML
+`success_metric_description`, and `custom_fields`, plus `project_id` on create.
+IDs must remain strings. Status/timeframe flags take IDs; inspect existing goals
+with `--fields default,status,time_frame,project` to identify their current IDs.
+The API validates status workflow and timeframe access. Its status lookup requires
+account-owned workflow statuses; global/default status IDs can be rejected. A
+fresh `goal view` confirms saved assignments because the current create response
+can contain stale association embeds. Read-only associations
+such as features, rollup goals and key results cannot be written through goal input.
+
+Human output renders goal and metric descriptions as text; JSON preserves HTML
+and selected metadata. Request associations with `--fields`; capped embeds and
+sorted-result truncation produce warnings. Interactive deletion confirms first;
+scripts/JSON require `--yes`. API permission and validation failures return a
+nonzero exit without retrying through v1.
+
 # Development
 
 ## Building
